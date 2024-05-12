@@ -50,6 +50,12 @@ app.whenReady().then(() => {
 		optimizer.watchWindowShortcuts(window);
 	});
 
+	// IPC test
+	ipcMain.on("generate-index", () => {
+		console.log("generating index...");
+		writeFileSync("test.txt", "test");
+	});
+
 	createWindow();
 
 	app.on("activate", function () {
@@ -70,5 +76,3 @@ app.on("window-all-closed", () => {
 
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.
-// IPC test
-ipcMain.on("generate-index", () => writeFileSync("test.txt", "test"));
