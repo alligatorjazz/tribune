@@ -1,6 +1,5 @@
 export function App(): JSX.Element {
-	const saveFileHandle = (): void => window.api.generateIndex();
-	console.log(window.api);
+	const saveFileHandle = (): void => window.api.createSite("Testy Test");
 	return (
 		<>
 			<h1>hey, guy!</h1>

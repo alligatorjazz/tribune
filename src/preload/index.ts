@@ -1,10 +1,6 @@
-import { contextBridge, ipcRenderer } from "electron";
 import { electronAPI } from "@electron-toolkit/preload";
-
-// Custom APIs for renderer
-const api = {
-	generateIndex: (): void => ipcRenderer.send("generate-index")
-};
+import { contextBridge } from "electron";
+import { api } from "./api";
 
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
@@ -17,8 +13,8 @@ if (process.contextIsolated) {
 		console.error(error);
 	}
 } else {
-	// @ts-ignore (define in dts)
+	// @ts-ignore - define in d.ts
 	window.electron = electronAPI;
-	// @ts-ignore (define in dts)
+	// @ts-ignore - define in d.ts
 	window.api = api;
 }

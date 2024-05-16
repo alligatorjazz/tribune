@@ -2,7 +2,7 @@ import { app, shell, BrowserWindow, ipcMain } from "electron";
 import { join } from "path";
 import { electronApp, optimizer, is } from "@electron-toolkit/utils";
 import icon from "../../resources/icon.png?asset";
-import { writeFileSync } from "fs";
+import { createSite } from "./sites";
 
 function createWindow(): void {
 	// Create the browser window.
@@ -51,9 +51,8 @@ app.whenReady().then(() => {
 	});
 
 	// IPC test
-	ipcMain.on("generate-index", () => {
-		console.log("generating index...");
-		writeFileSync("test.txt", "test");
+	ipcMain.on("create-site", (_event, siteTitle: string) => {
+		createSite(siteTitle);
 	});
 
 	createWindow();
