@@ -1,13 +1,15 @@
+import chokidar from "chokidar";
 import express, { Application, Request, Response } from "express";
-import { mkdirSync, readFileSync, readdirSync, watch, writeFileSync } from "fs";
 import { IncomingMessage, Server, ServerResponse } from "http";
-import { JSDOM } from "jsdom";
 import { basename, dirname, extname, join } from "path";
 import { DIR } from "./refs";
+import { readFileSync, mkdirSync, writeFileSync } from "fs";
+import { JSDOM } from "jsdom";
 import { autoReload } from "./scripts/autoReload";
 
 let server: Server<typeof IncomingMessage, typeof ServerResponse> | null = null;
-let reload = false;
+let watcher: chokidar.FSWatcher | null = null;
+export let reload = false;
 
 // returns a path to new version of an html file with dev scripts attached
 function attachDevScripts(path: string): string {
@@ -26,31 +28,23 @@ function attachDevScripts(path: string): string {
 	script.innerHTML = `${autoReload.toString()}\n${autoReload.name}()`;
 	document.body.appendChild(script);
 
-	// save modified file in cache folder
-	const outputPath = join(DIR.Cache, basename(path));
-	mkdirSync(dirname(outputPath), { recursive: true });
-	writeFileSync(outputPath, dom.serialize());
-	return outputPath;
+	// return serialized dom
+	return dom.serialize();
 }
 
-export function startServer(siteName: string) {
+export function startServer(siteName: string, reloadCallback: () => void) {
 	console.log("starting server...");
 	const siteDir = join(DIR.Sites, siteName);
 	const app: Application = express();
 
 	// serve index.html at the root
 	app.get("/", (_req: Request, res: Response) => {
-		res.sendFile(attachDevScripts(join(siteDir, "index.html")));
-	});
-
-	app.get("/devhook", (_, res) => {
-		res.send({ reload });
-		if (reload) {
-			reload = false;
-		}
+		res.send(attachDevScripts(join(siteDir, "index.html")));
 	});
 
 	// TODO: add autoreload through server endpt & autoreload script
+	// TODO: allow for custom port
+
 	// Start the server on a specified port
 	const port = process.env.PORT || 3000;
 	console.log("starting server...");
@@ -59,17 +53,21 @@ export function startServer(siteName: string) {
 		console.log(`Server is running on http://localhost:${port}`);
 	});
 
-	watch(siteDir, () => {
+	watcher = chokidar.watch(siteDir).on("all", () => {
 		console.log("change detected: queuing autoreload");
-		setReload(true);
+		reloadCallback();
 	});
 }
 
-export function stopServer() {
+export async function stopServer() {
 	console.log("stopping server...");
 	if (server) {
 		server.close();
 		server = null;
+	}
+
+	if (watcher) {
+		return watcher.close();
 	}
 }
 

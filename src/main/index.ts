@@ -5,7 +5,7 @@ import icon from "../../resources/icon.png?asset";
 import { createSite } from "./sites";
 import { startServer, stopServer } from "./server";
 
-function createWindow(): void {
+function createWindow() {
 	// Create the browser window.
 	const mainWindow = new BrowserWindow({
 		width: 900,
@@ -35,6 +35,8 @@ function createWindow(): void {
 	} else {
 		mainWindow.loadFile(join(__dirname, "../renderer/index.html"));
 	}
+
+	return mainWindow;
 }
 
 // This method will be called when Electron has finished
@@ -51,17 +53,16 @@ app.whenReady().then(() => {
 		optimizer.watchWindowShortcuts(window);
 	});
 
+	const appWindow = createWindow();
 	// IPC test
 	ipcMain.handle("create-site", (_event, siteTitle: string) => {
 		createSite(siteTitle);
 	});
 	ipcMain.handle("start-server", (_event, siteTitle: string) => {
-		startServer(siteTitle);
+		startServer(siteTitle, () => appWindow.webContents.send("auto-reload"));
 	});
 	ipcMain.handle("stop-server", stopServer);
 	// ipcMain.handle("auto-reload", autoReload);
-
-	createWindow();
 
 	app.on("activate", function () {
 		// On macOS it's common to re-create a window in the app when the

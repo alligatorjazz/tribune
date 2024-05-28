@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { PreviewFrame } from "./components/PreviewFrame";
 
 export function App(): JSX.Element {
