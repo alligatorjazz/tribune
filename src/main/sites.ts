@@ -1,6 +1,7 @@
 import { mkdirSync, writeFileSync } from "fs";
 import path from "path";
 import { JSDOM } from "jsdom";
+import { DIR } from "./refs";
 
 const PAGE_BOILERPLATE = `
 <!DOCTYPE html>
@@ -15,7 +16,6 @@ const PAGE_BOILERPLATE = `
 </html>
 `.trim();
 
-const sitesDirectory = "./sandbox/sites";
 export function createSite(siteTitle: string): void {
 	console.log("creating site...");
 
@@ -28,12 +28,17 @@ export function createSite(siteTitle: string): void {
 	title.innerHTML = siteTitle;
 	document.head.appendChild(title);
 
+	// TEST: create h1
+	const header = document.createElement("h1");
+	header.innerHTML = siteTitle;
+	document.body.appendChild(header);
+
 	// create sites directory if doesn't exist
-	mkdirSync(path.join(sitesDirectory, siteTitle), { recursive: true });
+	mkdirSync(path.join(DIR.Sites, siteTitle), { recursive: true });
 
 	// write index.html to sites directory
 	writeFileSync(
-		path.join(sitesDirectory, siteTitle, "index.html"),
+		path.join(DIR.Sites, siteTitle, "index.html"),
 		document.documentElement.innerHTML
 	);
 }

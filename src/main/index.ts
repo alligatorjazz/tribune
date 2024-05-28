@@ -3,6 +3,7 @@ import { join } from "path";
 import { electronApp, optimizer, is } from "@electron-toolkit/utils";
 import icon from "../../resources/icon.png?asset";
 import { createSite } from "./sites";
+import { startServer, stopServer } from "./server";
 
 function createWindow(): void {
 	// Create the browser window.
@@ -51,9 +52,14 @@ app.whenReady().then(() => {
 	});
 
 	// IPC test
-	ipcMain.on("create-site", (_event, siteTitle: string) => {
+	ipcMain.handle("create-site", (_event, siteTitle: string) => {
 		createSite(siteTitle);
 	});
+	ipcMain.handle("start-server", (_event, siteTitle: string) => {
+		startServer(siteTitle);
+	});
+	ipcMain.handle("stop-server", stopServer);
+	// ipcMain.handle("auto-reload", autoReload);
 
 	createWindow();
 

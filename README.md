@@ -1,4 +1,4 @@
-# tribune-aquila
+# tribune
 
 An Electron application with React and TypeScript
 

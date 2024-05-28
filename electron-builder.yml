@@ -1,5 +1,5 @@
-appId: com.electron.app
-productName: tribune-aquila
+appId: com.tribune.app
+productName: Tribune
 directories:
   buildResources: build
 files:
@@ -12,7 +12,7 @@ files:
 asarUnpack:
   - resources/**
 win:
-  executableName: tribune-aquila
+  executableName: tribune
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
