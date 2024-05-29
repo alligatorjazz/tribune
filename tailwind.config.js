@@ -5,10 +5,10 @@ module.exports = {
 	theme: {
 		extend: {
 			colors: {
-				bgColor: "rgb(var(--bg-color) / <alpha-value>)",
-				fgColor: "rgb(var(--fg-color) / <alpha-value>)",
-				textColor: "rgb(var(--text-color) / <alpha-value>)",
-				accentColor: "rgb(var(--accent-color) / <alpha-value>)"
+				bgColor: "var(--bg-color)",
+				fgColor: "var(--fg-color)",
+				textColor: "var(--text-color)",
+				accentColor: "var(--accent-color)"
 			}
 		}
 	},
