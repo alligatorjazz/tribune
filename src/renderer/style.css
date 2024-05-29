@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	:root {
+		/* CSS RGB */
+		--onyx: rgb(54, 57, 59);
+		--battleship-gray: rgb(136, 137, 138);
+		--platinum: rgb(218, 217, 217);
+		--ruddy-blue: rgb(88, 163, 225);
+
+		/* CSS RGB */
+		--linen: rgb(250, 242, 234);
+		--dun: rgb(211, 197, 183);
+	}
+
+	html {
+		--bg-color: var(--linen);
+		--fg-color: var(--dun);
+		--text-color: var(--onyx);
+		--accent-color: var(--ruddy-blue)
+	}
+	
+	html.dark {
+		--bg-color: var(--onyx);
+		--fg-color: var(--battleship-gray);
+		--text-color: var(--platinum);
+		--accent-color: var(--ruddy-blue)
+	}
+	
+	#root {
+		width: 100dvw;
+		height: 100dvh;
+		color: var(--text-color);
+		background-color: var(--bg-color);
+	}
+	
+	a {
+		color: var(--accent-color)
+	}
+	
+	button {
+		background-color: var(--accent-color);
+	}
+}
+

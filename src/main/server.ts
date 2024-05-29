@@ -1,10 +1,10 @@
 import chokidar from "chokidar";
 import express, { Application, Request, Response } from "express";
+import { readFileSync } from "fs";
 import { IncomingMessage, Server, ServerResponse } from "http";
-import { basename, dirname, extname, join } from "path";
-import { DIR } from "./refs";
-import { readFileSync, mkdirSync, writeFileSync } from "fs";
 import { JSDOM } from "jsdom";
+import { extname, join } from "path";
+import { DIR } from "./refs";
 import { autoReload } from "./scripts/autoReload";
 
 let server: Server<typeof IncomingMessage, typeof ServerResponse> | null = null;

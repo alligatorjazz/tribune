@@ -1,24 +1,23 @@
-import { useState } from "react";
-import { PreviewFrame } from "./components/PreviewFrame";
+import { useEffect, useState } from "react";
+import { Sidebar } from "./components/Sidebar";
 
 export function App(): JSX.Element {
-	const siteTitle = "Testy Test";
-	const [showPreview, setShowPreview] = useState(false);
-	console.log(`preview: ${showPreview}`);
+	const [theme, setTheme] = useState<"light" | "dark">("dark");
+	useEffect(() => {
+		document.documentElement.className = theme;
+	}, [theme]);
+
 	return (
-		<main>
-			<h1>hey, guy!</h1>
-			<button onClick={() => window.api.createSite(siteTitle)}>create site</button>
-			<button
-				onClick={() => {
-					window.api.startServer(siteTitle);
-					setShowPreview(true);
-				}}
-			>
-				start server
-			</button>
-			<button onClick={() => window.api.stopServer()}>stop server</button>
-			{showPreview && <PreviewFrame />}
-		</main>
+		<div className="w-full h-full flex">
+			<Sidebar />
+			<main>
+				<button
+					className="p-4 bg-fgColor"
+					onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+				>
+					Change Theme
+				</button>
+			</main>
+		</div>
 	);
 }
