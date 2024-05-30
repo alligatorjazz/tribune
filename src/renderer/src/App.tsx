@@ -13,10 +13,10 @@ export function App(): JSX.Element {
 	return (
 		<AppContext.Provider value={{ theme, setTheme }}>
 			<div className="w-full h-full flex">
-				<Sidebar />
-				<main className="p-4">
+				<Sidebar className="flex-0" />
+				<div className="flex-1">
 					<Outlet />
-				</main>
+				</div>
 			</div>
 		</AppContext.Provider>
 	);

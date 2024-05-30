@@ -23,6 +23,7 @@
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.0",
     "@electron-toolkit/utils": "^3.0.0",
+    "@faker-js/faker": "^8.4.1",
     "chokidar": "^3.6.0",
     "electron-updater": "^6.1.7",
     "eslint-plugin-react-hooks": "^4.6.2",
