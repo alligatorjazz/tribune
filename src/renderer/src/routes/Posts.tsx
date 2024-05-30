@@ -37,7 +37,8 @@ export function Posts() {
 				className="
 				bg-fgColor flex flex-col 
 				rounded-b-sm gap-4  
-				max-h-[70vh] overflow-y-auto
+				max-h-[65vh] overflow-y-auto mb-4
+				
 			"
 			>
 				{listedPosts.map((post) => (
@@ -57,6 +58,9 @@ export function Posts() {
 					</li>
 				))}
 			</ul>
+			<div className="flex justify-end">
+				<button className="px-4 py-2">+ New Post</button>
+			</div>
 		</ModuleLayout>
 	);
 }

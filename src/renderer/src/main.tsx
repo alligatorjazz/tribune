@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { App } from "./App";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import { Dashboard } from "./routes/Dashboard";
+import { Preview } from "./routes/Preview";
 import { Posts } from "./routes/Posts";
 import { Settings } from "./routes/Settings";
 
@@ -11,7 +11,7 @@ const router = createBrowserRouter([
 		path: "/",
 		element: <App />,
 		children: [
-			{ index: true, element: <Dashboard /> },
+			{ index: true, element: <Preview /> },
 			{ path: "posts", element: <Posts /> },
 			{ path: "settings", element: <Settings /> }
 		]

@@ -11,5 +11,19 @@ export function PreviewFrame() {
 		});
 	}, []);
 
-	return <iframe ref={frame} src="http://localhost:3000" title="Site Preview"></iframe>;
+	// unset all iframe styles
+	// useEffect(() => {
+	// 	if (frame.current) {
+	// 		frame.current.style.all = "unset";
+	// 	}
+	// }, []);
+
+	return (
+		<iframe
+			className="w-full h-full"
+			ref={frame}
+			src="http://localhost:3000"
+			title="Site Preview"
+		></iframe>
+	);
 }

@@ -6,6 +6,7 @@ import { JSDOM } from "jsdom";
 import { extname, join } from "path";
 import { DIR } from "./refs";
 import { autoReload } from "./scripts/autoReload";
+import { app } from "electron";
 
 let server: Server<typeof IncomingMessage, typeof ServerResponse> | null = null;
 let watcher: chokidar.FSWatcher | null = null;
@@ -23,7 +24,13 @@ function attachDevScripts(path: string): string {
 	const dom = new JSDOM(readFileSync(path));
 	const document = dom.window.document;
 
-	// load autoreload script as string
+	// loads default.css
+	const defaultCSS = readFileSync(join(app.getAppPath(), "resources", "default.css"));
+	const styleElement = document.createElement("style");
+	styleElement.appendChild(document.createTextNode(defaultCSS.toString()));
+	document.head.appendChild(styleElement);
+
+	// loads autoreload script
 	const script = document.createElement("script");
 	script.innerHTML = `${autoReload.toString()}\n${autoReload.name}()`;
 	document.body.appendChild(script);
@@ -47,23 +54,32 @@ export function startServer(siteName: string, reloadCallback: () => void) {
 
 	// Start the server on a specified port
 	const port = process.env.PORT || 3000;
-	console.log("starting server...");
-	server?.close();
-	app.listen(port, () => {
-		console.log(`Server is running on http://localhost:${port}`);
-	});
+	console.log("waiting for previous server to close...");
+	const startup = () => {
+		console.log("starting server...");
+		server = app.listen(port, () => {
+			console.log(`Server is running on http://localhost:${port}`);
+		});
 
-	watcher = chokidar.watch(siteDir).on("all", () => {
-		console.log("change detected: queuing autoreload");
-		reloadCallback();
-	});
+		watcher = chokidar.watch(siteDir).on("all", () => {
+			console.log("change detected: queuing autoreload");
+			reloadCallback();
+		});
+	};
+	if (server) {
+		server.close(startup);
+	} else {
+		startup();
+	}
 }
 
 export async function stopServer() {
 	console.log("stopping server...");
 	if (server) {
-		server.close();
-		server = null;
+		server.close(() => {
+			server = null;
+			console.log("server stopped.");
+		});
 	}
 
 	if (watcher) {

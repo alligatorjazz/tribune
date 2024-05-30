@@ -26,23 +26,25 @@
 		--accent-color: var(--aquamarine)
 	}
 
-	#root {
-		width: 100dvw;
-		height: 100dvh;
-		color: var(--text-color);
-		background-color: var(--bg-color);
-	}
+	
+}
 
-	p > a {
-		color: var(--accent-color)
-	}
+#root {
+	width: 100dvw;
+	height: 100dvh;
+	color: var(--text-color);
+	background-color: var(--bg-color);
+}
 
-	button {
-		color: white;
-		background-color: var(--accent-color);
-	}
+p > a {
+	color: var(--accent-color)
+}
 
-	* {
-		transition: all 0.2s;
-	}
+button {
+	color: white;
+	background-color: var(--accent-color);
+}
+
+* {
+	transition: all 0.2s;
 }
