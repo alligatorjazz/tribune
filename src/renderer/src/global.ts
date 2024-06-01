@@ -3,3 +3,5 @@ export const topLevelNav: { title: string; route: string }[] = [
 	{ title: "Posts", route: "/posts" },
 	{ title: "Settings", route: "/settings" }
 ];
+
+export const devURL = "http://localhost:3000";

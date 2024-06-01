@@ -32,3 +32,5 @@ export interface FormResponse {
 	response: string;
 	submittedAt: Date;
 }
+
+export type ConnectionStatus = "disconnected" | "loading" | "connected";

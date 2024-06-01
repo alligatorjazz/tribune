@@ -1,6 +1,6 @@
-import { useAppContext } from "../App.lib";
 import { PreviewFrame } from "../components/PreviewFrame";
+import { devURL } from "../global";
 
 export function Preview() {
-	return <PreviewFrame />;
+	return <PreviewFrame url={devURL} />;
 }

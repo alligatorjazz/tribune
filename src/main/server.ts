@@ -1,4 +1,5 @@
 import chokidar from "chokidar";
+import cors from "cors";
 import express, { Application, Request, Response } from "express";
 import { readFileSync } from "fs";
 import { IncomingMessage, Server, ServerResponse } from "http";
@@ -6,7 +7,7 @@ import { JSDOM } from "jsdom";
 import { extname, join } from "path";
 import { DIR } from "./refs";
 import { autoReload } from "./scripts/autoReload";
-import { app } from "electron";
+// import { broadcastStyle } from "./scripts/broadcastStyle";
 
 let server: Server<typeof IncomingMessage, typeof ServerResponse> | null = null;
 let watcher: chokidar.FSWatcher | null = null;
@@ -24,16 +25,18 @@ function attachDevScripts(path: string): string {
 	const dom = new JSDOM(readFileSync(path));
 	const document = dom.window.document;
 
-	// loads default.css
-	const defaultCSS = readFileSync(join(app.getAppPath(), "resources", "default.css"));
+	// loads default css
 	const styleElement = document.createElement("style");
-	styleElement.appendChild(document.createTextNode(defaultCSS.toString()));
+	styleElement.appendChild(document.createTextNode("body { background: white }"));
 	document.head.appendChild(styleElement);
-
-	// loads autoreload script
-	const script = document.createElement("script");
-	script.innerHTML = `${autoReload.toString()}\n${autoReload.name}()`;
-	document.body.appendChild(script);
+	const addScript = (func: () => void) => {
+		const script = document.createElement("script");
+		script.innerHTML = `${func.toString()}\n${func.name}()`;
+		document.body.appendChild(script);
+	};
+	// loads dev scripts
+	addScript(autoReload);
+	// addScript(broadcastStyle);
 
 	// return serialized dom
 	return dom.serialize();
@@ -43,30 +46,31 @@ export function startServer(siteName: string, reloadCallback: () => void) {
 	console.log("starting server...");
 	const siteDir = join(DIR.Sites, siteName);
 	const app: Application = express();
-
+	app.use(cors({ origin: "*" }));
 	// serve index.html at the root
 	app.get("/", (_req: Request, res: Response) => {
 		res.send(attachDevScripts(join(siteDir, "index.html")));
 	});
 
-	// TODO: add autoreload through server endpt & autoreload script
 	// TODO: allow for custom port
-
 	// Start the server on a specified port
 	const port = process.env.PORT || 3000;
-	console.log("waiting for previous server to close...");
+
 	const startup = () => {
 		console.log("starting server...");
 		server = app.listen(port, () => {
 			console.log(`Server is running on http://localhost:${port}`);
 		});
 
-		watcher = chokidar.watch(siteDir).on("all", () => {
-			console.log("change detected: queuing autoreload");
-			reloadCallback();
+		watcher = chokidar.watch(siteDir).on("all", (e, path) => {
+			if (server) {
+				console.log(`change detected (${path}, ${e}): queuing autoreload`);
+				reloadCallback();
+			}
 		});
 	};
 	if (server) {
+		console.log("waiting for previous server to close...");
 		server.close(startup);
 	} else {
 		startup();

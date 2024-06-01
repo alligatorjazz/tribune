@@ -5,7 +5,7 @@ import { useAppContext } from "../App.lib";
 
 export function Sidebar({ className, ...extraProps }: HTMLAttributes<HTMLDivElement>) {
 	const location = useLocation();
-	console.log(location);
+	// console.log(location);
 	const { theme, setTheme } = useAppContext();
 	return (
 		<div className={[className, "h-full bg-fgColor p-4 w-48"].join(" ")} {...extraProps}>
