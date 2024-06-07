@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 import { AppContext } from "./App.lib";
-import { Sidebar } from "./components/Sidebar";
 import { devURL } from "./global";
 import { ConnectionStatus } from "./types";
+import { PreviewFrame } from "./components/PreviewFrame";
 
 export function App(): JSX.Element {
 	const [theme, setTheme] = useState<"light" | "dark">("dark");
@@ -58,9 +58,9 @@ export function App(): JSX.Element {
 	return (
 		<AppContext.Provider value={{ theme, setTheme, connectionStatus }}>
 			<div className="w-full h-full flex">
-				<Sidebar className="flex-0" />
+				<Outlet />
 				<div className="flex-1">
-					<Outlet />
+					<PreviewFrame url={devURL} />
 				</div>
 			</div>
 		</AppContext.Provider>

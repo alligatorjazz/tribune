@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { ModuleLayout } from "../components/ModuleLayout";
+import { SidebarLayout } from "../components/SidebarLayout";
 import dummy from "../dummy";
-import { PostStatus, POST_STATUSES } from "../types";
+import { POST_STATUSES, PostStatus } from "../types";
 
 export function Posts() {
 	const [activeTab, setActiveTab] = useState<PostStatus>("Published");
 	const listedPosts = dummy.blogPosts.filter(({ status }) => status === activeTab);
 	return (
-		<ModuleLayout
+		<SidebarLayout
 			title="Posts"
 			description={"Here's where you can write, schedule, and publish posts on your site."}
 		>
@@ -61,6 +61,6 @@ export function Posts() {
 			<div className="flex justify-end">
 				<button className="px-4 py-2">+ New Post</button>
 			</div>
-		</ModuleLayout>
+		</SidebarLayout>
 	);
 }

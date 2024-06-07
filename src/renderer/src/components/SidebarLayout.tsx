@@ -1,0 +1,32 @@
+import { HTMLAttributes } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { getParentLocation } from "../lib";
+interface Props extends HTMLAttributes<HTMLDivElement> {
+	title: string;
+	description: string;
+}
+
+export function SidebarLayout({ title, description, className, children, ...extraProps }: Props) {
+	// TODO: highlight selected tab
+	const location = useLocation();
+	console.log(location);
+	const navigate = useNavigate();
+	return (
+		<div
+			className={[
+				className,
+				"h-full bg-fgColor p-4 w-1/4 overflow-y-scroll scrollbar-thin flex-0"
+			].join(" ")}
+			{...extraProps}
+		>
+			<button className="bg-fgColor" onClick={() => navigate(-1)}>
+				🔙 {getParentLocation(location.pathname)}
+			</button>
+			<div className="flex flex-col mb-4">
+				<h1 className="text-2xl font-bold">{title}</h1>
+				<p className="text-sm">{description}</p>
+			</div>
+			{children}
+		</div>
+	);
+}

@@ -1,5 +1,6 @@
-export const topLevelNav: { title: string; route: string }[] = [
-	{ title: "Preview", route: "/" },
+export const locationIndex: { title: string; route: string; exclude?: boolean }[] = [
+	{ title: "Home", route: "/", exclude: true },
+	{ title: "Pages", route: "/pages" },
 	{ title: "Posts", route: "/posts" },
 	{ title: "Settings", route: "/settings" }
 ];
