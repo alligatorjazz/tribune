@@ -1,3 +1,5 @@
+type NonEmptyArray<T> = [T, ...T[]];
+
 // Interfaces
 export interface User {
 	id: string;
@@ -34,3 +36,6 @@ export interface FormResponse {
 }
 
 export type ConnectionStatus = "disconnected" | "loading" | "connected";
+
+export type SiteNode = { title: string; route: string; children?: NonEmptyArray<SiteNode> };
+export type SiteMap = [SiteNode & { route: "/"; children?: null }, ...SiteNode[]];
