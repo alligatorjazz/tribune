@@ -106,14 +106,18 @@ export interface BaseSiteNode {
 }
 export interface IndexSiteNode extends BaseSiteNode {
     index: true;
+    children?: undefined;
 }
 export interface NamedSiteNode extends BaseSiteNode {
     title: string;
     route: string;
+    index?: undefined;
+    children?: undefined;
 }
 export interface SiteNodeWithChildren extends BaseSiteNode {
     route: string;
     children: Array<NamedSiteNode | IndexSiteNode | SiteNodeWithChildren>;
+    index?: undefined;
 }
 export type SiteNode = IndexSiteNode | NamedSiteNode | SiteNodeWithChildren;
 export type SiteMap = SiteNode[];

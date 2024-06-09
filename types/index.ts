@@ -74,18 +74,22 @@ export interface BaseSiteNode {
 // Index site node interface
 export interface IndexSiteNode extends BaseSiteNode {
 	index: true;
+	children?: undefined;
 }
 
 // Named site node interface
 export interface NamedSiteNode extends BaseSiteNode {
 	title: string;
 	route: string;
+	index?: undefined;
+	children?: undefined;
 }
 
 // Site node with children interface
 export interface SiteNodeWithChildren extends BaseSiteNode {
 	route: string;
 	children: Array<NamedSiteNode | IndexSiteNode | SiteNodeWithChildren>;
+	index?: undefined;
 }
 
 // Union type of all possible site nodes

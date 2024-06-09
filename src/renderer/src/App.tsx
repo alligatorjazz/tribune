@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Outlet } from "react-router-dom";
 import { ConnectionStatus, SiteMap } from "tribune-types";
 import { AppContext } from "./App.lib";
@@ -8,7 +8,21 @@ import { devURL } from "./global";
 export function App(): JSX.Element {
 	const [theme, setTheme] = useState<"light" | "dark">("dark");
 	const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>("disconnected");
-	const [siteMap, setSiteMap] = useState<SiteMap>();
+	const [activeSite, setActiveSite] = useState<string | undefined>("Testy Test");
+	const [siteMap, setSiteMap] = useState<SiteMap | "loading">();
+
+	useEffect(() => {
+		if (activeSite && !siteMap) {
+			setSiteMap("loading");
+			window.api
+				.getSiteMap(activeSite)
+				.then((map) => setSiteMap(map))
+				.catch((err) => {
+					console.error(err);
+					setSiteMap(undefined);
+				});
+		}
+	}, [activeSite, siteMap]);
 
 	// sets <html className={theme}>
 	useEffect(() => {
@@ -67,7 +81,7 @@ export function App(): JSX.Element {
 	}, [connectionStatus, healthCheck]);
 
 	return (
-		<AppContext.Provider value={{ theme, setTheme, connectionStatus }}>
+		<AppContext.Provider value={{ theme, setTheme, connectionStatus, siteMap, activeSite }}>
 			<div className="w-full h-full flex">
 				<Outlet />
 				<div className="flex-1">
