@@ -1,0 +1,9 @@
+{
+	"compilerOptions": {
+		"outDir": "dist",
+		"declaration": true,
+		"target": "ES2016",
+		"module": "CommonJS",
+		"moduleResolution": "Node10"
+	}
+}

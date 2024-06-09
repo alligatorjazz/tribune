@@ -2,7 +2,6 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { App } from "./App";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import { Preview } from "./routes/Preview";
 import { Posts } from "./routes/Posts";
 import { Settings } from "./routes/Settings";
 import { Pages } from "./routes/Pages";

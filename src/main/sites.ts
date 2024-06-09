@@ -1,6 +1,7 @@
-import { mkdirSync, writeFileSync } from "fs";
-import path from "path";
+import { mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "fs";
 import { JSDOM } from "jsdom";
+import { basename, extname, join } from "path";
+import { SiteMap, SiteNode } from "tribune-types";
 import { DIR } from "./refs";
 
 const PAGE_BOILERPLATE = `
@@ -35,11 +36,41 @@ export function createSite(siteTitle: string): void {
 	document.body.appendChild(header);
 
 	// create sites directory if doesn't exist
-	mkdirSync(path.join(DIR.Sites, siteTitle), { recursive: true });
+	mkdirSync(join(DIR.Sites, siteTitle), { recursive: true });
 
 	// write index.html to sites directory
-	writeFileSync(
-		path.join(DIR.Sites, siteTitle, "index.html"),
-		document.documentElement.innerHTML
+	writeFileSync(join(DIR.Sites, siteTitle, "index.html"), document.documentElement.innerHTML);
+}
+
+export function getSiteMap(site: string) {
+	// TODO: implement site map function
+	const siteMap: SiteMap = [];
+	const siteDir = join(DIR.Sites, site); // Adjust the path as necessary
+	console.log("siteDir: ", siteDir);
+	const siteContents = readdirSync(siteDir).filter(
+		(file) => extname(file) === ".html" || statSync(join(siteDir, file)).isDirectory()
 	);
+	const walkFile = (path): SiteNode => {
+		console.log("walking file: ", path);
+		if (statSync(path).isDirectory()) {
+			return {
+				title: basename(path),
+				route: path,
+				children: readdirSync(path)
+					.filter((file) => extname(file) === ".html")
+					.map((child) => walkFile(join(path, child)))
+			};
+		}
+
+		const dom = new JSDOM(readFileSync(path));
+		const title = dom.window.document.querySelector("title")?.textContent;
+		const filename = basename(path);
+		if (filename === "index") {
+			return { title: title ?? basename(path), index: true };
+		}
+		return { title: title ?? basename(path), route: path };
+	};
+	siteContents.map((path) => siteMap.push(walkFile(join(siteDir, path))));
+
+	return siteMap;
 }

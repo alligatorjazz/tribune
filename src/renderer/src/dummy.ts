@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { User, BlogPost, POST_STATUSES, FormResponse, Comment } from "./types";
+import { User, BlogPost, POST_STATUSES, FormResponse, Comment } from "tribune-types";
 
 // Generate fake data
 const generateUsers = (count: number): User[] => {

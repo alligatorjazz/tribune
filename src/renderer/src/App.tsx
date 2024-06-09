@@ -2,17 +2,27 @@ import { useCallback, useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 import { AppContext } from "./App.lib";
 import { devURL } from "./global";
-import { ConnectionStatus } from "./types";
 import { PreviewFrame } from "./components/PreviewFrame";
+import { ConnectionStatus, SiteMap, SiteMapSchema } from "tribune-types";
 
 export function App(): JSX.Element {
 	const [theme, setTheme] = useState<"light" | "dark">("dark");
 	const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>("disconnected");
+	const [siteMap, setSiteMap] = useState<SiteMap>();
+
 	// sets <html className={theme}>
 	useEffect(() => {
 		document.documentElement.className = theme;
 	}, [theme]);
 
+	// updates sitemap
+	useEffect(() => {
+		window.api.onAutoReload(() => {
+			window.api.getSiteMap("Testy Test").then((map) => {
+				setSiteMap(() => SiteMapSchema.parse(map));
+			});
+		});
+	}, []);
 	// TODO: figure out how to smoothly auto-reconnect
 	// health check
 	const healthCheck = useCallback(() => {

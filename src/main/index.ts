@@ -2,7 +2,7 @@ import { app, shell, BrowserWindow, ipcMain } from "electron";
 import { join } from "path";
 import { electronApp, optimizer, is } from "@electron-toolkit/utils";
 import icon from "../../resources/icon.png?asset";
-import { createSite } from "./sites";
+import { createSite, getSiteMap } from "./sites";
 import { startServer, stopServer } from "./server";
 
 function createWindow() {
@@ -62,7 +62,9 @@ app.whenReady().then(() => {
 		startServer(siteTitle, () => appWindow.webContents.send("auto-reload"));
 	});
 	ipcMain.handle("stop-server", stopServer);
-	// ipcMain.handle("auto-reload", autoReload);
+	ipcMain.handle("get-site-map", (_event, siteTitle: string) => {
+		return getSiteMap(siteTitle);
+	});
 
 	app.on("activate", function () {
 		// On macOS it's common to re-create a window in the app when the

@@ -1,5 +1,5 @@
 import { Dispatch, createContext, useContext } from "react";
-import { ConnectionStatus } from "./types";
+import { ConnectionStatus } from "tribune-types";
 
 type Theme = "light" | "dark";
 interface IAppContext {

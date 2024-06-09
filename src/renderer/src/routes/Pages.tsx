@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { SidebarLayout } from "../components/SidebarLayout";
-import { SiteMap } from "../types";
+import { SiteMap, SiteNode } from "tribune-types";
 
 const dummyMap: SiteMap = [
 	{
@@ -47,7 +47,7 @@ const dummyMap: SiteMap = [
 
 export function Pages() {
 	// TODO: write tree view component\
-	const buildTree = useCallback((node, isChild = true) => {
+	const buildTree = useCallback((node: SiteNode, isChild = true) => {
 		if (!node.children) {
 			return (
 				<li key={node.route} className="flex gap-1">
