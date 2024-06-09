@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { SidebarLayout } from "../components/SidebarLayout";
-import dummy from "../dummy";
+// import dummy from "../dummy";
 import { POST_STATUSES, PostStatus } from "tribune-types";
 
 export function Posts() {
 	const [activeTab, setActiveTab] = useState<PostStatus>("Published");
-	const listedPosts = dummy.blogPosts.filter(({ status }) => status === activeTab);
+	// const listedPosts = dummy.blogPosts.filter(({ status }) => status === activeTab);
 	return (
 		<SidebarLayout
 			title="Posts"
@@ -27,9 +27,9 @@ export function Posts() {
 						].join(" ")}
 					>
 						<span>{tab}</span>
-						<span className="font-bold">
+						{/* <span className="font-bold">
 							{dummy.blogPosts.filter(({ status }) => status === tab).length}
-						</span>
+						</span> */}
 					</li>
 				))}
 			</ul>
@@ -41,7 +41,7 @@ export function Posts() {
 				
 			"
 			>
-				{listedPosts.map((post) => (
+				{/* {listedPosts.map((post) => (
 					<li
 						key={post.id}
 						className="flex flex-row border-b-textColor border-b p-4 w-full last:border-0"
@@ -56,7 +56,7 @@ export function Posts() {
 						</div>
 						<button className="p-2 rounded-sm h-12 w-16">Edit</button>
 					</li>
-				))}
+				))} */}
 			</ul>
 			<div className="flex justify-end">
 				<button className="px-4 py-2">+ New Post</button>

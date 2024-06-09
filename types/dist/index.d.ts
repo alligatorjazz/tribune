@@ -101,40 +101,26 @@ export declare const FormResponseSchema: z.ZodObject<{
     submittedAt?: Date;
 }>;
 export declare const ConnectionStatusSchema: z.ZodEnum<["disconnected", "loading", "connected"]>;
-declare const BaseSiteNodeSchema: z.ZodObject<{
-    title: z.ZodString;
-}, "strip", z.ZodTypeAny, {
-    title?: string;
-}, {
-    title?: string;
-}>;
-export declare const SiteNodeSchema: z.ZodType<SiteNode>;
-declare const IndexSiteNodeSchema: z.ZodObject<{
-    title: z.ZodString;
-    route: z.ZodLiteral<"/">;
-    children: z.ZodOptional<z.ZodUndefined>;
-}, "strip", z.ZodTypeAny, {
-    title?: string;
-    children?: undefined;
-    route?: "/";
-}, {
-    title?: string;
-    children?: undefined;
-    route?: "/";
-}>;
-export declare const SiteMapSchema: z.ZodType<SiteMap>;
+export interface BaseSiteNode {
+    localPath: string;
+}
+export interface IndexSiteNode extends BaseSiteNode {
+    index: true;
+}
+export interface NamedSiteNode extends BaseSiteNode {
+    title: string;
+    route: string;
+}
+export interface SiteNodeWithChildren extends BaseSiteNode {
+    route: string;
+    children: Array<NamedSiteNode | IndexSiteNode | SiteNodeWithChildren>;
+}
+export type SiteNode = IndexSiteNode | NamedSiteNode | SiteNodeWithChildren;
+export type SiteMap = SiteNode[];
 export type User = z.infer<typeof UserSchema>;
 export type Comment = z.infer<typeof CommentSchema>;
 export type PostStatus = z.infer<typeof PostStatusSchema>;
 export type BlogPost = z.infer<typeof BlogPostSchema>;
 export type FormResponse = z.infer<typeof FormResponseSchema>;
-export type ConnectionStatus = z.infer<typeof ConnectionStatusSchema>;
-export type SiteNode = z.infer<typeof BaseSiteNodeSchema> & ({
-    route?: string;
-    children?: NonEmptyArray<SiteNode>;
-} | {
-    index: true;
-});
-export type SiteMap = [z.infer<typeof IndexSiteNodeSchema>, ...SiteNode[]];
 export type NonEmptyArray<T> = z.infer<ReturnType<typeof NonEmptyArraySchema<T>>>;
-export {};
+export type ConnectionStatus = z.infer<typeof ConnectionStatusSchema>;

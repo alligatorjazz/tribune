@@ -72,7 +72,7 @@ export interface BaseSiteNode {
 }
 
 // Index site node interface
-export interface IndexSiteNode {
+export interface IndexSiteNode extends BaseSiteNode {
 	index: true;
 }
 
@@ -83,7 +83,8 @@ export interface NamedSiteNode extends BaseSiteNode {
 }
 
 // Site node with children interface
-export interface SiteNodeWithChildren extends NamedSiteNode {
+export interface SiteNodeWithChildren extends BaseSiteNode {
+	route: string;
 	children: Array<NamedSiteNode | IndexSiteNode | SiteNodeWithChildren>;
 }
 
@@ -100,3 +101,4 @@ export type PostStatus = z.infer<typeof PostStatusSchema>;
 export type BlogPost = z.infer<typeof BlogPostSchema>;
 export type FormResponse = z.infer<typeof FormResponseSchema>;
 export type NonEmptyArray<T> = z.infer<ReturnType<typeof NonEmptyArraySchema<T>>>;
+export type ConnectionStatus = z.infer<typeof ConnectionStatusSchema>;

@@ -33,21 +33,3 @@ export const FormResponseSchema = z.object({
     submittedAt: z.date()
 });
 export const ConnectionStatusSchema = z.enum(["disconnected", "loading", "connected"]);
-const BaseSiteNodeSchema = z.object({ title: z.string() });
-export const SiteNodeSchema = z.lazy(() => BaseSiteNodeSchema.and(z.union([
-    z.object({
-        route: z.string(),
-        children: NonEmptyArraySchema(SiteNodeSchema)
-    }),
-    z.object({
-        index: z.literal(true)
-    })
-])));
-const IndexSiteNodeSchema = z.object({
-    title: z.string(),
-    route: z.literal("/"),
-    children: z.undefined().optional()
-});
-export const SiteMapSchema = z
-    .tuple([IndexSiteNodeSchema])
-    .rest(SiteNodeSchema);

@@ -2,8 +2,8 @@
 	"compilerOptions": {
 		"outDir": "dist",
 		"declaration": true,
-		"target": "ES2016",
-		"module": "CommonJS",
-		"moduleResolution": "Node10"
+		"target": "ES6",
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext"
 	}
 }
