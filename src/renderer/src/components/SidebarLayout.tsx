@@ -10,6 +10,7 @@ export function SidebarLayout({ title, description, className, children, ...extr
 	// TODO: highlight selected tab
 	const location = useLocation();
 	const navigate = useNavigate();
+
 	return (
 		<div
 			className={[
@@ -18,7 +19,7 @@ export function SidebarLayout({ title, description, className, children, ...extr
 			].join(" ")}
 			{...extraProps}
 		>
-			<button className="bg-fgColor" onClick={() => navigate(-1)}>
+			<button className="bg-fgColor" onClick={() => navigate("..")}>
 				🔙 {getParentLocation(location.pathname)}
 			</button>
 			<div className="flex flex-col mb-4">

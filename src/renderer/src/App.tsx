@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { ConnectionStatus, SiteMap } from "tribune-types";
 import { AppContext } from "./App.lib";
 import { PreviewFrame } from "./components/PreviewFrame";
@@ -12,6 +12,8 @@ export function App(): JSX.Element {
 	const [siteMap, setSiteMap] = useState<SiteMap | "loading">();
 	const [previewRoute, setpreviewRoute] = useState<string>("/");
 
+	const location = useLocation();
+	console.log(location);
 	useEffect(() => {
 		if (activeSite && !siteMap) {
 			setSiteMap("loading");
