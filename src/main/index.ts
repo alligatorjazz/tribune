@@ -3,7 +3,7 @@ import { join } from "path";
 import { electronApp, optimizer, is } from "@electron-toolkit/utils";
 import icon from "../../resources/icon.png?asset";
 import { createSite, getSiteMap } from "./sites";
-import { startServer, stopServer } from "./server";
+import { getServerStatus, startServer } from "./server";
 
 function createWindow() {
 	// Create the browser window.
@@ -61,9 +61,13 @@ app.whenReady().then(() => {
 	ipcMain.handle("start-server", (_event, siteTitle: string) => {
 		startServer(siteTitle, () => appWindow.webContents.send("auto-reload"));
 	});
-	ipcMain.handle("stop-server", stopServer);
+
 	ipcMain.handle("get-site-map", (_event, siteTitle: string) => {
 		return getSiteMap(siteTitle);
+	});
+
+	ipcMain.handle("get-server-status", () => {
+		return getServerStatus();
 	});
 
 	app.on("activate", function () {

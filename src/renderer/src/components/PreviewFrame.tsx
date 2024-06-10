@@ -1,8 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { devURL } from "../global";
 import LoadingIndicator from "./LoadingIndicator";
 import { useAppContext } from "../App.lib";
-import { join } from "path-browserify";
-import { devURL } from "../global";
 
 interface Props {
 	route: string;
@@ -11,52 +10,57 @@ interface Props {
 export function PreviewFrame({ route }: Props) {
 	const container = useRef<HTMLDivElement>(null);
 	const frame = useRef<HTMLIFrameElement>(null);
-	const { connectionStatus } = useAppContext();
 	const [frameOpacity, setFrameOpacity] = useState<"0" | "1">("0");
-	// helps prevent flicker issues
-	const [cachedBg, setCachedBg] = useState<{
-		backgroundColor?: string;
-		background?: string;
-	}>();
-
-	const triggerReload = useCallback(() => {
-		const contentWindow = frame.current?.contentWindow;
-		if (contentWindow && container.current) {
-			try {
-				contentWindow.postMessage("reload", "*");
-			} catch (error) {
-				console.warn("Error on autoreload:\n", error);
-			}
+	const [connected, setConnected] = useState<boolean | "loading">(false);
+	const { activeSite } = useAppContext();
+	const initializeServer = useCallback(() => {
+		const iframe = frame.current;
+		console.log(frame);
+		if (activeSite && iframe) {
+			console.log("initializing server...");
+			window.api
+				.startServer(activeSite)
+				.then(() => {
+					console.log("server initialized - checking status...");
+					window.api.getServerStatus().then((status) => {
+						if (status) {
+							console.log("server online, reloading iframe...");
+							window.api.onAutoReload(() => {
+								const contentWindow = frame.current?.contentWindow;
+								if (contentWindow && container.current) {
+									try {
+										contentWindow.postMessage("reload", "*");
+									} catch (error) {
+										console.warn("Error on autoreload:\n", error);
+									}
+								}
+							});
+							iframe.src += "";
+							setConnected(true);
+						} else {
+							console.error(
+								"could not establish connection to dev server - reinitializing..."
+							);
+							setConnected(false);
+						}
+					});
+				})
+				.catch((err) => {
+					console.error(err);
+					setConnected(false);
+				});
 		}
-	}, []);
+	}, [activeSite]);
 
-	// triggers refresh on file change
+	// starts server
 	useEffect(() => {
-		window.api.onAutoReload(triggerReload);
-	}, [triggerReload]);
-
-	// triggers refresh on route change
-	useEffect(() => {
-		triggerReload();
-	}, [route, triggerReload]);
-	// caches iframe body background color
-	const cacheBg = useCallback(
-		(event: MessageEvent) => {
-			if (event.origin === route) {
-				const { background, backgroundColor } = JSON.parse(
-					event.data
-				) as CSSStyleDeclaration;
-				setCachedBg({ background, backgroundColor });
-			} else {
-				console.warn("recieved message from url other than dev server", event);
-			}
-		},
-		[route]
-	);
-	useEffect(() => {
-		window.addEventListener("message", cacheBg);
-		return () => window.removeEventListener("message", cacheBg);
-	}, [cacheBg, route]);
+		if (connected === false) {
+			setConnected("loading");
+		}
+		if (connected === "loading") {
+			initializeServer();
+		}
+	}, [connected, initializeServer]);
 
 	// replays fade-in animation on route change
 	useEffect(() => {
@@ -71,22 +75,21 @@ export function PreviewFrame({ route }: Props) {
 			className="w-full h-full opacity-0 duration-1000"
 			ref={container}
 			style={{
-				opacity: frameOpacity,
-				...cachedBg
+				opacity: frameOpacity
 			}}
 		>
-			{connectionStatus === "connected" && (
-				<iframe
-					className="w-full h-full"
-					ref={frame}
-					src={devURL + route}
-					title="Site previewRoute"
-				></iframe>
-			)}
-			{connectionStatus !== "connected" && (
-				<div className="w-full h-full flex gap-2 justify-center items-center">
+			<iframe
+				className="w-full h-full"
+				ref={frame}
+				style={connected === true ? {} : { display: "none" }}
+				src={devURL + route}
+				title="Site Preview"
+			></iframe>
+
+			{connected !== true && (
+				<div className="w-full h-full flex gap-2 justify-center items-center shadow-2xl text-black">
 					<LoadingIndicator />
-					<p>Loading site previewRoute...</p>
+					<p>Loading site preview...</p>
 				</div>
 			)}
 		</div>

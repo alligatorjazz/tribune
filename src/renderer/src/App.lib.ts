@@ -1,11 +1,10 @@
 import { Dispatch, createContext, useContext } from "react";
-import { ConnectionStatus, SiteMap } from "tribune-types";
+import { SiteMap } from "tribune-types";
 
 type Theme = "light" | "dark";
 interface IAppContext {
 	theme: Theme;
 	setTheme: Dispatch<Theme>;
-	connectionStatus: ConnectionStatus;
 	siteMap?: SiteMap | "loading";
 	activeSite?: string;
 	previewRoute: string;
