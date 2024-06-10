@@ -69,6 +69,7 @@ export const ConnectionStatusSchema = z.enum(["disconnected", "loading", "connec
 // Base site node interface
 export interface BaseSiteNode {
 	localPath: string;
+	route: string;
 }
 
 // Index site node interface

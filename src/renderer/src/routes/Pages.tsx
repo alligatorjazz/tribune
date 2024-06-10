@@ -3,12 +3,12 @@ import { SiteNode } from "tribune-types";
 import { useAppContext } from "../App.lib";
 import LoadingIndicator from "../components/LoadingIndicator";
 import { SidebarLayout } from "../components/SidebarLayout";
-import { toTitleCase } from "../lib";
+import { basename } from "path-browserify";
 
 export function Pages() {
 	// TODO: write tree view component
-	const { activeSite, siteMap } = useAppContext();
-	console.log(activeSite, siteMap);
+	const { activeSite, siteMap, setpreviewRoute } = useAppContext();
+
 	const tree = useMemo(() => {
 		if (!siteMap || siteMap === "loading" || !activeSite) {
 			return null;
@@ -19,38 +19,58 @@ export function Pages() {
 		);
 
 		const Branch = ({ className, children, ...props }: HTMLAttributes<HTMLLIElement>) => (
-			<li className={["ml-4", className].join(" ")} {...props}>
+			<li className={["ml-4 flex gap-1 items-center", className].join(" ")} {...props}>
 				{children}
 			</li>
 		);
-		const buildBranch = (children: SiteNode[], title: string, icon?: boolean) => {
+
+		const PageButton = ({
+			className,
+			children,
+			node,
+			...props
+		}: HTMLAttributes<HTMLDivElement> & { node: SiteNode }) => (
+			<div
+				{...props}
+				className={["hover:text-accentColor cursor-pointer", className].join(" ")}
+				onClick={() => setpreviewRoute(node.route)}
+			>
+				{children}
+			</div>
+		);
+		const buildBranch = (children: SiteNode[], title: string, icon?: string) => {
 			return (
 				<ul className="flex flex-col">
 					<div className="font-bold flex gap-1 items-center">
-						{icon ? <span>📁</span> : null}
-						{toTitleCase(title)}
+						{icon ? <span>{icon}</span> : null}
+						{title}
 						{<RouteDisplay route={"/" + title} />}
 					</div>
 					{children
 						.map((node) => {
+							// folders
 							if (node.children) {
 								return (
-									<Branch key={"/" + node.route}>
-										{buildBranch(node.children, node.route, true)}
+									<Branch key={"/" + node.route} className="select-none">
+										{buildBranch(node.children, node.route, "📁")}
 									</Branch>
 								);
 							}
+							// indexes
 							if (node.index) {
 								return (
 									<Branch key={"index"} className="italic">
-										Index <RouteDisplay route="/" />
+										<PageButton node={node}>Index</PageButton>{" "}
+										<RouteDisplay route="/" />
 									</Branch>
 								);
 							}
 
+							// pages
 							return (
-								<Branch key={node.route}>
-									{node.title} <RouteDisplay route={"/" + node.route} />
+								<Branch key={node.route} className="flex gap-1 items-center">
+									<PageButton node={node}>{node.title}</PageButton>
+									<RouteDisplay route={"/" + basename(node.route, ".html")} />
 								</Branch>
 							);
 						})
@@ -64,8 +84,8 @@ export function Pages() {
 			);
 		};
 
-		return buildBranch(siteMap, activeSite);
-	}, [activeSite, siteMap]);
+		return buildBranch(siteMap, activeSite, "🌎");
+	}, [activeSite, setpreviewRoute, siteMap]);
 
 	return (
 		<SidebarLayout

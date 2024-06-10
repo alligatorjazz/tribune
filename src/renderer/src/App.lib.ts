@@ -8,6 +8,8 @@ interface IAppContext {
 	connectionStatus: ConnectionStatus;
 	siteMap?: SiteMap | "loading";
 	activeSite?: string;
+	previewRoute: string;
+	setpreviewRoute: Dispatch<string>;
 }
 
 export const AppContext = createContext<IAppContext | undefined>(undefined);

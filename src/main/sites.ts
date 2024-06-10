@@ -19,8 +19,6 @@ const PAGE_BOILERPLATE = `
 `.trim();
 
 export function createSite(siteTitle: string): void {
-	console.log("creating site...");
-
 	// parse boilerplate
 	const parser = new JSDOM(PAGE_BOILERPLATE);
 	const document = parser.window.document;
@@ -46,12 +44,10 @@ export function getSiteMap(site: string): SiteMap {
 	// TODO: implement site map function
 	const siteMap: SiteMap = [];
 	const siteDir = join(DIR.Sites, site); // Adjust the path as necessary
-	console.log("siteDir: ", siteDir);
 	const siteContents = readdirSync(siteDir).filter(
 		(file) => extname(file) === ".html" || statSync(join(siteDir, file)).isDirectory()
 	);
-	const walkFile = (path): SiteNode => {
-		console.log("walking file: ", path);
+	const walkFile = (path: string): SiteNode => {
 		if (statSync(path).isDirectory()) {
 			return {
 				route: basename(path),
@@ -63,22 +59,25 @@ export function getSiteMap(site: string): SiteMap {
 		}
 
 		// extract title from <title> tag
-		const filename = basename(path, ".html");
+		const base = basename(path, ".html");
 		const dom = new JSDOM(readFileSync(path));
-		const title = dom.window.document.querySelector("title")?.textContent ?? filename;
+		const title = dom.window.document.querySelector("title")?.textContent ?? base;
 
-		if (filename === "index") {
-			return { index: true, localPath: path };
+		if (base === "index") {
+			return {
+				index: true,
+				localPath: path,
+				route: path.replace(siteDir, "")
+			};
 		}
 
 		return {
 			title: title,
-			route: filename,
+			route: path.replace(siteDir, ""),
 			localPath: path
 		};
 	};
 
 	siteContents.map((path) => siteMap.push(walkFile(join(siteDir, path))));
-	console.log(JSON.stringify(siteMap, null, 4));
 	return siteMap;
 }

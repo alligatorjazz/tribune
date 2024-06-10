@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 import { ConnectionStatus, SiteMap } from "tribune-types";
 import { AppContext } from "./App.lib";
@@ -10,6 +10,7 @@ export function App(): JSX.Element {
 	const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>("disconnected");
 	const [activeSite, setActiveSite] = useState<string | undefined>("Testy Test");
 	const [siteMap, setSiteMap] = useState<SiteMap | "loading">();
+	const [previewRoute, setpreviewRoute] = useState<string>("/");
 
 	useEffect(() => {
 		if (activeSite && !siteMap) {
@@ -18,7 +19,7 @@ export function App(): JSX.Element {
 				.getSiteMap(activeSite)
 				.then((map) => setSiteMap(map))
 				.catch((err) => {
-					console.error(err);
+					console.error("Error fetching sitemap:", err);
 					setSiteMap(undefined);
 				});
 		}
@@ -81,11 +82,21 @@ export function App(): JSX.Element {
 	}, [connectionStatus, healthCheck]);
 
 	return (
-		<AppContext.Provider value={{ theme, setTheme, connectionStatus, siteMap, activeSite }}>
+		<AppContext.Provider
+			value={{
+				theme,
+				setTheme,
+				connectionStatus,
+				siteMap,
+				activeSite,
+				previewRoute,
+				setpreviewRoute
+			}}
+		>
 			<div className="w-full h-full flex">
 				<Outlet />
 				<div className="flex-1">
-					<PreviewFrame url={devURL} />
+					<PreviewFrame route={previewRoute} />
 				</div>
 			</div>
 		</AppContext.Provider>

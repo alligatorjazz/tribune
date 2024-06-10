@@ -9,7 +9,3 @@ export const DIR = {
 		: join(app.getPath("appData"), APP_NAME),
 	Cache: dev ? join(app.getAppPath(), "sandbox", "temp") : join(app.getPath("temp"), APP_NAME)
 };
-
-if (dev) {
-	console.log("dev: directory lists: \n", JSON.stringify(DIR, null, 4));
-}

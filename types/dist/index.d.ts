@@ -103,6 +103,7 @@ export declare const FormResponseSchema: z.ZodObject<{
 export declare const ConnectionStatusSchema: z.ZodEnum<["disconnected", "loading", "connected"]>;
 export interface BaseSiteNode {
     localPath: string;
+    route: string;
 }
 export interface IndexSiteNode extends BaseSiteNode {
     index: true;

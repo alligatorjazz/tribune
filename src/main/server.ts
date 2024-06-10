@@ -15,14 +15,15 @@ export let reload = false;
 
 // returns a path to new version of an html file with dev scripts attached
 function attachDevScripts(path: string): string {
-	// check if given path is an html file
+	// check if given path is an html file]
+	const fileContent = readFileSync(path);
 	if (extname(path) != ".html") {
 		console.warn(`Can't attach dev script to ${path} - not an html file`);
-		return path;
+		return fileContent.toString();
 	}
 
 	// load html as string, then convert to jsdom
-	const dom = new JSDOM(readFileSync(path));
+	const dom = new JSDOM(fileContent);
 	const document = dom.window.document;
 
 	// loads default css
@@ -43,13 +44,14 @@ function attachDevScripts(path: string): string {
 }
 
 export function startServer(siteName: string, reloadCallback: () => void) {
-	console.log("starting server...");
 	const siteDir = join(DIR.Sites, siteName);
 	const app: Application = express();
 	app.use(cors({ origin: "*" }));
 	// serve index.html at the root
-	app.get("/", (_req: Request, res: Response) => {
-		res.send(attachDevScripts(join(siteDir, "index.html")));
+	app.use(express.static(join(siteDir)));
+	app.get("*", (req: Request, res: Response) => {
+		const localPath = join(siteDir, req.path);
+		res.send(attachDevScripts(localPath));
 	});
 
 	// TODO: allow for custom port
@@ -61,16 +63,15 @@ export function startServer(siteName: string, reloadCallback: () => void) {
 		server = app.listen(port, () => {
 			console.log(`Server is running on http://localhost:${port}`);
 		});
-
-		watcher = chokidar.watch(siteDir).on("all", (e, path) => {
+		const onChange = (e: "add" | "addDir" | "change", path: string) => {
 			if (server) {
-				console.log(`change detected (${path}, ${e}): queuing autoreload`);
+				console.log(`change detected (${JSON.stringify(path)}, ${e}): queuing autoreload`);
 				reloadCallback();
 			}
-		});
+		};
+		watcher = chokidar.watch(siteDir).on("change", onChange);
 	};
 	if (server) {
-		console.log("waiting for previous server to close...");
 		server.close(startup);
 	} else {
 		startup();
@@ -78,11 +79,9 @@ export function startServer(siteName: string, reloadCallback: () => void) {
 }
 
 export async function stopServer() {
-	console.log("stopping server...");
 	if (server) {
 		server.close(() => {
 			server = null;
-			console.log("server stopped.");
 		});
 	}
 

@@ -10,7 +10,7 @@ if (process.contextIsolated) {
 		contextBridge.exposeInMainWorld("electron", electronAPI);
 		contextBridge.exposeInMainWorld("api", api);
 	} catch (error) {
-		console.error(error);
+		console.error("preload error:\n", error);
 	}
 } else {
 	// @ts-ignore - define in d.ts

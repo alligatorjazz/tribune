@@ -1,12 +1,14 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import LoadingIndicator from "./LoadingIndicator";
 import { useAppContext } from "../App.lib";
+import { join } from "path-browserify";
+import { devURL } from "../global";
 
 interface Props {
-	url: string;
+	route: string;
 }
 
-export function PreviewFrame({ url }: Props) {
+export function PreviewFrame({ route }: Props) {
 	const container = useRef<HTMLDivElement>(null);
 	const frame = useRef<HTMLIFrameElement>(null);
 	const { connectionStatus } = useAppContext();
@@ -17,26 +19,30 @@ export function PreviewFrame({ url }: Props) {
 		background?: string;
 	}>();
 
-	// triggers refresh on change
-	useEffect(() => {
-		window.api.onAutoReload(() => {
-			const contentWindow = frame.current?.contentWindow;
-			if (contentWindow && container.current) {
-				console.log("change detected: reloading frame");
-				try {
-					contentWindow.postMessage("reload", "*");
-				} catch (error) {
-					console.warn(error);
-				}
+	const triggerReload = useCallback(() => {
+		const contentWindow = frame.current?.contentWindow;
+		if (contentWindow && container.current) {
+			try {
+				contentWindow.postMessage("reload", "*");
+			} catch (error) {
+				console.warn("Error on autoreload:\n", error);
 			}
-		});
-	}, [url]);
+		}
+	}, []);
 
-	console.log(cachedBg);
+	// triggers refresh on file change
+	useEffect(() => {
+		window.api.onAutoReload(triggerReload);
+	}, [triggerReload]);
+
+	// triggers refresh on route change
+	useEffect(() => {
+		triggerReload();
+	}, [route, triggerReload]);
 	// caches iframe body background color
 	const cacheBg = useCallback(
 		(event: MessageEvent) => {
-			if (event.origin === url) {
+			if (event.origin === route) {
 				const { background, backgroundColor } = JSON.parse(
 					event.data
 				) as CSSStyleDeclaration;
@@ -45,12 +51,12 @@ export function PreviewFrame({ url }: Props) {
 				console.warn("recieved message from url other than dev server", event);
 			}
 		},
-		[url]
+		[route]
 	);
 	useEffect(() => {
 		window.addEventListener("message", cacheBg);
 		return () => window.removeEventListener("message", cacheBg);
-	}, [cacheBg, url]);
+	}, [cacheBg, route]);
 
 	// replays fade-in animation on route change
 	useEffect(() => {
@@ -73,14 +79,14 @@ export function PreviewFrame({ url }: Props) {
 				<iframe
 					className="w-full h-full"
 					ref={frame}
-					src={url}
-					title="Site Preview"
+					src={devURL + route}
+					title="Site previewRoute"
 				></iframe>
 			)}
 			{connectionStatus !== "connected" && (
 				<div className="w-full h-full flex gap-2 justify-center items-center">
 					<LoadingIndicator />
-					<p>Loading site preview...</p>
+					<p>Loading site previewRoute...</p>
 				</div>
 			)}
 		</div>

@@ -9,7 +9,6 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
 export function SidebarLayout({ title, description, className, children, ...extraProps }: Props) {
 	// TODO: highlight selected tab
 	const location = useLocation();
-	console.log(location);
 	const navigate = useNavigate();
 	return (
 		<div
