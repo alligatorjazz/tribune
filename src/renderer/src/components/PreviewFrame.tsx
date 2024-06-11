@@ -15,7 +15,6 @@ export function PreviewFrame({ route }: Props) {
 	const { activeSite } = useAppContext();
 	const initializeServer = useCallback(() => {
 		const iframe = frame.current;
-		console.log(frame);
 		if (activeSite && iframe) {
 			console.log("initializing server...");
 			window.api
@@ -69,7 +68,7 @@ export function PreviewFrame({ route }: Props) {
 
 	return (
 		<div
-			className="w-full h-full opacity-0 duration-1000"
+			className="w-full h-full opacity-0 duration-1000 bg-white"
 			ref={container}
 			style={{
 				opacity: frameOpacity

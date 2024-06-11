@@ -11,15 +11,13 @@ import { autoReload } from "./scripts/autoReload";
 let server: Server<typeof IncomingMessage, typeof ServerResponse> | null = null;
 let watcher: chokidar.FSWatcher | null = null;
 const onFileChange = (e: string, path: string, cb: () => void) => {
-	console.log(`change detected (${JSON.stringify(path)}, ${e}): queuing autoreload`);
+	// console.log(`change detected (${JSON.stringify(path)}, ${e}): queuing autoreload`);
 	try {
 		cb();
 	} catch (err) {
 		console.error("could not run file change callback\n", err);
 	}
 };
-
-// TODO: reimpl chokidar
 
 export function startServer(siteName: string, reloadCallback: () => void) {
 	const init = () => {

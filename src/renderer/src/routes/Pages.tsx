@@ -7,7 +7,7 @@ import { basename } from "path-browserify";
 
 export function Pages() {
 	// TODO: write tree view component
-	const { activeSite, siteMap, setpreviewRoute } = useAppContext();
+	const { activeSite, siteMap, previewRoute, setpreviewRoute } = useAppContext();
 
 	const tree = useMemo(() => {
 		if (!siteMap || siteMap === "loading" || !activeSite) {
@@ -38,9 +38,18 @@ export function Pages() {
 				{children}
 			</div>
 		);
+
+		const EditButton = ({ className, ...props }: HTMLAttributes<HTMLDivElement>) => {
+			return (
+				<div className={["flex-1 flex justify-end", className].join(" ")} {...props}>
+					<button className="bg-inherit">✎</button>
+				</div>
+			);
+		};
+
 		const buildBranch = (children: SiteNode[], title: string, icon?: string) => {
 			return (
-				<ul className="flex flex-col">
+				<ul className="flex flex-col w-full">
 					<div className="font-bold flex gap-1 items-center">
 						{icon ? <span>{icon}</span> : null}
 						{title}
@@ -48,6 +57,7 @@ export function Pages() {
 					</div>
 					{children
 						.map((node) => {
+							const isCurrent = previewRoute === node.route;
 							// folders
 							if (node.children) {
 								return (
@@ -59,18 +69,29 @@ export function Pages() {
 							// indexes
 							if (node.index) {
 								return (
-									<Branch key={"index"} className="italic">
+									<Branch
+										key={"index"}
+										className={[
+											"italic",
+											isCurrent ? "backdrop-brightness-75" : ""
+										].join(" ")}
+									>
 										<PageButton node={node}>Index</PageButton>{" "}
 										<RouteDisplay route="/" />
+										<EditButton />
 									</Branch>
 								);
 							}
 
 							// pages
 							return (
-								<Branch key={node.route} className="flex gap-1 items-center">
+								<Branch
+									key={node.route}
+									className={isCurrent ? "backdrop-brightness-75" : ""}
+								>
 									<PageButton node={node}>{node.title}</PageButton>
 									<RouteDisplay route={"/" + basename(node.route, ".html")} />
+									<EditButton />
 								</Branch>
 							);
 						})
@@ -85,7 +106,7 @@ export function Pages() {
 		};
 
 		return buildBranch(siteMap, activeSite, "🌎");
-	}, [activeSite, setpreviewRoute, siteMap]);
+	}, [activeSite, previewRoute, setpreviewRoute, siteMap]);
 
 	return (
 		<SidebarLayout
