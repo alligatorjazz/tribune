@@ -22,28 +22,25 @@ export function PreviewFrame({ route }: Props) {
 				.startServer(activeSite)
 				.then(() => {
 					console.log("server initialized - checking status...");
-					window.api.getServerStatus().then((status) => {
-						if (status) {
-							console.log("server online, reloading iframe...");
-							window.api.onAutoReload(() => {
-								const contentWindow = frame.current?.contentWindow;
-								if (contentWindow && container.current) {
-									try {
-										contentWindow.postMessage("reload", "*");
-									} catch (error) {
-										console.warn("Error on autoreload:\n", error);
-									}
-								}
-							});
-							iframe.src += "";
-							setConnected(true);
-						} else {
-							console.error(
-								"could not establish connection to dev server - reinitializing..."
-							);
-							setConnected(false);
-						}
-					});
+					window.api
+						.getServerStatus()
+						.then((status) => {
+							if (status) {
+								console.log("server online, reloading iframe...");
+								window.api.onAutoReload(() => {
+									console.log("recieved autoreload, reloading...");
+									iframe.src += "";
+								});
+								iframe.src += "";
+								setConnected(true);
+							} else {
+								console.error(
+									"could not establish connection to dev server - reinitializing..."
+								);
+								setConnected(false);
+							}
+						})
+						.catch((err) => console.error(err));
 				})
 				.catch((err) => {
 					console.error(err);

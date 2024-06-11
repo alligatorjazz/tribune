@@ -3,7 +3,7 @@ import { join } from "path";
 import { electronApp, optimizer, is } from "@electron-toolkit/utils";
 import icon from "../../resources/icon.png?asset";
 import { createSite, getSiteMap } from "./sites";
-import { getServerStatus, startServer } from "./server";
+import { closeServer, getServerStatus, startServer } from "./server";
 
 function createWindow() {
 	// Create the browser window.
@@ -22,6 +22,8 @@ function createWindow() {
 	mainWindow.on("ready-to-show", () => {
 		mainWindow.show();
 	});
+
+	mainWindow.on("close", closeServer);
 
 	mainWindow.webContents.setWindowOpenHandler((details) => {
 		shell.openExternal(details.url);
@@ -58,8 +60,10 @@ app.whenReady().then(() => {
 	ipcMain.handle("create-site", (_event, siteTitle: string) => {
 		createSite(siteTitle);
 	});
-	ipcMain.handle("start-server", (_event, siteTitle: string) => {
-		startServer(siteTitle, () => appWindow.webContents.send("auto-reload"));
+	ipcMain.handle("start-server", (event, siteTitle: string) => {
+		startServer(siteTitle, () =>
+			BrowserWindow.fromWebContents(event.sender)?.webContents.send("auto-reload")
+		);
 	});
 
 	ipcMain.handle("get-site-map", (_event, siteTitle: string) => {
@@ -81,9 +85,11 @@ app.whenReady().then(() => {
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on("window-all-closed", () => {
-	if (process.platform !== "darwin") {
-		app.quit();
-	}
+	closeServer().then(() => {
+		if (process.platform !== "darwin") {
+			app.quit();
+		}
+	});
 });
 
 // In this file you can include the rest of your app"s specific main process
