@@ -65,7 +65,7 @@ export function Pages() {
 					<div className="font-bold flex gap-1 items-center">
 						{icon ? <span>{icon}</span> : null}
 						{title}
-						{<RouteDisplay route={title} />}
+						{/* {<RouteDisplay route={title} />} */}
 					</div>
 					{children
 						.map((node) => {

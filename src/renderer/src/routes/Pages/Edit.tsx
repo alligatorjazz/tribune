@@ -23,7 +23,6 @@ export function Edit() {
 		return null;
 	}, [route, siteMap]);
 
-	console.log(node);
 	return (
 		<SidebarLayout
 			title={node ? (node.index ? "Index" : node.title) : "Not Found"}

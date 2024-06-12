@@ -38,6 +38,9 @@ export function App(): JSX.Element {
 		});
 	}, []);
 
+	if (siteMap) {
+		console.log(siteMap);
+	}
 	return (
 		<AppContext.Provider
 			value={{

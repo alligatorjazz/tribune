@@ -51,9 +51,7 @@ export function getSiteMap(site: string): SiteMap {
 		if (statSync(path).isDirectory()) {
 			return {
 				route: "/" + basename(path),
-				children: readdirSync(path)
-					.filter((file) => extname(file) === ".html")
-					.map((child) => walkFile(join(path, child))),
+				children: readdirSync(path).map((child) => walkFile(join(path, child))),
 				localPath: path
 			};
 		}
