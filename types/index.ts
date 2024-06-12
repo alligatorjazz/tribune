@@ -89,7 +89,7 @@ export interface NamedSiteNode extends BaseSiteNode {
 // Site node with children interface
 export interface SiteNodeWithChildren extends BaseSiteNode {
 	route: string;
-	children: Array<NamedSiteNode | IndexSiteNode | SiteNodeWithChildren>;
+	children: SiteMap;
 	index?: undefined;
 }
 

@@ -50,7 +50,7 @@ export function getSiteMap(site: string): SiteMap {
 	const walkFile = (path: string): SiteNode => {
 		if (statSync(path).isDirectory()) {
 			return {
-				route: basename(path),
+				route: "/" + basename(path),
 				children: readdirSync(path)
 					.filter((file) => extname(file) === ".html")
 					.map((child) => walkFile(join(path, child))),

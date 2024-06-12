@@ -1,11 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { App } from "./App";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import { Posts } from "./routes/Posts";
-import { Settings } from "./routes/Settings";
-import { Pages } from "./routes/Pages";
+import { App } from "./App";
 import { Home } from "./routes/Home";
+import { Edit } from "./routes/Pages/Edit";
+import { Pages } from "./routes/Pages/Index";
+import { Settings } from "./routes/Settings";
 
 const router = createBrowserRouter([
 	{
@@ -13,7 +13,17 @@ const router = createBrowserRouter([
 		element: <App />,
 		children: [
 			{ index: true, element: <Home /> },
-			{ path: "pages", element: <Pages /> },
+			{
+				path: "pages",
+				children: [
+					{ index: true, element: <Pages /> },
+					{
+						// TODO: change edit to query params
+						path: "edit",
+						element: <Edit />
+					}
+				]
+			},
 			// { path: "posts", element: <Posts /> },
 			{ path: "settings", element: <Settings /> }
 		]

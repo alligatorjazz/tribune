@@ -1,14 +1,15 @@
-import { HTMLAttributes, useMemo } from "react";
-import { SiteNode } from "tribune-types";
-import { useAppContext } from "../App.lib";
-import LoadingIndicator from "../components/LoadingIndicator";
-import { SidebarLayout } from "../components/SidebarLayout";
 import { basename } from "path-browserify";
+import { HTMLAttributes, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { SiteNode } from "tribune-types";
+import { useAppContext } from "../../App.lib";
+import LoadingIndicator from "../../components/LoadingIndicator";
+import { SidebarLayout } from "../../components/SidebarLayout";
 
 export function Pages() {
-	// TODO: write tree view component
+	// TODO: find out why only top level folders are showing
 	const { activeSite, siteMap, previewRoute, setpreviewRoute } = useAppContext();
-
+	const navigate = useNavigate();
 	const tree = useMemo(() => {
 		if (!siteMap || siteMap === "loading" || !activeSite) {
 			return null;
@@ -39,10 +40,21 @@ export function Pages() {
 			</div>
 		);
 
-		const EditButton = ({ className, ...props }: HTMLAttributes<HTMLDivElement>) => {
+		const EditButton = ({
+			node,
+			className,
+			...props
+		}: HTMLAttributes<HTMLDivElement> & { node: SiteNode }) => {
 			return (
 				<div className={["flex-1 flex justify-end", className].join(" ")} {...props}>
-					<button className="bg-inherit">✎</button>
+					<button
+						onClick={() =>
+							navigate(`edit?${new URLSearchParams({ route: node.route })}`)
+						}
+						className="bg-inherit text-2xl hover:text-accentColor"
+					>
+						✎
+					</button>
 				</div>
 			);
 		};
@@ -53,7 +65,7 @@ export function Pages() {
 					<div className="font-bold flex gap-1 items-center">
 						{icon ? <span>{icon}</span> : null}
 						{title}
-						{<RouteDisplay route={"/" + title} />}
+						{<RouteDisplay route={title} />}
 					</div>
 					{children
 						.map((node) => {
@@ -61,7 +73,7 @@ export function Pages() {
 							// folders
 							if (node.children) {
 								return (
-									<Branch key={"/" + node.route} className="select-none">
+									<Branch key={node.route} className="select-none">
 										{buildBranch(node.children, node.route, "📁")}
 									</Branch>
 								);
@@ -78,7 +90,7 @@ export function Pages() {
 									>
 										<PageButton node={node}>Index</PageButton>{" "}
 										<RouteDisplay route="/" />
-										<EditButton />
+										<EditButton node={node} />
 									</Branch>
 								);
 							}
@@ -91,7 +103,7 @@ export function Pages() {
 								>
 									<PageButton node={node}>{node.title}</PageButton>
 									<RouteDisplay route={"/" + basename(node.route, ".html")} />
-									<EditButton />
+									<EditButton node={node} />
 								</Branch>
 							);
 						})
@@ -106,7 +118,7 @@ export function Pages() {
 		};
 
 		return buildBranch(siteMap, activeSite, "🌎");
-	}, [activeSite, previewRoute, setpreviewRoute, siteMap]);
+	}, [activeSite, navigate, previewRoute, setpreviewRoute, siteMap]);
 
 	return (
 		<SidebarLayout
