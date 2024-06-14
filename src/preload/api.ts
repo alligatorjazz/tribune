@@ -8,6 +8,8 @@ export const api = {
 	getServerStatus: (): Promise<boolean> => ipcRenderer.invoke("get-server-status"),
 	getSourceCode: (localPath: string): Promise<string> =>
 		ipcRenderer.invoke("get-source-code", localPath),
+	saveSourceCode: (localPath: string, content: string) =>
+		ipcRenderer.invoke("save-source-code", localPath, content),
 	onAutoReload: (callback: (event: IpcRendererEvent) => void) =>
 		ipcRenderer.on("auto-reload", callback)
 };

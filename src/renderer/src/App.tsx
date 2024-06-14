@@ -8,7 +8,7 @@ export function App(): JSX.Element {
 	const [theme, setTheme] = useState<"light" | "dark">("dark");
 	const [activeSite] = useState<string | undefined>("Testy Test");
 	const [siteMap, setSiteMap] = useState<SiteMap | "loading">();
-	const [previewRoute, setpreviewRoute] = useState<string>("/");
+	const [previewRoute, setPreviewRoute] = useState<string>("/");
 
 	useEffect(() => {
 		if (activeSite && !siteMap) {
@@ -45,7 +45,7 @@ export function App(): JSX.Element {
 				siteMap,
 				activeSite,
 				previewRoute,
-				setpreviewRoute
+				setPreviewRoute
 			}}
 		>
 			<div className="w-full h-full flex">

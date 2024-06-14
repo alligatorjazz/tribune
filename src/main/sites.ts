@@ -3,6 +3,7 @@ import { JSDOM } from "jsdom";
 import { basename, extname, join } from "path";
 import { SiteMap, SiteNode } from "tribune-types";
 import { DIR } from "./refs";
+import { readFile, writeFile } from "fs/promises";
 
 const PAGE_BOILERPLATE = `
 <!DOCTYPE html>
@@ -78,6 +79,10 @@ export function getSiteMap(site: string): SiteMap {
 	return siteMap;
 }
 
-export function getSourceCode(localPath: string) {
-	return readFileSync(localPath).toString("utf-8");
+export async function getSourceCode(localPath: string) {
+	return (await readFile(localPath, { encoding: "utf-8" })).toString();
+}
+
+export async function saveSourceCode(localPath: string, content: string) {
+	await writeFile(localPath, content);
 }

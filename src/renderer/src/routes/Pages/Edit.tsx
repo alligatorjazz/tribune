@@ -1,19 +1,20 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { IndexSiteNode, NamedSiteNode } from "tribune-types";
 import { useAppContext } from "../../App.lib";
 import LoadingIndicator from "../../components/LoadingIndicator";
 import { SidebarLayout } from "../../components/SidebarLayout";
 import { flattenSiteMap } from "../../lib";
-import Editor from "@monaco-editor/react";
-import { editor } from "monaco-editor";
+import Editor, { OnChange } from "@monaco-editor/react";
 
 export function Edit() {
-	const [searchParams, setSearchParams] = useSearchParams();
+	const [searchParams] = useSearchParams();
 	const [editorContent, setEditorContent] = useState<string | null>(null);
+	const [editorCache, setEditorCache] = useState<string | null>(null);
 
+	const [saving, setSaving] = useState(false);
 	const route = searchParams.get("route");
-	const { siteMap } = useAppContext();
+	const { siteMap, setPreviewRoute } = useAppContext();
 
 	const node = useMemo((): IndexSiteNode | NamedSiteNode | null => {
 		if (!Array.isArray(siteMap)) {
@@ -28,6 +29,14 @@ export function Edit() {
 		return null;
 	}, [route, siteMap]);
 
+	// navigates site preview to the page the user is editing
+	useEffect(() => {
+		if (node) {
+			setPreviewRoute(node.route);
+		}
+	}, [node, setPreviewRoute]);
+
+	// loads source file into editor
 	useEffect(() => {
 		if (node) {
 			window.api
@@ -40,7 +49,27 @@ export function Edit() {
 		}
 	}, [node]);
 
-	console.log(editorContent);
+	// autosaving
+	useEffect(() => {
+		// if the editor contains changes
+		if (editorContent && editorContent !== editorCache && node) {
+			window.api
+				.saveSourceCode(node.localPath, editorContent)
+				.then(() => setEditorCache(editorContent))
+				.catch((err) => console.log(err));
+		}
+	}, [editorCache, editorContent, node]);
+
+	// queues save action
+	// useEffect(() => {
+	// 	if (node && editorContent) {
+	// 		window.api
+	// 			.saveSourceCode(node.localPath, editorContent)
+	// 			.then(() => console.log("saving..."))
+	// 			.catch((err) => console.error(err));
+	// 	}
+	// }, [node]);
+
 	return (
 		<SidebarLayout
 			title={node ? (node.index ? "Index" : node.title) : "Not Found"}
@@ -48,7 +77,21 @@ export function Edit() {
 			className="w-1/2"
 		>
 			{!node && <LoadingIndicator />}
-			{node && editorContent && <Editor language={"html"} defaultValue={editorContent} />}
+			{saving && (
+				<div className="flex gap-2">
+					<LoadingIndicator />
+					<p>Saving...</p>
+				</div>
+			)}
+			{node && editorContent && (
+				<Editor
+					language={"html"}
+					defaultValue={editorContent}
+					onChange={(value) => setEditorContent((prev) => value ?? prev)}
+					height={"80vh"}
+					options={{ wordWrap: "on" }}
+				/>
+			)}
 		</SidebarLayout>
 	);
 }
