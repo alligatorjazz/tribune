@@ -50,3 +50,7 @@ export function flattenSiteMap(siteMap: SiteMap): SiteNode[] {
 	flatten(siteMap);
 	return result;
 }
+
+export type Required<T> = {
+	[P in keyof T]-?: T[P];
+};

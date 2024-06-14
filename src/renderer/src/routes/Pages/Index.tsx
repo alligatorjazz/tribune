@@ -7,7 +7,6 @@ import LoadingIndicator from "../../components/LoadingIndicator";
 import { SidebarLayout } from "../../components/SidebarLayout";
 
 export function Pages() {
-	// TODO: find out why only top level folders are showing
 	const { activeSite, siteMap, previewRoute, setpreviewRoute } = useAppContext();
 	const navigate = useNavigate();
 	const tree = useMemo(() => {

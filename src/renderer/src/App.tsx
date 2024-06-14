@@ -6,7 +6,6 @@ import { PreviewFrame } from "./components/PreviewFrame";
 
 export function App(): JSX.Element {
 	const [theme, setTheme] = useState<"light" | "dark">("dark");
-
 	const [activeSite] = useState<string | undefined>("Testy Test");
 	const [siteMap, setSiteMap] = useState<SiteMap | "loading">();
 	const [previewRoute, setpreviewRoute] = useState<string>("/");
@@ -38,9 +37,6 @@ export function App(): JSX.Element {
 		});
 	}, []);
 
-	if (siteMap) {
-		console.log(siteMap);
-	}
 	return (
 		<AppContext.Provider
 			value={{

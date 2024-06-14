@@ -7,15 +7,14 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
 }
 
 export function SidebarLayout({ title, description, className, children, ...extraProps }: Props) {
-	// TODO: highlight selected tab
 	const location = useLocation();
 	const navigate = useNavigate();
 
 	return (
 		<div
 			className={[
-				className,
-				"h-full bg-fgColor p-4 w-1/4 overflow-y-scroll scrollbar-thin flex-0"
+				"h-full bg-fgColor p-4 overflow-y-scroll scrollbar-thin flex-0",
+				className
 			].join(" ")}
 			{...extraProps}
 		>

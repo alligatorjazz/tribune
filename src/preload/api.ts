@@ -6,6 +6,8 @@ export const api = {
 		ipcRenderer.invoke("start-server", siteTitle),
 	getSiteMap: (siteTitle: string) => ipcRenderer.invoke("get-site-map", siteTitle),
 	getServerStatus: (): Promise<boolean> => ipcRenderer.invoke("get-server-status"),
+	getSourceCode: (localPath: string): Promise<string> =>
+		ipcRenderer.invoke("get-source-code", localPath),
 	onAutoReload: (callback: (event: IpcRendererEvent) => void) =>
 		ipcRenderer.on("auto-reload", callback)
 };

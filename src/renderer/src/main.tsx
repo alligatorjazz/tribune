@@ -18,7 +18,6 @@ const router = createBrowserRouter([
 				children: [
 					{ index: true, element: <Pages /> },
 					{
-						// TODO: change edit to query params
 						path: "edit",
 						element: <Edit />
 					}

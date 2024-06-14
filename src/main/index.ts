@@ -2,7 +2,7 @@ import { app, shell, BrowserWindow, ipcMain } from "electron";
 import { join } from "path";
 import { electronApp, optimizer, is } from "@electron-toolkit/utils";
 import icon from "../../resources/icon.png?asset";
-import { createSite, getSiteMap } from "./sites";
+import { createSite, getSiteMap, getSourceCode } from "./sites";
 import { closeServer, getServerStatus, startServer } from "./server";
 
 function createWindow() {
@@ -73,6 +73,10 @@ app.whenReady().then(() => {
 
 	ipcMain.handle("get-server-status", () => {
 		return getServerStatus();
+	});
+
+	ipcMain.handle("get-source-code", (_event, localPath) => {
+		return getSourceCode(localPath);
 	});
 
 	app.on("activate", function () {

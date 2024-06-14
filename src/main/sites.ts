@@ -10,7 +10,6 @@ const PAGE_BOILERPLATE = `
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta http-equiv="Access-Control-Allow-Origin" content="*" />
 </head>
 <body>
 	
@@ -41,7 +40,6 @@ export function createSite(siteTitle: string): void {
 }
 
 export function getSiteMap(site: string): SiteMap {
-	// TODO: implement site map function
 	const siteMap: SiteMap = [];
 	const siteDir = join(DIR.Sites, site); // Adjust the path as necessary
 	const siteContents = readdirSync(siteDir).filter(
@@ -78,4 +76,8 @@ export function getSiteMap(site: string): SiteMap {
 
 	siteContents.map((path) => siteMap.push(walkFile(join(siteDir, path))));
 	return siteMap;
+}
+
+export function getSourceCode(localPath: string) {
+	return readFileSync(localPath).toString("utf-8");
 }

@@ -1,9 +1,8 @@
 import { HTMLAttributes } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { locationIndex } from "../global";
 
 export function Home({ className, ...extraProps }: HTMLAttributes<HTMLDivElement>) {
-	// TODO: highlight selected tab
 	return (
 		<div className={[className, "h-full bg-fgColor p-4 w-48"].join(" ")} {...extraProps}>
 			<nav className="flex flex-col w-full gap-2">
