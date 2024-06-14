@@ -7,7 +7,7 @@ import LoadingIndicator from "../../components/LoadingIndicator";
 import { SidebarLayout } from "../../components/SidebarLayout";
 
 export function Pages() {
-	const { activeSite, siteMap, previewRoute, setpreviewRoute } = useAppContext();
+	const { activeSite, siteMap, previewRoute, setPreviewRoute } = useAppContext();
 	const navigate = useNavigate();
 	const tree = useMemo(() => {
 		if (!siteMap || siteMap === "loading" || !activeSite) {
@@ -33,7 +33,7 @@ export function Pages() {
 			<div
 				{...props}
 				className={["hover:text-accentColor cursor-pointer", className].join(" ")}
-				onClick={() => setpreviewRoute(node.route)}
+				onClick={() => setPreviewRoute(node.route)}
 			>
 				{children}
 			</div>
@@ -117,7 +117,7 @@ export function Pages() {
 		};
 
 		return buildBranch(siteMap, activeSite, "🌎");
-	}, [activeSite, navigate, previewRoute, setpreviewRoute, siteMap]);
+	}, [activeSite, navigate, previewRoute, setPreviewRoute, siteMap]);
 
 	return (
 		<SidebarLayout

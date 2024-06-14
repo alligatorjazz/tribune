@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import Editor from "@monaco-editor/react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { IndexSiteNode, NamedSiteNode } from "tribune-types";
 import { useAppContext } from "../../App.lib";
 import LoadingIndicator from "../../components/LoadingIndicator";
 import { SidebarLayout } from "../../components/SidebarLayout";
 import { flattenSiteMap } from "../../lib";
-import Editor, { OnChange } from "@monaco-editor/react";
 
 export function Edit() {
 	const [searchParams] = useSearchParams();
