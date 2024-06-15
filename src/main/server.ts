@@ -6,10 +6,13 @@ import { IncomingMessage, Server, ServerResponse } from "http";
 import { JSDOM } from "jsdom";
 import { extname, join } from "path";
 import { DIR } from "./refs";
-import { autoReload } from "./scripts/autoReload";
 import { flattenSiteMap, getSiteMap } from "./sites";
 import { buildWidget } from "./widgets";
 // import { broadcastStyle } from "./scripts/broadcastStyle";
+export type InjectedScript = {
+	action: (params: string[]) => void;
+	params: string[];
+};
 let server: Server<typeof IncomingMessage, typeof ServerResponse> | null = null;
 let watcher: chokidar.FSWatcher | null = null;
 const onFileChange = (_e: string, _path: string, cb: () => void) => {
@@ -33,6 +36,9 @@ export function startServer(site: string, reloadCallback: () => void) {
 		nodeList.map((node) => {
 			if (!node.children) {
 				console.log("adding server route: GET ", node.route, ` (${node.localPath})`);
+				app.get(node.route, (_req, res) => {
+					res.send(attachDevScripts(node.localPath));
+				});
 				app.get(node.route.replace("index.html", ""), (_req, res) => {
 					res.send(attachDevScripts(node.localPath));
 				});
@@ -101,26 +107,15 @@ function attachDevScripts(path: string): string {
 	const styleElement = document.createElement("style");
 	styleElement.appendChild(document.createTextNode("body { background: white }"));
 	document.head.appendChild(styleElement);
-	const addScript = (func: () => void) => {
+	const addScript = ({ action, params }: InjectedScript) => {
 		const script = document.createElement("script");
-		// checks if function is named or if it is anonymous
-		if (func.name !== "") {
-			script.innerHTML = `${func.toString()}\n${func.name}()`;
-		} else {
-			const id = "devScript" + Math.floor(1000 * Math.random()).toString();
-			script.innerHTML = `const ${id} = ${func.toString()}\n${id}()`;
-		}
+		const id = "devScript" + Math.floor(1000 * Math.random()).toString();
+		script.innerHTML = `const ${id} = ${action.toString()}\n${id}([${params.map((param) => `"${param}"`).join(", ")}])`;
 		document.body.appendChild(script);
 	};
 
 	// loads dev scripts
-	addScript(autoReload);
-	// addScript(buildWidget({ tag: "Custom", content: "Hello world!" }));
-	addScript(() => {
-		const test = document.createElement("p");
-		test.innerHTML = "poop";
-		document.body.appendChild(test);
-	});
+	addScript(buildWidget({ tag: "hello-world", content: "Hello world!" }));
 	// return serialized dom
 	return dom.serialize();
 	// return "";

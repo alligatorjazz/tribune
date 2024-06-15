@@ -1,7 +1,7 @@
 import { WidgetData } from "tribune-types";
-
-export function buildWidget(data: WidgetData) {
-	return () => {
+import { InjectedScript } from "./server";
+export function buildWidget(data: WidgetData): InjectedScript {
+	const action = ([tag, content]: string[]) => {
 		const WidgetElement = class extends HTMLElement {
 			constructor() {
 				super();
@@ -13,7 +13,7 @@ export function buildWidget(data: WidgetData) {
 				// Create spans
 				const wrapper = document.createElement("p");
 				wrapper.setAttribute("class", "wrapper");
-				wrapper.innerHTML = data.content;
+				wrapper.innerHTML = content;
 				// Create some CSS to apply to the shadow dom
 				const style = document.createElement("style");
 				console.log(style.isConnected);
@@ -30,6 +30,8 @@ export function buildWidget(data: WidgetData) {
 				shadow.appendChild(wrapper);
 			}
 		};
-		customElements.define(data.tag, WidgetElement);
+		customElements.define(tag, WidgetElement);
 	};
+
+	return { action, params: [data.tag, data.content] };
 }
