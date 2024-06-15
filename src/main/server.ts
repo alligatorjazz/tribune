@@ -1,16 +1,18 @@
 import chokidar from "chokidar";
 import cors from "cors";
-import express, { Application, Request, Response } from "express";
+import express, { Application } from "express";
 import { readFileSync } from "fs";
 import { IncomingMessage, Server, ServerResponse } from "http";
 import { JSDOM } from "jsdom";
 import { extname, join } from "path";
 import { DIR } from "./refs";
 import { autoReload } from "./scripts/autoReload";
+import { flattenSiteMap, getSiteMap } from "./sites";
+import { buildWidget } from "./widgets";
 // import { broadcastStyle } from "./scripts/broadcastStyle";
 let server: Server<typeof IncomingMessage, typeof ServerResponse> | null = null;
 let watcher: chokidar.FSWatcher | null = null;
-const onFileChange = (e: string, path: string, cb: () => void) => {
+const onFileChange = (_e: string, _path: string, cb: () => void) => {
 	// console.log(`change detected (${JSON.stringify(path)}, ${e}): queuing autoreload`);
 	try {
 		cb();
@@ -19,19 +21,23 @@ const onFileChange = (e: string, path: string, cb: () => void) => {
 	}
 };
 
-export function startServer(siteName: string, reloadCallback: () => void) {
+export function startServer(site: string, reloadCallback: () => void) {
 	const init = () => {
 		console.log("starting server...");
-		const siteDir = join(DIR.Sites, siteName);
+		const siteDir = join(DIR.Sites, site);
 		const app: Application = express();
 		app.use(cors({ origin: "*" }));
-		// build html routes based on site folder structure
-		app.use(express.static(join(siteDir)));
-		app.get("*", (req: Request, res: Response) => {
-			const localPath = join(siteDir, req.path);
-			res.send(attachDevScripts(localPath));
+		// build html routes based on site map
+		const siteMap = getSiteMap(site);
+		const nodeList = flattenSiteMap(siteMap);
+		nodeList.map((node) => {
+			if (!node.children) {
+				console.log("adding server route: GET ", node.route, ` (${node.localPath})`);
+				app.get(node.route.replace("index.html", ""), (_req, res) => {
+					res.send(attachDevScripts(node.localPath));
+				});
+			}
 		});
-
 		// TODO: allow for custom port
 		const port = process.env.PORT || 3000;
 
@@ -81,7 +87,6 @@ export function getServerStatus() {
 }
 // returns a path to new version of an html file with dev scripts attached
 function attachDevScripts(path: string): string {
-	// check if given path is an html file]
 	const fileContent = readFileSync(path);
 	if (extname(path) != ".html") {
 		console.warn(`Can't attach dev script to ${path} - not an html file`);
@@ -98,13 +103,25 @@ function attachDevScripts(path: string): string {
 	document.head.appendChild(styleElement);
 	const addScript = (func: () => void) => {
 		const script = document.createElement("script");
-		script.innerHTML = `${func.toString()}\n${func.name}()`;
+		// checks if function is named or if it is anonymous
+		if (func.name !== "") {
+			script.innerHTML = `${func.toString()}\n${func.name}()`;
+		} else {
+			const id = "devScript" + Math.floor(1000 * Math.random()).toString();
+			script.innerHTML = `const ${id} = ${func.toString()}\n${id}()`;
+		}
 		document.body.appendChild(script);
 	};
+
 	// loads dev scripts
 	addScript(autoReload);
-	// addScript(broadcastStyle);
-
+	// addScript(buildWidget({ tag: "Custom", content: "Hello world!" }));
+	addScript(() => {
+		const test = document.createElement("p");
+		test.innerHTML = "poop";
+		document.body.appendChild(test);
+	});
 	// return serialized dom
 	return dom.serialize();
+	// return "";
 }

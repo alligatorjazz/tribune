@@ -6,15 +6,15 @@ export declare const UserSchema: z.ZodObject<{
     email: z.ZodString;
     avatar: z.ZodString;
 }, "strip", z.ZodTypeAny, {
-    id?: string;
-    name?: string;
-    email?: string;
-    avatar?: string;
+    id: string;
+    name: string;
+    email: string;
+    avatar: string;
 }, {
-    id?: string;
-    name?: string;
-    email?: string;
-    avatar?: string;
+    id: string;
+    name: string;
+    email: string;
+    avatar: string;
 }>;
 export declare const CommentSchema: z.ZodObject<{
     id: z.ZodString;
@@ -22,15 +22,15 @@ export declare const CommentSchema: z.ZodObject<{
     content: z.ZodString;
     createdAt: z.ZodDate;
 }, "strip", z.ZodTypeAny, {
-    id?: string;
-    content?: string;
-    userId?: string;
-    createdAt?: Date;
+    id: string;
+    content: string;
+    userId: string;
+    createdAt: Date;
 }, {
-    id?: string;
-    content?: string;
-    userId?: string;
-    createdAt?: Date;
+    id: string;
+    content: string;
+    userId: string;
+    createdAt: Date;
 }>;
 export declare const POST_STATUSES: readonly ["Published", "Drafts", "Scheduled", "Archived"];
 export declare const PostStatusSchema: z.ZodEnum<["Published", "Drafts", "Scheduled", "Archived"]>;
@@ -46,42 +46,42 @@ export declare const BlogPostSchema: z.ZodObject<{
         content: z.ZodString;
         createdAt: z.ZodDate;
     }, "strip", z.ZodTypeAny, {
-        id?: string;
-        content?: string;
-        userId?: string;
-        createdAt?: Date;
+        id: string;
+        content: string;
+        userId: string;
+        createdAt: Date;
     }, {
-        id?: string;
-        content?: string;
-        userId?: string;
-        createdAt?: Date;
+        id: string;
+        content: string;
+        userId: string;
+        createdAt: Date;
     }>, "many">;
     status: z.ZodEnum<["Published", "Drafts", "Scheduled", "Archived"]>;
 }, "strip", z.ZodTypeAny, {
-    id?: string;
-    content?: string;
-    title?: string;
-    status?: "Published" | "Drafts" | "Scheduled" | "Archived";
-    createdAt?: Date;
-    author?: string;
-    comments?: {
-        id?: string;
-        content?: string;
-        userId?: string;
-        createdAt?: Date;
+    id: string;
+    content: string;
+    title: string;
+    status: "Published" | "Drafts" | "Scheduled" | "Archived";
+    createdAt: Date;
+    author: string;
+    comments: {
+        id: string;
+        content: string;
+        userId: string;
+        createdAt: Date;
     }[];
 }, {
-    id?: string;
-    content?: string;
-    title?: string;
-    status?: "Published" | "Drafts" | "Scheduled" | "Archived";
-    createdAt?: Date;
-    author?: string;
-    comments?: {
-        id?: string;
-        content?: string;
-        userId?: string;
-        createdAt?: Date;
+    id: string;
+    content: string;
+    title: string;
+    status: "Published" | "Drafts" | "Scheduled" | "Archived";
+    createdAt: Date;
+    author: string;
+    comments: {
+        id: string;
+        content: string;
+        userId: string;
+        createdAt: Date;
     }[];
 }>;
 export declare const FormResponseSchema: z.ZodObject<{
@@ -90,15 +90,15 @@ export declare const FormResponseSchema: z.ZodObject<{
     response: z.ZodString;
     submittedAt: z.ZodDate;
 }, "strip", z.ZodTypeAny, {
-    id?: string;
-    userId?: string;
-    response?: string;
-    submittedAt?: Date;
+    id: string;
+    userId: string;
+    response: string;
+    submittedAt: Date;
 }, {
-    id?: string;
-    userId?: string;
-    response?: string;
-    submittedAt?: Date;
+    id: string;
+    userId: string;
+    response: string;
+    submittedAt: Date;
 }>;
 export declare const ConnectionStatusSchema: z.ZodEnum<["disconnected", "loading", "connected"]>;
 export interface BaseSiteNode {
@@ -117,7 +117,7 @@ export interface NamedSiteNode extends BaseSiteNode {
 }
 export interface SiteNodeWithChildren extends BaseSiteNode {
     route: string;
-    children: Array<NamedSiteNode | IndexSiteNode | SiteNodeWithChildren>;
+    children: SiteMap;
     index?: undefined;
 }
 export type SiteNode = IndexSiteNode | NamedSiteNode | SiteNodeWithChildren;
@@ -129,3 +129,14 @@ export type BlogPost = z.infer<typeof BlogPostSchema>;
 export type FormResponse = z.infer<typeof FormResponseSchema>;
 export type NonEmptyArray<T> = z.infer<ReturnType<typeof NonEmptyArraySchema<T>>>;
 export type ConnectionStatus = z.infer<typeof ConnectionStatusSchema>;
+export declare const WidgetDataSchema: z.ZodObject<{
+    tag: z.ZodEffects<z.ZodString, string, string>;
+    content: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    content: string;
+    tag: string;
+}, {
+    content: string;
+    tag: string;
+}>;
+export type WidgetData = z.infer<typeof WidgetDataSchema>;

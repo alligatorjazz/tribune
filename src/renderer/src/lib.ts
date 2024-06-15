@@ -1,5 +1,5 @@
 import { basename, dirname } from "path-browserify";
-import { locationIndex } from "./global";
+import { locationIndex } from "./refs";
 import { SiteMap, SiteNode } from "tribune-types";
 
 export function truncateString(input: string, maxLength: number): string {
@@ -30,6 +30,7 @@ export function toTitleCase(str: string) {
 	});
 }
 
+// TODO: export to larger "lib" package so functions like these can be shared across main / renderer
 /**
  * Flattens a nested SiteMap into a single array of SiteNode.
  * @param siteMap - The nested SiteMap to be flattened.

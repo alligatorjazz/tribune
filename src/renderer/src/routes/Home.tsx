@@ -1,6 +1,6 @@
 import { HTMLAttributes } from "react";
 import { Link } from "react-router-dom";
-import { locationIndex } from "../global";
+import { locationIndex } from "../refs";
 
 export function Home({ className, ...extraProps }: HTMLAttributes<HTMLDivElement>) {
 	return (

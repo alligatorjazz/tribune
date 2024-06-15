@@ -86,3 +86,24 @@ export async function getSourceCode(localPath: string) {
 export async function saveSourceCode(localPath: string, content: string) {
 	await writeFile(localPath, content);
 }
+
+/**
+ * Flattens a nested SiteMap into a single array of SiteNode.
+ * @param siteMap - The nested SiteMap to be flattened.
+ * @returns The flattened array of SiteNode.
+ */
+export function flattenSiteMap(siteMap: SiteMap): SiteNode[] {
+	const result: SiteNode[] = [];
+
+	const flatten = (nodes: SiteMap) => {
+		for (const node of nodes) {
+			result.push(node);
+			if ("children" in node && node.children) {
+				flatten(node.children);
+			}
+		}
+	};
+
+	flatten(siteMap);
+	return result;
+}

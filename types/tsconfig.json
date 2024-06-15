@@ -4,6 +4,7 @@
 		"declaration": true,
 		"target": "ES6",
 		"module": "NodeNext",
-		"moduleResolution": "NodeNext"
+		"moduleResolution": "NodeNext",
+		"strictNullChecks": true
 	}
 }

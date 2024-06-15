@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { devURL } from "../global";
+import { devURL } from "../refs";
 import LoadingIndicator from "./LoadingIndicator";
 import { useAppContext } from "../App.lib";
 

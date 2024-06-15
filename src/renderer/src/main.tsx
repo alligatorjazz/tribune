@@ -6,6 +6,7 @@ import { Home } from "./routes/Home";
 import { Edit } from "./routes/Pages/Edit";
 import { Pages } from "./routes/Pages/Index";
 import { Settings } from "./routes/Settings";
+import { Widgets } from "./routes/Widgets";
 
 const router = createBrowserRouter([
 	{
@@ -23,7 +24,7 @@ const router = createBrowserRouter([
 					}
 				]
 			},
-			// { path: "posts", element: <Posts /> },
+			{ path: "widgets", element: <Widgets /> },
 			{ path: "settings", element: <Settings /> }
 		]
 	}
