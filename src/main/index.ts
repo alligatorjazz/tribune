@@ -4,6 +4,8 @@ import { electronApp, optimizer, is } from "@electron-toolkit/utils";
 import icon from "../../resources/icon.png?asset";
 import { createSite, getSiteMap, getSourceCode, saveSourceCode } from "./sites";
 import { closeServer, getServerStatus, startServer } from "./server";
+import { getWidgets, saveWidget } from "./widgets";
+import { WidgetData } from "tribune-types";
 
 function createWindow() {
 	// Create the browser window.
@@ -56,7 +58,7 @@ app.whenReady().then(() => {
 		optimizer.watchWindowShortcuts(window);
 	});
 
-	const appWindow = createWindow();
+	// const appWindow = createWindow();
 	// IPC test
 	ipcMain.handle("create-site", (_event, siteTitle: string) => {
 		createSite(siteTitle);
@@ -81,6 +83,14 @@ app.whenReady().then(() => {
 
 	ipcMain.handle("save-source-code", (_event, localPath, content) => {
 		return saveSourceCode(localPath, content);
+	});
+
+	ipcMain.handle("get-widgets", (_event, site: string) => {
+		return getWidgets(site);
+	});
+
+	ipcMain.handle("save-widget", (_event, site: string, data: WidgetData) => {
+		return saveWidget(site, data);
 	});
 
 	app.on("activate", function () {
