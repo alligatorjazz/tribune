@@ -3,10 +3,11 @@ import ReactDOM from "react-dom/client";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import { App } from "./App";
 import { Home } from "./routes/Home";
-import { Edit } from "./routes/Pages/Edit";
+import { Edit as PagesEdit } from "./routes/Pages/Edit";
+import { Edit as WidgetsEdit } from "./routes/Widgets/Edit";
 import { Pages } from "./routes/Pages/Index";
 import { Settings } from "./routes/Settings";
-import { Widgets } from "./routes/Widgets";
+import { Widgets } from "./routes/Widgets/Index";
 
 const router = createBrowserRouter([
 	{
@@ -20,11 +21,20 @@ const router = createBrowserRouter([
 					{ index: true, element: <Pages /> },
 					{
 						path: "edit",
-						element: <Edit />
+						element: <PagesEdit />
 					}
 				]
 			},
-			{ path: "widgets", element: <Widgets /> },
+			{
+				path: "widgets",
+				children: [
+					{ index: true, element: <Widgets /> },
+					{
+						path: "edit",
+						element: <WidgetsEdit />
+					}
+				]
+			},
 			{ path: "settings", element: <Settings /> }
 		]
 	}

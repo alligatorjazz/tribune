@@ -7,7 +7,7 @@ import { JSDOM } from "jsdom";
 import { extname, join } from "path";
 import { DIR } from "./refs";
 import { flattenSiteMap, getSiteMap } from "./sites";
-import { buildWidget } from "./widgets";
+import { buildWidget, getWidgets } from "./widgets";
 // import { broadcastStyle } from "./scripts/broadcastStyle";
 export type InjectedScript = {
 	action: (params: string[]) => void;
@@ -37,10 +37,10 @@ export function startServer(site: string, reloadCallback: () => void) {
 			if (!node.children) {
 				console.log("adding server route: GET ", node.route, ` (${node.localPath})`);
 				app.get(node.route, (_req, res) => {
-					res.send(attachDevScripts(node.localPath));
+					loadFeatures(node.localPath, site).then((content) => res.send(content));
 				});
 				app.get(node.route.replace("index.html", ""), (_req, res) => {
-					res.send(attachDevScripts(node.localPath));
+					loadFeatures(node.localPath, site).then((content) => res.send(content));
 				});
 			}
 		});
@@ -50,6 +50,7 @@ export function startServer(site: string, reloadCallback: () => void) {
 		server = app.listen(port, () => {
 			console.log(`Server is running on http://localhost:${port}`);
 			if (!watcher) {
+				// TODO: ignore widgets path
 				watcher = chokidar
 					.watch(siteDir)
 					.on("all", (e, path) => onFileChange(e, path, reloadCallback));
@@ -91,8 +92,8 @@ export function closeServer() {
 export function getServerStatus() {
 	return Boolean(server);
 }
-// returns a path to new version of an html file with dev scripts attached
-function attachDevScripts(path: string): string {
+// returns a path to new version of an html file with scripts attached
+async function loadFeatures(path: string, site: string): Promise<string> {
 	const fileContent = readFileSync(path);
 	if (extname(path) != ".html") {
 		console.warn(`Can't attach dev script to ${path} - not an html file`);
@@ -115,8 +116,9 @@ function attachDevScripts(path: string): string {
 	};
 
 	// loads dev scripts
-	addScript(buildWidget({ tag: "hello-world", content: "Hello world!" }));
+	const { widgets } = await getWidgets(site);
+	widgets.map((widget) => addScript(buildWidget(widget)));
+
 	// return serialized dom
 	return dom.serialize();
-	// return "";
 }

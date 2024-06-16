@@ -6,6 +6,7 @@ import { useAppContext } from "../../App.lib";
 import LoadingIndicator from "../../components/LoadingIndicator";
 import { SidebarLayout } from "../../components/SidebarLayout";
 
+const treeIgnore = ["/widgets"];
 export function Pages() {
 	const { activeSite, siteMap, previewRoute, setPreviewRoute } = useAppContext();
 	const navigate = useNavigate();
@@ -59,6 +60,9 @@ export function Pages() {
 		};
 
 		const buildBranch = (children: SiteNode[], title: string, icon?: string) => {
+			if (treeIgnore.includes(title)) {
+				return <></>;
+			}
 			return (
 				<ul className="flex flex-col w-full">
 					<div className="font-bold flex gap-1 items-center">
