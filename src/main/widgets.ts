@@ -1,5 +1,5 @@
 import { basename, join } from "path";
-import { WidgetData, WidgetDataSchema } from "tribune-types";
+import { WidgetData, WidgetDataSchema } from "../shared";
 import { DIR } from "./refs";
 import { InjectedScript } from "./server";
 import { mkdir, readFile, readdir, writeFile } from "fs/promises";

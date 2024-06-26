@@ -4,7 +4,7 @@ import { useAppContext } from "../../App.lib";
 import { SidebarLayout } from "../../components/SidebarLayout";
 import { useWidgets } from "../../hooks/useWidgets";
 import { useState } from "react";
-import { WidgetData, WidgetDataSchema } from "tribune-types";
+import { WidgetData, WidgetDataSchema } from "../../../../shared";
 
 export function Widgets() {
 	const { activeSite, siteMap } = useAppContext();

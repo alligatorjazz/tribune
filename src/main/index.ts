@@ -5,7 +5,7 @@ import icon from "../../resources/icon.png?asset";
 import { createSite, getSiteMap, getSourceCode, saveSourceCode } from "./sites";
 import { closeServer, getServerStatus, startServer } from "./server";
 import { getWidgets, saveWidget } from "./widgets";
-import { WidgetData } from "tribune-types";
+import { WidgetData } from "../../../shared";
 
 function createWindow() {
 	// Create the browser window.

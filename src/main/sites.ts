@@ -1,7 +1,7 @@
 import { mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "fs";
 import { JSDOM } from "jsdom";
 import { basename, extname, join } from "path";
-import { SiteMap, SiteNode } from "tribune-types";
+import { SiteMap, SiteNode } from "../../../shared";
 import { DIR } from "./refs";
 import { readFile, writeFile } from "fs/promises";
 

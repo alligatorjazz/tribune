@@ -2,7 +2,7 @@ import Editor, { Monaco } from "@monaco-editor/react";
 import { IRange, editor, languages } from "monaco-editor";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { IndexSiteNode, NamedSiteNode } from "tribune-types";
+import { IndexSiteNode, NamedSiteNode } from "../../../shared";
 import { useAppContext } from "../../App.lib";
 import LoadingIndicator from "../../components/LoadingIndicator";
 import { SidebarLayout } from "../../components/SidebarLayout";

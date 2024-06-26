@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { WidgetData } from "tribune-types";
+import { WidgetData } from "../../../../shared";
 import { useAppContext } from "../App.lib";
 import { dirname, join } from "path-browserify";
 

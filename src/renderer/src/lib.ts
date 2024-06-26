@@ -1,6 +1,6 @@
 import { basename, dirname } from "path-browserify";
 import { locationIndex } from "./refs";
-import { SiteMap, SiteNode } from "tribune-types";
+import { SiteMap, SiteNode } from "../../../shared";
 
 export function truncateString(input: string, maxLength: number): string {
 	if (input.length <= maxLength) {

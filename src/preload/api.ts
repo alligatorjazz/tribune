@@ -1,5 +1,5 @@
 import { IpcRendererEvent, ipcRenderer } from "electron";
-import { WidgetData } from "tribune-types";
+import { WidgetData } from "../../../shared";
 import { GetWidgetResult } from "../main/widgets";
 // Custom APIs for renderer
 export const api = {

@@ -1,5 +1,5 @@
 import { Dispatch, createContext, useContext } from "react";
-import { SiteMap } from "tribune-types";
+import { SiteMap } from "../../../shared";
 
 type Theme = "light" | "dark";
 interface IAppContext {

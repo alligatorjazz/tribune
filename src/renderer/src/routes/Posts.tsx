@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { SidebarLayout } from "../components/SidebarLayout";
 // import dummy from "../dummy";
-import { POST_STATUSES, PostStatus } from "tribune-types";
+import { POST_STATUSES, PostStatus } from "../../../shared";
 
 export function Posts() {
 	const [activeTab, setActiveTab] = useState<PostStatus>("Published");

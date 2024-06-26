@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
-import { SiteMap } from "tribune-types";
+import { SiteMap } from "../../../shared";
 import { AppContext } from "./App.lib";
 import { PreviewFrame } from "./components/PreviewFrame";
 

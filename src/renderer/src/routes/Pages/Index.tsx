@@ -1,7 +1,7 @@
 import { basename } from "path-browserify";
 import { HTMLAttributes, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { SiteNode } from "tribune-types";
+import { SiteNode } from "../../../shared";
 import { useAppContext } from "../../App.lib";
 import LoadingIndicator from "../../components/LoadingIndicator";
 import { SidebarLayout } from "../../components/SidebarLayout";
