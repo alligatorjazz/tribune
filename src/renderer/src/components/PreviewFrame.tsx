@@ -16,18 +16,18 @@ export function PreviewFrame({ route }: Props) {
 	const initializeServer = useCallback(() => {
 		const iframe = frame.current;
 		if (activeSite && iframe) {
-			console.log("initializing server...");
+			// console.log("initializing server...");
 			window.api
 				.startServer(activeSite)
 				.then(() => {
-					console.log("server initialized - checking status...");
+					// console.log("server initialized - checking status...");
 					window.api
 						.getServerStatus()
 						.then((status) => {
 							if (status) {
-								console.log("server online, reloading iframe...");
+								// console.log("server online, reloading iframe...");
 								window.api.onAutoReload(() => {
-									console.log("recieved autoreload, reloading...");
+									// console.log("recieved autoreload, reloading...");
 									iframe.src += "";
 								});
 								iframe.src += "";

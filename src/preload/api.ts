@@ -1,5 +1,5 @@
 import { IpcRendererEvent, ipcRenderer } from "electron";
-import { WidgetData } from "../../../shared";
+import { WidgetData } from "../shared";
 import { GetWidgetResult } from "../main/widgets";
 // Custom APIs for renderer
 export const api = {
@@ -12,6 +12,8 @@ export const api = {
 		ipcRenderer.invoke("get-source-code", localPath),
 	saveSourceCode: (localPath: string, content: string): Promise<void> =>
 		ipcRenderer.invoke("save-source-code", localPath, content),
+	renameSourceCode: (localPath: string, newPath: string): Promise<void> =>
+		ipcRenderer.invoke("rename-source-code", localPath, newPath),
 	getWidgets: (site: string): Promise<GetWidgetResult> => {
 		return ipcRenderer.invoke("get-widgets", site);
 	},
@@ -19,7 +21,9 @@ export const api = {
 		return ipcRenderer.invoke("save-widget", site, widget);
 	},
 	onAutoReload: (callback: (event: IpcRendererEvent) => void) =>
-		ipcRenderer.on("auto-reload", callback)
+		ipcRenderer.on("auto-reload", callback),
+	onWidgetChange: (callback: (event: IpcRendererEvent) => void) =>
+		ipcRenderer.on("widget-change", callback)
 };
 
 export type TribuneAPI = typeof api;

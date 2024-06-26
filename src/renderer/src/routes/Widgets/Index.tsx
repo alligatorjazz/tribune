@@ -1,15 +1,53 @@
-import { faker } from "@faker-js/faker";
+import { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
+import { WidgetData } from "../../../../shared";
 import { useAppContext } from "../../App.lib";
 import { SidebarLayout } from "../../components/SidebarLayout";
 import { useWidgets } from "../../hooks/useWidgets";
-import { useState } from "react";
-import { WidgetData, WidgetDataSchema } from "../../../../shared";
 
 export function Widgets() {
 	const { activeSite, siteMap } = useAppContext();
 	const { widgets, setWidgets, getWidgetPath } = useWidgets(siteMap);
 	const [editingWidget, setEditingWidget] = useState<WidgetData | null>(null);
+
+	const rename = useCallback(
+		async (newTag: string) => {
+			if (!editingWidget || !activeSite) {
+				return;
+			}
+			// clones currently edited widget
+			const widget = { ...editingWidget };
+			const oldPath = getWidgetPath(widget.tag);
+			const newPath = getWidgetPath(newTag);
+
+			if (!oldPath) {
+				alert(
+					`Could not find path of widget ${widget.tag}. If the problem persists, restart Tribune.`
+				);
+				return window.location.reload();
+			}
+
+			if (!newPath) {
+				alert(
+					`Could not rename widget ${widget.tag}. If the problem persists, restart Tribune.`
+				);
+				return window.location.reload();
+			}
+			// gets data from form
+			try {
+				return window.api
+					.renameSourceCode(oldPath, newPath)
+					.catch((err) => alert(JSON.stringify(err, null, 4)));
+			} catch (err) {
+				alert(JSON.stringify(err, null, 4));
+			}
+		},
+		[activeSite, editingWidget, getWidgetPath]
+	);
+
+	if (!activeSite) {
+		return null;
+	}
 
 	return (
 		<SidebarLayout
@@ -29,31 +67,13 @@ export function Widgets() {
 										className="w-full h-10"
 										onSubmit={(e) => {
 											e.preventDefault();
-											const localPath = getWidgetPath(widget.tag);
-											if (!localPath) {
-												alert("Could not save widget " + widget.tag);
-												return window.location.reload();
+											const newTag = new FormData(
+												e.target as HTMLFormElement
+											).get("tag");
+											if (newTag) {
+												rename(newTag.toString());
 											}
-											const data = new FormData(e.target as HTMLFormElement);
-											try {
-												const tag = WidgetDataSchema.shape.tag.parse(
-													data.get("tag") ?? widget.tag
-												);
-												window.api
-													.saveSourceCode(
-														localPath,
-														JSON.stringify({
-															...widget,
-															tag
-														})
-													)
-													.then(() => window.location.reload())
-													.catch((err) =>
-														alert(JSON.stringify(err, null, 4))
-													);
-											} catch (err) {
-												alert(JSON.stringify(err, null, 4));
-											}
+											setEditingWidget(null);
 										}}
 									>
 										<input
@@ -88,14 +108,15 @@ export function Widgets() {
 			<button
 				className="p-4"
 				onClick={() => {
-					if (activeSite)
+					if (activeSite) {
+						const path = getWidgetPath("new-widget");
+						if (!path) {
+							throw new Error("Could not create new widget.");
+						}
 						window.api
-							.saveWidget(activeSite, {
-								tag: faker.animal.bear().split(" ").join("-").toLowerCase(),
-								content: "hello!"
-							})
-							.then(() => setWidgets(undefined))
+							.saveSourceCode(path, `<div>Hello World!</div>`)
 							.catch((err) => console.error(err));
+					}
 				}}
 			>
 				+ New Widget

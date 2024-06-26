@@ -1,11 +1,10 @@
-import { app, shell, BrowserWindow, ipcMain } from "electron";
+import { electronApp, is, optimizer } from "@electron-toolkit/utils";
+import { BrowserWindow, app, ipcMain, shell } from "electron";
 import { join } from "path";
-import { electronApp, optimizer, is } from "@electron-toolkit/utils";
 import icon from "../../resources/icon.png?asset";
-import { createSite, getSiteMap, getSourceCode, saveSourceCode } from "./sites";
 import { closeServer, getServerStatus, startServer } from "./server";
-import { getWidgets, saveWidget } from "./widgets";
-import { WidgetData } from "../../../shared";
+import { createSite, getSiteMap, getSourceCode, renameSourceCode, saveSourceCode } from "./sites";
+import { getWidgets, watchWidgets } from "./widgets";
 
 function createWindow() {
 	// Create the browser window.
@@ -59,24 +58,35 @@ app.whenReady().then(() => {
 	});
 
 	// const appWindow = createWindow();
-	// IPC test
+
+	// SITE COMMANDS
 	ipcMain.handle("create-site", (_event, siteTitle: string) => {
 		createSite(siteTitle);
-	});
-	ipcMain.handle("start-server", (event, siteTitle: string) => {
-		startServer(siteTitle, () =>
-			BrowserWindow.fromWebContents(event.sender)?.webContents.send("auto-reload")
-		);
 	});
 
 	ipcMain.handle("get-site-map", (_event, siteTitle: string) => {
 		return getSiteMap(siteTitle);
 	});
 
+	// SERVER COMMANDS
+	ipcMain.handle("start-server", (event, siteTitle: string) => {
+		startServer(siteTitle, () =>
+			BrowserWindow.fromWebContents(event.sender)?.webContents.send("auto-reload")
+		);
+		watchWidgets(siteTitle, () =>
+			BrowserWindow.fromWebContents(event.sender)?.webContents.send("widget-change")
+		);
+	});
+
 	ipcMain.handle("get-server-status", () => {
 		return getServerStatus();
 	});
 
+	ipcMain.handle("get-widgets", (_event, site: string) => {
+		return getWidgets(site);
+	});
+
+	// FILE COMMANDS
 	ipcMain.handle("get-source-code", (_event, localPath) => {
 		return getSourceCode(localPath);
 	});
@@ -85,12 +95,8 @@ app.whenReady().then(() => {
 		return saveSourceCode(localPath, content);
 	});
 
-	ipcMain.handle("get-widgets", (_event, site: string) => {
-		return getWidgets(site);
-	});
-
-	ipcMain.handle("save-widget", (_event, site: string, data: WidgetData) => {
-		return saveWidget(site, data);
+	ipcMain.handle("rename-source-code", (_event, oldPath: string, newPath: string) => {
+		return renameSourceCode(oldPath, newPath);
 	});
 
 	app.on("activate", function () {

@@ -26,7 +26,7 @@ const onFileChange = (_e: string, _path: string, cb: () => void) => {
 
 export function startServer(site: string, reloadCallback: () => void) {
 	const init = () => {
-		console.log("starting server...");
+		// console.log("starting server...");
 		const siteDir = join(DIR.Sites, site);
 		const app: Application = express();
 		app.use(cors({ origin: "*" }));
@@ -35,7 +35,7 @@ export function startServer(site: string, reloadCallback: () => void) {
 		const nodeList = flattenSiteMap(siteMap);
 		nodeList.map((node) => {
 			if (!node.children) {
-				console.log("adding server route: GET ", node.route, ` (${node.localPath})`);
+				// console.log("adding server route: GET ", node.route, ` (${node.localPath})`);
 				app.get(node.route, (_req, res) => {
 					loadFeatures(node.localPath, site).then((content) => res.send(content));
 				});
@@ -48,7 +48,7 @@ export function startServer(site: string, reloadCallback: () => void) {
 		const port = process.env.PORT || 3000;
 
 		server = app.listen(port, () => {
-			console.log(`Server is running on http://localhost:${port}`);
+			// console.log(`Server is running on http://localhost:${port}`);
 			if (!watcher) {
 				// TODO: ignore widgets path
 				watcher = chokidar

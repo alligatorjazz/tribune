@@ -1,9 +1,9 @@
 import { mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "fs";
 import { JSDOM } from "jsdom";
 import { basename, extname, join } from "path";
-import { SiteMap, SiteNode } from "../../../shared";
 import { DIR } from "./refs";
-import { readFile, writeFile } from "fs/promises";
+import { readFile, rename, writeFile } from "fs/promises";
+import { SiteMap, SiteNode } from "../shared";
 
 const PAGE_BOILERPLATE = `
 <!DOCTYPE html>
@@ -87,6 +87,9 @@ export async function saveSourceCode(localPath: string, content: string) {
 	await writeFile(localPath, content);
 }
 
+export async function renameSourceCode(oldPath: string, newPath: string) {
+	return await rename(oldPath, newPath);
+}
 /**
  * Flattens a nested SiteMap into a single array of SiteNode.
  * @param siteMap - The nested SiteMap to be flattened.
