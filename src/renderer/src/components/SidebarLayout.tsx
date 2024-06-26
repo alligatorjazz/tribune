@@ -1,9 +1,10 @@
 import { HTMLAttributes } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getParentLocationTitle } from "../lib";
+
 interface Props extends HTMLAttributes<HTMLDivElement> {
-	title: string;
-	description: string;
+	title?: string;
+	description?: string;
 }
 
 export function SidebarLayout({ title, description, className, children, ...extraProps }: Props) {
@@ -18,13 +19,15 @@ export function SidebarLayout({ title, description, className, children, ...extr
 			].join(" ")}
 			{...extraProps}
 		>
-			<button className="bg-fgColor" onClick={() => navigate("..")}>
+			<button className="bg-fgColor block" onClick={() => navigate("..")}>
 				🔙 {getParentLocationTitle(location.pathname)}
 			</button>
-			<div className="flex flex-col mb-4">
-				<h1 className="text-2xl font-bold">{title}</h1>
-				<p className="text-sm">{description}</p>
-			</div>
+			{(title || description) && (
+				<div className="flex flex-col my-2">
+					{title && <h1 className="text-2xl font-bold">{title}</h1>}
+					{description && <p className="text-sm">{description}</p>}
+				</div>
+			)}
 			{children}
 		</div>
 	);

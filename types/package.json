@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "Contains global types for Tribune.",
   "main": "dist/index.js",
+  "type": "module",
   "scripts": {
     "build": "tsc",
     "publish": "tsc && npm publish"

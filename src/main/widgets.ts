@@ -1,4 +1,4 @@
-import { join } from "path";
+import { basename, join } from "path";
 import { WidgetData, WidgetDataSchema } from "tribune-types";
 import { DIR } from "./refs";
 import { InjectedScript } from "./server";
@@ -33,8 +33,11 @@ export async function getWidgets(site: string): Promise<GetWidgetResult> {
 	await Promise.all(
 		widgetFiles.map(async (file) => {
 			try {
-				const data = JSON.parse((await readFile(join(widgetDir, file))).toString("utf-8"));
-				const parseResult = WidgetDataSchema.safeParse(data);
+				const content = (await readFile(join(widgetDir, file))).toString("utf-8");
+				const parseResult = WidgetDataSchema.safeParse({
+					tag: basename(file, ".html"),
+					content
+				});
 				if (parseResult.success) {
 					console.log(parseResult);
 					widgets.push(parseResult.data);
@@ -46,7 +49,7 @@ export async function getWidgets(site: string): Promise<GetWidgetResult> {
 			}
 		})
 	);
-	console.log(widgets, errors);
+	console.log(errors);
 	return { widgets, errors };
 }
 
@@ -54,5 +57,5 @@ export async function saveWidget(site: string, widget: WidgetData) {
 	const siteDir = join(DIR.Sites, site);
 	const widgetDir = join(siteDir, "widgets");
 	await mkdir(widgetDir, { recursive: true });
-	await writeFile(join(widgetDir, `${widget.tag}.json`), JSON.stringify(widget, null, 4));
+	await writeFile(join(widgetDir, `${widget.tag}.html`), widget.content);
 }

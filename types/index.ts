@@ -224,9 +224,18 @@ const ReservedTags = [
 
 export const WidgetDataSchema = z
 	.object({
-		tag: z.string().refine((value) => !ReservedTags.includes(value), {
-			message: "Widget tag name must not be an existing HTML tag."
-		}),
+		tag: z
+			.string()
+			.refine((value) => !ReservedTags.includes(value), {
+				message: "Widget tag name must not be an existing HTML tag."
+			})
+			.refine((value: string): boolean => {
+				// Define the regular expression for a valid Web Component tag name
+				const regex = /^[a-z]([a-z0-9.-]*-)+[a-z0-9.-]*$/;
+
+				// Test the tag name against the regular expression
+				return regex.test(value);
+			}),
 		content: z.string()
 	})
 	.required();

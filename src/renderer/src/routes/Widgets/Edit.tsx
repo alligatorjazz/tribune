@@ -13,7 +13,7 @@ export function Edit() {
 	const [searchParams] = useSearchParams();
 	const route = searchParams.get("route");
 	const { siteMap } = useAppContext();
-	const { widgets } = useWidgets();
+	const { widgets, getWidgetPath } = useWidgets(siteMap);
 	const navigate = useNavigate();
 
 	const activeWidget = useMemo(() => {
@@ -43,23 +43,20 @@ export function Edit() {
 	);
 
 	const localWidgetPath = useMemo(() => {
-		if (!Array.isArray(siteMap) || !activeWidget) {
-			return null;
+		if (activeWidget) {
+			return getWidgetPath(activeWidget.tag);
 		}
-		const indexRoute = siteMap.find((node) => node.index)?.localPath;
-		if (!indexRoute) {
-			console.warn("Could not find index route in sitemap", siteMap);
-			return null;
-		}
-		const siteDir = dirname(indexRoute);
-		return join(siteDir, "widgets", activeWidget.tag + ".json");
-	}, [activeWidget, siteMap]);
+
+		return null;
+	}, [activeWidget, getWidgetPath]);
 
 	useEffect(() => {
 		if (activeWidget && localWidgetPath) {
 			window.api
 				.getSourceCode(localWidgetPath)
-				.then((code) => setEditorContent(code))
+				.then(() => {
+					setEditorContent(activeWidget.content);
+				})
 				.catch((err) => {
 					console.error(`Could not load source for ${localWidgetPath}:\n`, err);
 					setEditorContent("");
@@ -71,31 +68,29 @@ export function Edit() {
 	useEffect(() => {
 		// if the editor contains changes
 		if (editorContent && editorContent !== editorCache && activeWidget && localWidgetPath) {
-			window.api
-				.saveSourceCode(localWidgetPath, editorContent)
-				.then(() => setEditorCache(editorContent))
-				.catch((err) => console.log(err));
+			// window.api
+			// 	.saveSourceCode(localWidgetPath, editorContent)
+			// 	.then(() => setEditorCache(editorContent))
+			// 	.catch((err) => console.log(err));
 		}
 	}, [activeWidget, editorCache, editorContent, localWidgetPath]);
 
 	return (
-		<SidebarLayout
-			title={activeWidget?.tag ?? "Not Found"}
-			description={route ?? ""}
-			className="w-1/2"
-		>
+		<SidebarLayout title={activeWidget?.tag} className="w-1/2">
 			{!activeWidget && <LoadingIndicator />}
 			{activeWidget && editorContent && (
-				<Editor
-					language={"html"}
-					defaultValue={editorContent}
-					onChange={(value) => setEditorContent((prev) => value ?? prev)}
-					height={"80vh"}
-					/// <reference path="" />
+				<>
+					<Editor
+						language={"html"}
+						defaultValue={editorContent}
+						onChange={(value) => setEditorContent((prev) => value ?? prev)}
+						height={"80vh"}
+						/// <reference path="" />
 
-					options={{ wordWrap: "on" }}
-					onMount={initializeEditor}
-				/>
+						options={{ wordWrap: "on" }}
+						onMount={initializeEditor}
+					/>
+				</>
 			)}
 		</SidebarLayout>
 	);

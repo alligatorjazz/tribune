@@ -37,7 +37,7 @@
     "monaco-editor": "^0.49.0",
     "path-browserify": "^1.0.1",
     "react-router-dom": "^6.23.0",
-    "tribune-types": "file:types",
+    "tribune-types": "file:./types",
     "zod": "^3.23.8"
   },
   "devDependencies": {

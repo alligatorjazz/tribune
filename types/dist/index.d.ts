@@ -130,7 +130,7 @@ export type FormResponse = z.infer<typeof FormResponseSchema>;
 export type NonEmptyArray<T> = z.infer<ReturnType<typeof NonEmptyArraySchema<T>>>;
 export type ConnectionStatus = z.infer<typeof ConnectionStatusSchema>;
 export declare const WidgetDataSchema: z.ZodObject<{
-    tag: z.ZodEffects<z.ZodString, string, string>;
+    tag: z.ZodEffects<z.ZodEffects<z.ZodString, string, string>, string, string>;
     content: z.ZodString;
 }, "strip", z.ZodTypeAny, {
     content: string;
