@@ -111,7 +111,7 @@ async function loadFeatures(path: string, site: string): Promise<string> {
 	const addScript = ({ action, params }: InjectedScript) => {
 		const script = document.createElement("script");
 		const id = "devScript" + Math.floor(1000 * Math.random()).toString();
-		script.innerHTML = `const ${id} = ${action.toString()}\n${id}([${params.map((param) => `"${param}"`).join(", ")}])`;
+		script.innerHTML = `const ${id} = ${action.toString()}\n${id}([${params.map((param) => `\`${param}\``).join(", ")}])`;
 		document.body.appendChild(script);
 	};
 

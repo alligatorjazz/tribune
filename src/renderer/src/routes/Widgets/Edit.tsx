@@ -1,7 +1,7 @@
 import Editor, { Monaco } from "@monaco-editor/react";
 import { editor } from "monaco-editor";
 import { dirname, join } from "path-browserify";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useDeferredValue, useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAppContext } from "../../App.lib";
 import LoadingIndicator from "../../components/LoadingIndicator";
@@ -33,7 +33,8 @@ export function Edit() {
 	const provideCompletionItems = useCompletionItems();
 
 	const [editorContent, setEditorContent] = useState<string | null>(null);
-	const [editorCache, setEditorCache] = useState<string | null>(null);
+	const editorCache = useDeferredValue(editorContent);
+
 	const initializeEditor = useCallback(
 		(_editor: editor.IStandaloneCodeEditor, monaco: Monaco) => {
 			monaco.languages.html.htmlDefaults.setOptions({ suggest: { html5: true } });
@@ -67,11 +68,10 @@ export function Edit() {
 	// autosaving
 	useEffect(() => {
 		// if the editor contains changes
-		if (editorContent && editorContent !== editorCache && activeWidget && localWidgetPath) {
-			// window.api
-			// 	.saveSourceCode(localWidgetPath, editorContent)
-			// 	.then(() => setEditorCache(editorContent))
-			// 	.catch((err) => console.log(err));
+		if (editorContent && activeWidget && localWidgetPath && editorContent != editorCache) {
+			window.api
+				.saveSourceCode(localWidgetPath, editorContent)
+				.catch((err) => console.log(err));
 		}
 	}, [activeWidget, editorCache, editorContent, localWidgetPath]);
 

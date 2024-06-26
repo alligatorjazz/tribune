@@ -1,61 +1,27 @@
 import Editor, { Monaco } from "@monaco-editor/react";
-import { IRange, editor, languages } from "monaco-editor";
+import { editor } from "monaco-editor";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { IndexSiteNode, NamedSiteNode } from "../../../shared";
+import { IndexSiteNode, NamedSiteNode } from "../../../../shared";
 import { useAppContext } from "../../App.lib";
 import LoadingIndicator from "../../components/LoadingIndicator";
 import { SidebarLayout } from "../../components/SidebarLayout";
+import { useCompletionItems } from "../../hooks/useCompletionItems";
 import { flattenSiteMap } from "../../lib";
 
 export function Edit() {
 	const [searchParams] = useSearchParams();
 	const route = searchParams.get("route");
 	const { siteMap, setPreviewRoute } = useAppContext();
-
+	const provideCompletionItems = useCompletionItems();
 	const [editorContent, setEditorContent] = useState<string | null>(null);
 	const [editorCache, setEditorCache] = useState<string | null>(null);
 	const initializeEditor = useCallback(
 		(_editor: editor.IStandaloneCodeEditor, monaco: Monaco) => {
 			monaco.languages.html.htmlDefaults.setOptions({ suggest: { html5: true } });
-			monaco.languages.registerCompletionItemProvider("html", {
-				provideCompletionItems: (model, position) => {
-					const word = model.getWordUntilPosition(position);
-					const range: IRange = {
-						startLineNumber: position.lineNumber,
-						startColumn: word.startColumn,
-						endLineNumber: position.lineNumber,
-						endColumn: word.endColumn
-					};
-
-					// Define custom suggestions
-					const suggestions: languages.CompletionItem[] = [
-						{
-							label: "my-custom-tag", // The text that will be displayed in the suggestion list
-							kind: monaco.languages.CompletionItemKind.Snippet, // The kind/type of completion item
-							insertText: "<my-custom-tag></my-custom-tag>", // The text to insert when this suggestion is selected
-							insertTextRules:
-								monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, // Specifies that the insert text is a snippet
-							documentation: "My custom HTML tag", // Documentation for the suggestion (displayed as a tooltip),
-							range
-						},
-						{
-							label: "another-tag", // The text that will be displayed in the suggestion list
-							kind: monaco.languages.CompletionItemKind.Snippet, // The kind/type of completion item
-							insertText: "<another-tag></another-tag>", // The text to insert when this suggestion is selected
-							insertTextRules:
-								monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet, // Specifies that the insert text is a snippet
-							documentation: "Another custom HTML tag", // Documentation for the suggestion (displayed as a tooltip)
-							range
-						}
-					];
-
-					// Return the suggestions
-					return { suggestions };
-				}
-			});
+			monaco.languages.registerCompletionItemProvider("html", { provideCompletionItems });
 		},
-		[]
+		[provideCompletionItems]
 	);
 
 	const node = useMemo((): IndexSiteNode | NamedSiteNode | null => {
