@@ -7,7 +7,7 @@ import { useWidgets } from "../../hooks/useWidgets";
 
 export function Widgets() {
 	const { activeSite, siteMap } = useAppContext();
-	const { widgets, setWidgets, getWidgetPath } = useWidgets(siteMap);
+	const { widgets, getWidgetPath } = useWidgets(siteMap);
 	const [editingWidget, setEditingWidget] = useState<WidgetData | null>(null);
 
 	const rename = useCallback(

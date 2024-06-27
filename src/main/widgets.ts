@@ -2,8 +2,8 @@ import chokidar from "chokidar";
 import { mkdir, readFile, readdir, rename, writeFile } from "fs/promises";
 import { basename, join } from "path";
 import { WidgetData, WidgetDataSchema } from "../shared";
-import { DIR } from "./refs";
 import { InjectedScript } from "./server";
+import { getSiteFolders } from "./sites";
 
 let watcher: chokidar.FSWatcher | null = null;
 
@@ -45,11 +45,10 @@ export function watchWidgets(dir: string, onChange: () => void) {
 
 export type GetWidgetResult = { widgets: WidgetData[]; errors?: { path: string; cause: string }[] };
 export async function getWidgets(site: string): Promise<GetWidgetResult> {
-	const siteDir = join(DIR.Sites, site);
-	const widgetDir = join(siteDir, "widgets");
+	const { widgetsDir } = getSiteFolders(site);
 	// make widget dir if it doesn't exist
-	await mkdir(widgetDir, { recursive: true });
-	const widgetFiles = await readdir(widgetDir);
+	await mkdir(widgetsDir, { recursive: true });
+	const widgetFiles = await readdir(widgetsDir);
 
 	const widgets: WidgetData[] = [];
 	const errors: { path: string; cause: string }[] = [];
@@ -57,7 +56,7 @@ export async function getWidgets(site: string): Promise<GetWidgetResult> {
 	await Promise.all(
 		widgetFiles.map(async (file) => {
 			try {
-				const content = (await readFile(join(widgetDir, file))).toString("utf-8");
+				const content = (await readFile(join(widgetsDir, file))).toString("utf-8");
 				const parseResult = WidgetDataSchema.safeParse({
 					tag: basename(file, ".html"),
 					content
@@ -79,16 +78,14 @@ export async function getWidgets(site: string): Promise<GetWidgetResult> {
 }
 
 export async function saveWidget(site: string, widget: WidgetData) {
-	const siteDir = join(DIR.Sites, site);
-	const widgetDir = join(siteDir, "widgets");
-	await mkdir(widgetDir, { recursive: true });
-	await writeFile(join(widgetDir, `${widget.tag}.html`), widget.content);
+	const { widgetsDir } = getSiteFolders(site);
+	await mkdir(widgetsDir, { recursive: true });
+	await writeFile(join(widgetsDir, `${widget.tag}.html`), widget.content);
 }
 
 export async function renameWidget(site: string, oldTag: string, newTag: string) {
-	const siteDir = join(DIR.Sites, site);
-	const widgetDir = join(siteDir, "widgets");
-	const oldPath = join(widgetDir, oldTag, ".html");
-	const newPath = join(widgetDir, newTag, ".html");
+	const { widgetsDir } = getSiteFolders(site);
+	const oldPath = join(widgetsDir, oldTag, ".html");
+	const newPath = join(widgetsDir, newTag, ".html");
 	return await rename(oldPath, newPath);
 }

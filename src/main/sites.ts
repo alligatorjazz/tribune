@@ -33,18 +33,24 @@ export function createSite(siteTitle: string): void {
 	header.innerHTML = siteTitle;
 	document.body.appendChild(header);
 
-	// create sites directory if doesn't exist
-	mkdirSync(join(DIR.Sites, siteTitle), { recursive: true });
+	// create site directories if they don't exist
+	mkdirSync(join(DIR.Sites, siteTitle, "src"), { recursive: true });
+	mkdirSync(join(DIR.Sites, siteTitle, "widgets"), { recursive: true });
+	mkdirSync(join(DIR.Sites, siteTitle, "posts"), { recursive: true });
+	mkdirSync(join(DIR.Sites, siteTitle, "build"), { recursive: true });
 
 	// write index.html to sites directory
-	writeFileSync(join(DIR.Sites, siteTitle, "index.html"), document.documentElement.innerHTML);
+	writeFileSync(
+		join(getSiteFolders(siteTitle).srcDir, "index.html"),
+		document.documentElement.innerHTML
+	);
 }
 
 export function getSiteMap(site: string): SiteMap {
 	const siteMap: SiteMap = [];
-	const siteDir = join(DIR.Sites, site); // Adjust the path as necessary
-	const siteContents = readdirSync(siteDir).filter(
-		(file) => extname(file) === ".html" || statSync(join(siteDir, file)).isDirectory()
+	const { srcDir } = getSiteFolders(site); // Adjust the path as necessary
+	const siteContents = readdirSync(srcDir).filter(
+		(file) => extname(file) === ".html" || statSync(join(srcDir, file)).isDirectory()
 	);
 	const walkFile = (path: string): SiteNode => {
 		if (statSync(path).isDirectory()) {
@@ -64,18 +70,19 @@ export function getSiteMap(site: string): SiteMap {
 			return {
 				index: true,
 				localPath: path,
-				route: path.replace(siteDir, "")
+				route: path.replace(srcDir, "")
 			};
 		}
 
 		return {
 			title: title,
-			route: path.replace(siteDir, ""),
+			route: path.replace(srcDir, ""),
 			localPath: path
 		};
 	};
 
-	siteContents.map((path) => siteMap.push(walkFile(join(siteDir, path))));
+	siteContents.map((path) => siteMap.push(walkFile(join(srcDir, path))));
+	// console.log(JSON.stringify(siteMap, null, 4));
 	return siteMap;
 }
 
@@ -109,4 +116,15 @@ export function flattenSiteMap(siteMap: SiteMap): SiteNode[] {
 
 	flatten(siteMap);
 	return result;
+}
+
+export function getSiteFolders(site: string) {
+	const rootDir = join(DIR.Sites, site);
+	return {
+		rootDir,
+		srcDir: join(rootDir, "src"),
+		postsDir: join(rootDir, "posts"),
+		widgetsDir: join(rootDir, "widgets"),
+		buildDir: join(rootDir, "build")
+	};
 }

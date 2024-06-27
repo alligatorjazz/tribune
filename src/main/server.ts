@@ -1,12 +1,11 @@
 import chokidar from "chokidar";
 import cors from "cors";
 import express, { Application } from "express";
-import { readFileSync } from "fs";
+import { readFileSync, statSync } from "fs";
 import { IncomingMessage, Server, ServerResponse } from "http";
 import { JSDOM } from "jsdom";
 import { extname, join } from "path";
-import { DIR } from "./refs";
-import { flattenSiteMap, getSiteMap } from "./sites";
+import { flattenSiteMap, getSiteFolders, getSiteMap } from "./sites";
 import { buildWidget, getWidgets } from "./widgets";
 // import { broadcastStyle } from "./scripts/broadcastStyle";
 export type InjectedScript = {
@@ -27,23 +26,56 @@ const onFileChange = (_e: string, _path: string, cb: () => void) => {
 export function startServer(site: string, reloadCallback: () => void) {
 	const init = () => {
 		// console.log("starting server...");
-		const siteDir = join(DIR.Sites, site);
+		const { srcDir } = getSiteFolders(site);
 		const app: Application = express();
 		app.use(cors({ origin: "*" }));
 		// build html routes based on site map
-		const siteMap = getSiteMap(site);
-		const nodeList = flattenSiteMap(siteMap);
-		nodeList.map((node) => {
-			if (!node.children) {
-				// console.log("adding server route: GET ", node.route, ` (${node.localPath})`);
-				app.get(node.route, (_req, res) => {
-					loadFeatures(node.localPath, site).then((content) => res.send(content));
-				});
-				app.get(node.route.replace("index.html", ""), (_req, res) => {
-					loadFeatures(node.localPath, site).then((content) => res.send(content));
-				});
+		// const siteMap = getSiteMap(site);
+		// const nodeList = flattenSiteMap(siteMap);
+
+		// TODO: switch back to static routing; remove html extension
+		app.use((req, res) => {
+			const localPath = join(srcDir, req.url);
+			console.log([localPath, req.url, extname(localPath)]);
+			if (extname(localPath) === ".html") {
+				if (statSync(join(localPath))) {
+					loadFeatures(localPath, site)
+						.then((content) => res.send(content))
+						.catch((err) => {
+							console.error(err);
+							res.status(500).send("<h1>Internal Server Error</h1>");
+						});
+				} else {
+					res.status(404).send("<h1>404</h1>");
+				}
+			} else if (extname(localPath) === "") {
+				const indexPath = join(localPath, "index.html");
+				if (statSync(indexPath)) {
+					loadFeatures(indexPath, site)
+						.then((content) => res.send(content))
+						.catch((err) => {
+							console.error(err);
+							res.status(500).send("<h1>Internal Server Error</h1>");
+						});
+				} else {
+					res.status(404).send("<h1>404</h1>");
+				}
+			} else {
+				res.send(readFileSync(localPath));
 			}
 		});
+		// app.use(express.static(srcDir, { extensions: ["html"] }));
+		// nodeList.map((node) => {
+		// 	if (!node.children) {
+		// 		// console.log("adding server route: GET ", node.route, ` (${node.localPath})`);
+		// 		app.get(node.route, (_req, res) => {
+		// 			loadFeatures(node.localPath, site).then((content) => res.send(content));
+		// 		});
+		// 		app.get(node.route.replace("index.html", ""), (_req, res) => {
+		// 			loadFeatures(node.localPath, site).then((content) => res.send(content));
+		// 		});
+		// 	}
+		// });
 		// TODO: allow for custom port
 		const port = process.env.PORT || 3000;
 
@@ -52,7 +84,7 @@ export function startServer(site: string, reloadCallback: () => void) {
 			if (!watcher) {
 				// TODO: ignore widgets path
 				watcher = chokidar
-					.watch(siteDir)
+					.watch(srcDir)
 					.on("all", (e, path) => onFileChange(e, path, reloadCallback));
 			} else {
 				watcher
@@ -60,7 +92,7 @@ export function startServer(site: string, reloadCallback: () => void) {
 					.close()
 					.then(() => {
 						watcher = chokidar
-							.watch(siteDir)
+							.watch(srcDir)
 							.on("all", (e, path) => onFileChange(e, path, reloadCallback));
 					});
 			}

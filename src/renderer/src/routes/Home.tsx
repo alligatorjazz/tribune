@@ -21,6 +21,7 @@ export function Home({ className, ...extraProps }: HTMLAttributes<HTMLDivElement
 					)
 				)}
 			</nav>
+			<button onClick={() => window.api.createSite("Testy Test")}>+ Create Site</button>
 		</div>
 	);
 }

@@ -20,14 +20,11 @@ export function PreviewFrame({ route }: Props) {
 			window.api
 				.startServer(activeSite)
 				.then(() => {
-					// console.log("server initialized - checking status...");
 					window.api
 						.getServerStatus()
 						.then((status) => {
 							if (status) {
-								// console.log("server online, reloading iframe...");
 								window.api.onAutoReload(() => {
-									// console.log("recieved autoreload, reloading...");
 									iframe.src += "";
 								});
 								iframe.src += "";

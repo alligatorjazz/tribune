@@ -41,8 +41,8 @@ export function useWidgets(siteMap) {
 				console.warn("Could not find index route in sitemap", siteMap);
 				return null;
 			}
-			const siteDir = dirname(indexRoute);
-			return join(siteDir, "widgets", tag + ".html");
+			const srcDir = dirname(indexRoute);
+			return join(srcDir, "widgets", tag + ".html");
 		},
 		[siteMap]
 	);
