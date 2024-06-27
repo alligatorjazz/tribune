@@ -6,8 +6,8 @@ import { SidebarLayout } from "../../components/SidebarLayout";
 import { useWidgets } from "../../hooks/useWidgets";
 
 export function Widgets() {
-	const { activeSite, siteMap } = useAppContext();
-	const { widgets, getWidgetPath } = useWidgets(siteMap);
+	const { activeSite } = useAppContext();
+	const { widgets, getWidgetPath } = useWidgets();
 	const [editingWidget, setEditingWidget] = useState<WidgetData | null>(null);
 
 	const rename = useCallback(

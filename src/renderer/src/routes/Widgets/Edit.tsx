@@ -1,19 +1,14 @@
-import Editor, { Monaco } from "@monaco-editor/react";
-import { editor } from "monaco-editor";
-import { dirname, join } from "path-browserify";
-import { useCallback, useDeferredValue, useEffect, useMemo, useState } from "react";
+import Editor from "@monaco-editor/react";
+import { useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useAppContext } from "../../App.lib";
 import LoadingIndicator from "../../components/LoadingIndicator";
 import { SidebarLayout } from "../../components/SidebarLayout";
-import { useCompletionItems } from "../../hooks/useCompletionItems";
+import { useEditorConfig } from "../../hooks/useEditorConfig";
 import { useWidgets } from "../../hooks/useWidgets";
 
 export function Edit() {
 	const [searchParams] = useSearchParams();
-	const route = searchParams.get("route");
-	const { siteMap } = useAppContext();
-	const { widgets, getWidgetPath } = useWidgets(siteMap);
+	const { widgets, getWidgetPath } = useWidgets();
 	const navigate = useNavigate();
 
 	const activeWidget = useMemo(() => {
@@ -30,20 +25,7 @@ export function Edit() {
 		return result;
 	}, [navigate, searchParams, widgets]);
 
-	const provideCompletionItems = useCompletionItems();
-
-	const [editorContent, setEditorContent] = useState<string | null>(null);
-	const editorCache = useDeferredValue(editorContent);
-
-	const initializeEditor = useCallback(
-		(_editor: editor.IStandaloneCodeEditor, monaco: Monaco) => {
-			monaco.languages.html.htmlDefaults.setOptions({ suggest: { html5: true } });
-			monaco.languages.registerCompletionItemProvider("html", { provideCompletionItems });
-		},
-		[provideCompletionItems]
-	);
-
-	const localWidgetPath = useMemo(() => {
+	const localPath = useMemo(() => {
 		if (activeWidget) {
 			return getWidgetPath(activeWidget.tag);
 		}
@@ -51,47 +33,12 @@ export function Edit() {
 		return null;
 	}, [activeWidget, getWidgetPath]);
 
-	useEffect(() => {
-		if (activeWidget && localWidgetPath) {
-			window.api
-				.getSourceCode(localWidgetPath)
-				.then(() => {
-					setEditorContent(activeWidget.content);
-				})
-				.catch((err) => {
-					console.error(`Could not load source for ${localWidgetPath}:\n`, err);
-					setEditorContent("");
-				});
-		}
-	}, [activeWidget, localWidgetPath]);
-
-	// autosaving
-	useEffect(() => {
-		// if the editor contains changes
-		if (editorContent && activeWidget && localWidgetPath && editorContent != editorCache) {
-			window.api
-				.saveSourceCode(localWidgetPath, editorContent)
-				.catch((err) => console.log(err));
-		}
-	}, [activeWidget, editorCache, editorContent, localWidgetPath]);
+	const config = useEditorConfig({ localPath, language: "html" });
 
 	return (
 		<SidebarLayout title={activeWidget?.tag} className="w-1/2">
 			{!activeWidget && <LoadingIndicator />}
-			{activeWidget && editorContent && (
-				<>
-					<Editor
-						language={"html"}
-						defaultValue={editorContent}
-						onChange={(value) => setEditorContent((prev) => value ?? prev)}
-						height={"80vh"}
-						/// <reference path="" />
-
-						options={{ wordWrap: "on" }}
-						onMount={initializeEditor}
-					/>
-				</>
-			)}
+			{activeWidget && config && <Editor {...config} />}
 		</SidebarLayout>
 	);
 }

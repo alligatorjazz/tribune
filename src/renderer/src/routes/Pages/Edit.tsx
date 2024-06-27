@@ -1,29 +1,17 @@
-import Editor, { Monaco } from "@monaco-editor/react";
-import { editor } from "monaco-editor";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import Editor from "@monaco-editor/react";
+import { useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { IndexSiteNode, NamedSiteNode } from "../../../../shared";
 import { useAppContext } from "../../App.lib";
 import LoadingIndicator from "../../components/LoadingIndicator";
 import { SidebarLayout } from "../../components/SidebarLayout";
-import { useCompletionItems } from "../../hooks/useCompletionItems";
+import { useEditorConfig } from "../../hooks/useEditorConfig";
 import { flattenSiteMap } from "../../lib";
 
 export function Edit() {
 	const [searchParams] = useSearchParams();
 	const route = searchParams.get("route");
 	const { siteMap, setPreviewRoute } = useAppContext();
-	const provideCompletionItems = useCompletionItems();
-	const [editorContent, setEditorContent] = useState<string | null>(null);
-	const [editorCache, setEditorCache] = useState<string | null>(null);
-	const initializeEditor = useCallback(
-		(_editor: editor.IStandaloneCodeEditor, monaco: Monaco) => {
-			monaco.languages.html.htmlDefaults.setOptions({ suggest: { html5: true } });
-			monaco.languages.registerCompletionItemProvider("html", { provideCompletionItems });
-		},
-		[provideCompletionItems]
-	);
-
 	const node = useMemo((): IndexSiteNode | NamedSiteNode | null => {
 		if (!Array.isArray(siteMap)) {
 			return null;
@@ -44,39 +32,7 @@ export function Edit() {
 		}
 	}, [node, setPreviewRoute]);
 
-	// loads source file into editor
-	useEffect(() => {
-		if (node) {
-			window.api
-				.getSourceCode(node.localPath)
-				.then((code) => setEditorContent(code))
-				.catch((err) => {
-					console.error(`Could not load source for ${node.localPath}:\n`, err);
-					setEditorContent("");
-				});
-		}
-	}, [node]);
-
-	// autosaving
-	useEffect(() => {
-		// if the editor contains changes
-		if (editorContent && editorContent !== editorCache && node) {
-			window.api
-				.saveSourceCode(node.localPath, editorContent)
-				.then(() => setEditorCache(editorContent))
-				.catch((err) => console.log(err));
-		}
-	}, [editorCache, editorContent, node]);
-
-	// queues save action
-	// useEffect(() => {
-	// 	if (node && editorContent) {
-	// 		window.api
-	// 			.saveSourceCode(node.localPath, editorContent)
-	// 			.then(() => console.log("saving..."))
-	// 			.catch((err) => console.error(err));
-	// 	}
-	// }, [node]);
+	const config = useEditorConfig({ localPath: node?.localPath, language: "html" });
 
 	return (
 		<SidebarLayout
@@ -85,18 +41,7 @@ export function Edit() {
 			className="w-1/2"
 		>
 			{!node && <LoadingIndicator />}
-			{node && editorContent && (
-				<Editor
-					language={"html"}
-					defaultValue={editorContent}
-					onChange={(value) => setEditorContent((prev) => value ?? prev)}
-					height={"80vh"}
-					/// <reference path="" />
-
-					options={{ wordWrap: "on" }}
-					onMount={initializeEditor}
-				/>
-			)}
+			{node && config && <Editor {...config} />}
 		</SidebarLayout>
 	);
 }

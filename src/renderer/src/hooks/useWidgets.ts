@@ -3,9 +3,9 @@ import { useCallback, useEffect, useState } from "react";
 import { useAppContext } from "../App.lib";
 import { WidgetData } from "../../../shared";
 
-export function useWidgets(siteMap) {
+export function useWidgets() {
 	const [widgets, setWidgets] = useState<WidgetData[] | "loading" | undefined>();
-	const { activeSite } = useAppContext();
+	const { activeSite, siteMap } = useAppContext();
 	const loadWidgets = useCallback(() => {
 		if (!activeSite) {
 			throw new Error("Widget file watcher is open, but there is no active site selected.");
@@ -42,7 +42,7 @@ export function useWidgets(siteMap) {
 				return null;
 			}
 			const srcDir = dirname(indexRoute);
-			return join(srcDir, "widgets", tag + ".html");
+			return join(srcDir, "..", "widgets", tag + ".html");
 		},
 		[siteMap]
 	);

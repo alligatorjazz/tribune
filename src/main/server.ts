@@ -36,7 +36,7 @@ export function startServer(site: string, reloadCallback: () => void) {
 		// TODO: switch back to static routing; remove html extension
 		app.use((req, res) => {
 			const localPath = join(srcDir, req.url);
-			console.log([localPath, req.url, extname(localPath)]);
+			// console.log([localPath, req.url, extname(localPath)]);
 			if (extname(localPath) === ".html") {
 				if (statSync(join(localPath))) {
 					loadFeatures(localPath, site)
