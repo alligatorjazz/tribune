@@ -5,6 +5,8 @@ import icon from "../../resources/icon.png?asset";
 import { closeServer, getServerStatus, startServer } from "./server";
 import { createSite, getSiteMap, getSourceCode, renameSourceCode, saveSourceCode } from "./sites";
 import { getWidgets, watchWidgets } from "./widgets";
+import { getPosts, savePost } from "./posts";
+import { PostMetadata } from "../shared";
 
 function createWindow() {
 	// Create the browser window.
@@ -97,6 +99,15 @@ app.whenReady().then(() => {
 
 	ipcMain.handle("rename-source-code", (_event, oldPath: string, newPath: string) => {
 		return renameSourceCode(oldPath, newPath);
+	});
+
+	// POST COMMANDS
+	ipcMain.handle("get-posts", (_event, site: string) => {
+		return getPosts(site);
+	});
+
+	ipcMain.handle("save-post", (_event, site: string, metadata: PostMetadata, content: string) => {
+		return savePost(site, metadata, content);
 	});
 
 	app.on("activate", function () {

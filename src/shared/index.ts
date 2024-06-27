@@ -1,3 +1,4 @@
+import { extname } from "path-browserify";
 import { z } from "zod";
 export const NonEmptyArraySchema = <T>(schema: z.ZodType<T>) =>
 	z
@@ -22,15 +23,22 @@ export const CommentSchema = z.object({
 export const POST_STATUSES = ["Published", "Drafts", "Scheduled", "Archived"] as const;
 export const PostStatusSchema = z.enum(POST_STATUSES);
 
-export const BlogPostSchema = z.object({
-	id: z.string(),
+export const PostMetadataSchema = z.object({
 	title: z.string(),
-	content: z.string(),
-	author: z.string(),
-	createdAt: z.date(),
-	comments: z.array(CommentSchema),
-	status: PostStatusSchema
+	author: z.string().optional(),
+	publishDate: z.string().optional()
 });
+
+export type PostQueryResponse = {
+	[slug: string]: { metadata: PostMetadata; content: string };
+};
+
+export const PostQueryResponseSchema: z.ZodType<PostQueryResponse> = z.record(
+	z.object({
+		metadata: PostMetadataSchema,
+		content: z.string()
+	})
+);
 
 export const FormResponseSchema = z.object({
 	id: z.string(),
@@ -103,7 +111,8 @@ export type SiteMap = SiteNode[];
 export type User = z.infer<typeof UserSchema>;
 export type Comment = z.infer<typeof CommentSchema>;
 export type PostStatus = z.infer<typeof PostStatusSchema>;
-export type BlogPost = z.infer<typeof BlogPostSchema>;
+export type PostMetadata = z.infer<typeof PostMetadataSchema>;
+
 export type FormResponse = z.infer<typeof FormResponseSchema>;
 export type NonEmptyArray<T> = z.infer<ReturnType<typeof NonEmptyArraySchema<T>>>;
 export type ConnectionStatus = z.infer<typeof ConnectionStatusSchema>;
@@ -241,3 +250,62 @@ export const WidgetDataSchema = z
 	.required();
 
 export type WidgetData = z.infer<typeof WidgetDataSchema>;
+
+export function slugify(text: string): string {
+	return text
+		.toLowerCase() // Convert the string to lowercase
+		.trim() // Trim whitespace from both ends of the string
+		.replace(/[\s\W-]+/g, "-") // Replace spaces, non-word characters, and hyphens with a single hyphen
+		.replace(/^-+|-+$/g, ""); // Remove leading and trailing hyphens
+}
+
+type ValidFrontmatterLiteral = string | number | boolean;
+type ValidFrontmatterValue = ValidFrontmatterLiteral | Array<ValidFrontmatterLiteral>;
+export function toFrontmatter(data: Record<string, ValidFrontmatterValue>): string {
+	const frontmatterLines: string[] = [];
+	for (const [key, value] of Object.entries(data)) {
+		if (Array.isArray(value)) {
+			const arrayValues = value
+				.map((item) => {
+					if (typeof item === "string") {
+						return `"${item.replace(/"/g, '\\"')}"`; // Escape double quotes in strings
+					} else {
+						return item;
+					}
+				})
+				.join(", ");
+			frontmatterLines.push(`${key}: [${arrayValues}]`);
+		} else if (typeof value === "string") {
+			frontmatterLines.push(`${key}: "${value.replace(/"/g, '\\"')}"`); // Escape double quotes in strings
+		} else {
+			frontmatterLines.push(`${key}: ${value}`);
+		}
+	}
+
+	return frontmatterLines.join("\n");
+}
+
+export function changeFileExtension(
+	filePath: string,
+	newExtension: string,
+	allowedExtensions: string[] = []
+): string {
+	// Get the current extension using path.extname
+	const currentExtension = extname(filePath).toLowerCase();
+
+	// Ensure all allowedExtensions have a leading dot and are in lowercase
+	const normalizedAllowedExtensions = allowedExtensions.map((ext) =>
+		ext.startsWith(".") ? ext.toLowerCase() : `.${ext.toLowerCase()}`
+	);
+
+	// Check if current extension is allowed
+	if (!currentExtension || !normalizedAllowedExtensions.includes(currentExtension)) {
+		// Remove current extension if it exists
+		const filePathWithoutExtension = currentExtension
+			? filePath.slice(0, -currentExtension.length)
+			: filePath;
+		return `${filePathWithoutExtension}.${newExtension}`;
+	}
+
+	return filePath;
+}

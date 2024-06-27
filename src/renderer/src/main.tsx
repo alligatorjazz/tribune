@@ -8,6 +8,7 @@ import { Edit as WidgetsEdit } from "./routes/Widgets/Edit";
 import { Pages } from "./routes/Pages/Index";
 import { Settings } from "./routes/Settings";
 import { Widgets } from "./routes/Widgets/Index";
+import { Posts } from "./routes/Posts/Index";
 
 const router = createBrowserRouter([
 	{
@@ -24,6 +25,10 @@ const router = createBrowserRouter([
 						element: <PagesEdit />
 					}
 				]
+			},
+			{
+				path: "posts",
+				children: [{ index: true, element: <Posts /> }]
 			},
 			{
 				path: "widgets",
