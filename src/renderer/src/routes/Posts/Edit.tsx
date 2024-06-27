@@ -4,6 +4,15 @@ import { PostMetadata } from "../../../../shared/types";
 import { useAppContext } from "../../App.lib";
 import LoadingIndicator from "../../components/LoadingIndicator";
 import { SidebarLayout } from "../../components/SidebarLayout";
+import {
+	MDXEditor,
+	headingsPlugin,
+	listsPlugin,
+	markdownShortcutPlugin,
+	quotePlugin,
+	thematicBreakPlugin
+} from "@mdxeditor/editor";
+import "@mdxeditor/editor/style.css";
 
 export function Edit() {
 	const [searchParams] = useSearchParams();
@@ -44,7 +53,20 @@ export function Edit() {
 			className="w-1/2"
 		>
 			{!(postContent && postMetadata) && <LoadingIndicator />}
-			{postContent && postMetadata && <div>markdown editor here</div>}
+			{postContent && postMetadata && (
+				<MDXEditor
+					className="bg-white h-full"
+					plugins={[
+						// Example Plugin Usage
+						headingsPlugin(),
+						listsPlugin(),
+						quotePlugin(),
+						thematicBreakPlugin(),
+						markdownShortcutPlugin()
+					]}
+					markdown={postContent}
+				/>
+			)}
 		</SidebarLayout>
 	);
 }

@@ -6,10 +6,10 @@
 	<title>Tribune</title>
 	<!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
 	<meta http-equiv="Content-Security-Policy" content="
-		default-src 'self' http://localhost:3000 https://cdn.jsdelivr.net ; 
-		script-src 'self' https://cdn.jsdelivr.net blob:; 
-		style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; 
-		img-src 'self' data:; 
+		default-src 'self' http://localhost:3000 https://cdn.tiny.cloud; 
+		script-src 'self' https://cdn.jsdelivr.net https://cdn.tiny.cloud 'unsafe-eval' blob:; 
+		style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.tiny.cloud; 
+		img-src 'self' https://cdn.tiny.cloud data:; 
 		frame-src http://localhost:3000
 	" />
 	<link rel="stylesheet" href="style.css">

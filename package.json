@@ -26,6 +26,7 @@
     "@electron-toolkit/preload": "^3.0.0",
     "@electron-toolkit/utils": "^3.0.0",
     "@faker-js/faker": "^8.4.1",
+    "@mdxeditor/editor": "^3.6.1",
     "@monaco-editor/react": "^4.6.0",
     "@types/cors": "^2.8.17",
     "chokidar": "^3.6.0",
@@ -38,7 +39,6 @@
     "monaco-editor": "^0.49.0",
     "path-browserify": "^1.0.1",
     "react-router-dom": "^6.23.0",
-    "tiny-markdown-editor": "^0.1.21",
     "zod": "^3.23.8"
   },
   "devDependencies": {

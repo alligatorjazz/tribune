@@ -1,7 +1,7 @@
 import { basename, dirname } from "path-browserify";
-import { locationIndex } from "./refs";
-import { SiteMap, SiteNode } from "../../shared/types";
-import { toTitleCase } from "../../shared/lib";
+import { locationIndex } from "../refs";
+import { SiteMap, SiteNode } from "../../../shared/types";
+import { toTitleCase } from "../../../shared/lib";
 
 export function truncateString(input: string, maxLength: number): string {
 	if (input.length <= maxLength) {

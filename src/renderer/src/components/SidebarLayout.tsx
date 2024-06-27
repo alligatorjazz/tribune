@@ -14,7 +14,7 @@ export function SidebarLayout({ title, description, className, children, ...extr
 	return (
 		<div
 			className={[
-				"h-full bg-fgColor p-4 overflow-y-scroll scrollbar-thin flex-0",
+				"h-full bg-fgColor p-4 overflow-y-scroll scrollbar-thin flex-0 flex flex-col items-start",
 				className
 			].join(" ")}
 			{...extraProps}
@@ -28,7 +28,7 @@ export function SidebarLayout({ title, description, className, children, ...extr
 					{description && <p className="text-sm">{description}</p>}
 				</div>
 			)}
-			{children}
+			<div className="w-full flex-1">{children}</div>
 		</div>
 	);
 }
