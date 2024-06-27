@@ -1,9 +1,10 @@
 import chokidar from "chokidar";
 import { mkdir, readFile, readdir, rename, writeFile } from "fs/promises";
 import { basename, join } from "path";
-import { WidgetData, WidgetDataSchema } from "../shared";
+import { WidgetData } from "../shared/types";
 import { InjectedScript } from "./server";
 import { getSiteFolders } from "./sites";
+import { WidgetDataSchema } from "../shared/schemas";
 
 let watcher: chokidar.FSWatcher | null = null;
 

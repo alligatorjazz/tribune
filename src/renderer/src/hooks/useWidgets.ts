@@ -1,7 +1,7 @@
 import { dirname, join } from "path-browserify";
 import { useCallback, useEffect, useState } from "react";
 import { useAppContext } from "../App.lib";
-import { SiteMap, WidgetData } from "../../../shared";
+import { SiteMap, WidgetData } from "../../../shared/types";
 
 export function useWidgets() {
 	const [widgets, setWidgets] = useState<WidgetData[] | "loading" | undefined>();

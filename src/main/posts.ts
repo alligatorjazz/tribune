@@ -1,15 +1,17 @@
-import { mkdir, readFile, readdir, writeFile } from "fs/promises";
-import { getSiteFolders } from "./sites";
-import { basename, extname, join } from "path";
 import getFrontmatter from "front-matter";
+import { mkdir, readFile, readdir, writeFile } from "fs/promises";
+import { basename, extname, join } from "path";
+
+import { getSiteFolders } from "./sites";
 import {
-	PostMetadata,
-	PostMetadataSchema,
-	PostQueryResponse,
-	changeFileExtension,
 	slugify,
-	toFrontmatter
-} from "../shared";
+	changeFileExtension,
+	toFrontmatter,
+	generateUniqueFilename,
+	toTitleCase
+} from "../shared/lib";
+import { PostMetadataSchema } from "../shared/schemas";
+import { PostQueryResponse, PostMetadata, PartialBy } from "../shared/types";
 
 export async function getPosts(site: string) {
 	const { postsDir } = getSiteFolders(site);
@@ -41,12 +43,20 @@ export async function getPosts(site: string) {
 	return { posts, errors };
 }
 
-export async function savePost(site: string, metadata: PostMetadata, content: string) {
+export async function savePost(
+	site: string,
+	metadata: PartialBy<PostMetadata, "title">,
+	content: string
+): Promise<string> {
 	let output = "";
 	const { postsDir } = getSiteFolders(site);
-	const slug = slugify(metadata.title);
+	const slug = slugify(
+		metadata.title ??
+			toTitleCase(generateUniqueFilename(await readdir(postsDir, { withFileTypes: false })))
+	);
 	const postPath = changeFileExtension(join(postsDir, slug), ".md", [".md", ".mdx"]);
 	const rawFrontmatter = toFrontmatter(metadata);
 	output += `---\n${rawFrontmatter}\n---\n\n${content}`;
 	await writeFile(postPath, output, { encoding: "utf-8" });
+	return slug;
 }

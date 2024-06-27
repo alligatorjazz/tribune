@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, createContext, useContext } from "react";
-import { SiteMap } from "../../shared";
+import { SiteMap } from "../../shared/types";
 
 type Theme = "light" | "dark";
 interface IAppContext {

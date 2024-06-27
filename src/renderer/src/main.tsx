@@ -9,7 +9,7 @@ import { Pages } from "./routes/Pages/Index";
 import { Settings } from "./routes/Settings";
 import { Widgets } from "./routes/Widgets/Index";
 import { Posts } from "./routes/Posts/Index";
-
+import { Edit as PostsEdit } from "./routes/Posts/Edit";
 const router = createBrowserRouter([
 	{
 		path: "/",
@@ -28,7 +28,13 @@ const router = createBrowserRouter([
 			},
 			{
 				path: "posts",
-				children: [{ index: true, element: <Posts /> }]
+				children: [
+					{ index: true, element: <Posts /> },
+					{
+						path: "edit",
+						element: <PostsEdit />
+					}
+				]
 			},
 			{
 				path: "widgets",

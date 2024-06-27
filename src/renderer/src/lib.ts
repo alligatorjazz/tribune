@@ -1,6 +1,7 @@
 import { basename, dirname } from "path-browserify";
 import { locationIndex } from "./refs";
-import { SiteMap, SiteNode } from "../../../shared";
+import { SiteMap, SiteNode } from "../../shared/types";
+import { toTitleCase } from "../../shared/lib";
 
 export function truncateString(input: string, maxLength: number): string {
 	if (input.length <= maxLength) {
@@ -22,12 +23,6 @@ export function getParentLocationTitle(childLocation: string) {
 		locationIndex.find(({ route: locationRoute }) => location === locationRoute)?.title ??
 			basename(location)
 	);
-}
-
-export function toTitleCase(str: string) {
-	return str.replace(/\w\S*/g, function (txt) {
-		return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-	});
 }
 
 // TODO: export to larger "lib" package so functions like these can be shared across main / renderer

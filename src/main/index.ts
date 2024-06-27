@@ -6,7 +6,7 @@ import { closeServer, getServerStatus, startServer } from "./server";
 import { createSite, getSiteMap, getSourceCode, renameSourceCode, saveSourceCode } from "./sites";
 import { getWidgets, watchWidgets } from "./widgets";
 import { getPosts, savePost } from "./posts";
-import { PostMetadata } from "../shared";
+import { PartialBy, PostMetadata } from "../shared/types";
 
 function createWindow() {
 	// Create the browser window.
@@ -59,7 +59,7 @@ app.whenReady().then(() => {
 		optimizer.watchWindowShortcuts(window);
 	});
 
-	// const appWindow = createWindow();
+	createWindow();
 
 	// SITE COMMANDS
 	ipcMain.handle("create-site", (_event, siteTitle: string) => {
@@ -106,9 +106,12 @@ app.whenReady().then(() => {
 		return getPosts(site);
 	});
 
-	ipcMain.handle("save-post", (_event, site: string, metadata: PostMetadata, content: string) => {
-		return savePost(site, metadata, content);
-	});
+	ipcMain.handle(
+		"save-post",
+		(_event, site: string, metadata: PartialBy<PostMetadata, "title">, content: string) => {
+			return savePost(site, metadata, content);
+		}
+	);
 
 	app.on("activate", function () {
 		// On macOS it's common to re-create a window in the app when the

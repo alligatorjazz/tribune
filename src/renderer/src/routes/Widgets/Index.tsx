@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
-import { WidgetData } from "../../../../shared";
+import { WidgetData } from "../../../../shared/types";
 import { useAppContext } from "../../App.lib";
 import { SidebarLayout } from "../../components/SidebarLayout";
 import { useWidgets } from "../../hooks/useWidgets";

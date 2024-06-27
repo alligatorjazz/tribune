@@ -3,7 +3,7 @@ import { JSDOM } from "jsdom";
 import { basename, extname, join } from "path";
 import { DIR } from "./refs";
 import { readFile, rename, writeFile } from "fs/promises";
-import { SiteMap, SiteNode } from "../shared";
+import { SiteMap, SiteNode } from "../shared/types";
 
 const PAGE_BOILERPLATE = `
 <!DOCTYPE html>

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 import { AppContext } from "./App.lib";
 import { PreviewFrame } from "./components/PreviewFrame";
-import { SiteMap } from "../../shared";
+import { SiteMap } from "../../shared/types";
 
 export function App(): JSX.Element {
 	const [theme, setTheme] = useState<"light" | "dark">("dark");

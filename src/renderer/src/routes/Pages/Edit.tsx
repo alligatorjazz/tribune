@@ -1,7 +1,7 @@
 import Editor from "@monaco-editor/react";
 import { useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import { IndexSiteNode, NamedSiteNode } from "../../../../shared";
+import { IndexSiteNode, NamedSiteNode } from "../../../../shared/types";
 import { useAppContext } from "../../App.lib";
 import LoadingIndicator from "../../components/LoadingIndicator";
 import { SidebarLayout } from "../../components/SidebarLayout";

@@ -1,6 +1,6 @@
 import { IpcRendererEvent, ipcRenderer } from "electron";
 import { GetWidgetResult } from "../main/widgets";
-import { PostMetadata, PostQueryResponse, WidgetData } from "../shared";
+import { PartialBy, PostMetadata, PostQueryResponse, WidgetData } from "../shared/types";
 // Custom APIs for renderer
 export const api = {
 	createSite: (siteTitle: string): Promise<void> => ipcRenderer.invoke("create-site", siteTitle),
@@ -20,9 +20,13 @@ export const api = {
 	saveWidget: (site: string, widget: WidgetData): Promise<void> => {
 		return ipcRenderer.invoke("save-widget", site, widget);
 	},
-	getPosts: (site: string): Promise<PostQueryResponse> => ipcRenderer.invoke("get-posts", site),
-	savePost: (site: string, metadata: PostMetadata, content: string): Promise<PostQueryResponse> =>
-		ipcRenderer.invoke("save-post", site, metadata, content),
+	getPosts: (site: string): Promise<{ posts: PostQueryResponse; errors: string[] }> =>
+		ipcRenderer.invoke("get-posts", site),
+	savePost: (
+		site: string,
+		metadata: PartialBy<PostMetadata, "title">,
+		content: string
+	): Promise<string> => ipcRenderer.invoke("save-post", site, metadata, content),
 	onAutoReload: (callback: (event: IpcRendererEvent) => void) =>
 		ipcRenderer.on("auto-reload", callback),
 	onWidgetChange: (callback: (event: IpcRendererEvent) => void) =>
