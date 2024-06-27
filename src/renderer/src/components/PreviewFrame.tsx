@@ -12,11 +12,24 @@ export function PreviewFrame({ route }: Props) {
 	const frame = useRef<HTMLIFrameElement>(null);
 	const [frameOpacity, setFrameOpacity] = useState<"0" | "1">("0");
 	const [connected, setConnected] = useState<boolean | "loading">(false);
-	const { activeSite } = useAppContext();
+
+	const { activeSite, handleRefresh } = useAppContext();
+	// loads refresh callback
+	const refresh = useCallback(() => {
+		// console.log("refreshing iframe");
+		if (frame.current) {
+			frame.current.src += "";
+		}
+	}, []);
+
+	useEffect(() => {
+		// console.log("loading refresh handle");
+		handleRefresh(() => refresh);
+	}, [handleRefresh, refresh]);
+
 	const initializeServer = useCallback(() => {
 		const iframe = frame.current;
 		if (activeSite && iframe) {
-			// console.log("initializing server...");
 			window.api
 				.startServer(activeSite)
 				.then(() => {
@@ -78,7 +91,6 @@ export function PreviewFrame({ route }: Props) {
 				src={devURL + route}
 				title="Site Preview"
 			></iframe>
-
 			{connected !== true && (
 				<div className="w-full h-full flex gap-2 justify-center items-center shadow-2xl text-black">
 					<LoadingIndicator />

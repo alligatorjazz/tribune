@@ -5,7 +5,7 @@ import { readFileSync, statSync } from "fs";
 import { IncomingMessage, Server, ServerResponse } from "http";
 import { JSDOM } from "jsdom";
 import { extname, join } from "path";
-import { flattenSiteMap, getSiteFolders, getSiteMap } from "./sites";
+import { getSiteFolders } from "./sites";
 import { buildWidget, getWidgets } from "./widgets";
 // import { broadcastStyle } from "./scripts/broadcastStyle";
 export type InjectedScript = {

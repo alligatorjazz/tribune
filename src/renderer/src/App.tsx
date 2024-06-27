@@ -9,6 +9,7 @@ export function App(): JSX.Element {
 	const [activeSite] = useState<string | undefined>("Testy Test");
 	const [siteMap, setSiteMap] = useState<SiteMap | "loading">();
 	const [previewRoute, setPreviewRoute] = useState<string>("/");
+	const [triggerRefresh, handleRefresh] = useState<(() => void) | undefined>();
 
 	useEffect(() => {
 		if (activeSite && !siteMap) {
@@ -45,7 +46,9 @@ export function App(): JSX.Element {
 				siteMap,
 				activeSite,
 				previewRoute,
-				setPreviewRoute
+				setPreviewRoute,
+				triggerRefresh,
+				handleRefresh
 			}}
 		>
 			<div className="w-full h-full flex">

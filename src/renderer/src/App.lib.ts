@@ -1,14 +1,16 @@
-import { Dispatch, createContext, useContext } from "react";
-import { SiteMap } from "../../../shared";
+import { Dispatch, SetStateAction, createContext, useContext } from "react";
+import { SiteMap } from "../../shared";
 
 type Theme = "light" | "dark";
 interface IAppContext {
 	theme: Theme;
-	setTheme: Dispatch<Theme>;
+	setTheme: Dispatch<SetStateAction<Theme>>;
 	siteMap?: SiteMap | "loading";
 	activeSite?: string;
 	previewRoute: string;
-	setPreviewRoute: Dispatch<string>;
+	setPreviewRoute: Dispatch<SetStateAction<string>>;
+	triggerRefresh: (() => void) | undefined;
+	handleRefresh: Dispatch<SetStateAction<(() => void) | undefined>>;
 }
 
 export const AppContext = createContext<IAppContext | undefined>(undefined);

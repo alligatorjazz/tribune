@@ -4,10 +4,11 @@ import { WidgetData } from "../../../../shared";
 import { useAppContext } from "../../App.lib";
 import { SidebarLayout } from "../../components/SidebarLayout";
 import { useWidgets } from "../../hooks/useWidgets";
+import LoadingIndicator from "../../components/LoadingIndicator";
 
 export function Widgets() {
-	const { activeSite } = useAppContext();
-	const { widgets, getWidgetPath } = useWidgets();
+	const { activeSite, setPreviewRoute, triggerRefresh } = useAppContext();
+	const { widgets, setWidgets, getWidgetPath } = useWidgets();
 	const [editingWidget, setEditingWidget] = useState<WidgetData | null>(null);
 
 	const rename = useCallback(
@@ -37,12 +38,13 @@ export function Widgets() {
 			try {
 				return window.api
 					.renameSourceCode(oldPath, newPath)
-					.catch((err) => alert(JSON.stringify(err, null, 4)));
+					.catch((err) => alert(JSON.stringify(err, null, 4)))
+					.finally(() => (triggerRefresh ? triggerRefresh() : null));
 			} catch (err) {
 				alert(JSON.stringify(err, null, 4));
 			}
 		},
-		[activeSite, editingWidget, getWidgetPath]
+		[activeSite, editingWidget, getWidgetPath, triggerRefresh]
 	);
 
 	if (!activeSite) {
@@ -74,6 +76,8 @@ export function Widgets() {
 												rename(newTag.toString());
 											}
 											setEditingWidget(null);
+											setWidgets(undefined);
+											setPreviewRoute((prev) => prev + "");
 										}}
 									>
 										<input
@@ -105,6 +109,7 @@ export function Widgets() {
 					})}
 				</ul>
 			)}
+			{!Array.isArray(widgets) && <LoadingIndicator />}
 			<button
 				className="p-4"
 				onClick={() => {

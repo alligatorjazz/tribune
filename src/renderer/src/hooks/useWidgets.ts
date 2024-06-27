@@ -1,7 +1,7 @@
 import { dirname, join } from "path-browserify";
 import { useCallback, useEffect, useState } from "react";
 import { useAppContext } from "../App.lib";
-import { WidgetData } from "../../../shared";
+import { SiteMap, WidgetData } from "../../../shared";
 
 export function useWidgets() {
 	const [widgets, setWidgets] = useState<WidgetData[] | "loading" | undefined>();
@@ -36,9 +36,10 @@ export function useWidgets() {
 
 	const getWidgetPath = useCallback(
 		(tag: string) => {
-			const indexRoute = siteMap.find((node) => node.index)?.localPath;
+			const map: SiteMap | null = Array.isArray(siteMap) ? siteMap : null;
+			const indexRoute = map?.find((node) => node.index)?.localPath;
 			if (!indexRoute) {
-				console.warn("Could not find index route in sitemap", siteMap);
+				console.warn("Could not find index route in sitemap", map);
 				return null;
 			}
 			const srcDir = dirname(indexRoute);
