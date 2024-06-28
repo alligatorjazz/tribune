@@ -31,6 +31,7 @@ export function Edit() {
 
 		return null;
 	}, []);
+
 	useEffect(() => {
 		if (postSlug && activeSite) {
 			fetchPost(postSlug, activeSite).then((result) => {
@@ -46,14 +47,20 @@ export function Edit() {
 		}
 	}, [activeSite, fetchPost, navigate, postSlug]);
 
+	// autosave
+	useEffect(() => {
+		if (typeof postContent === "string" && activeSite && postMetadata) {
+			window.api.savePost(activeSite, postMetadata, postContent);
+		}
+	}, [activeSite, postContent, postMetadata]);
 	return (
 		<SidebarLayout
 			title={postMetadata?.title ?? ""}
 			description={postSlug ?? ""}
 			className="w-1/2"
 		>
-			{!(postContent && postMetadata) && <LoadingIndicator />}
-			{postContent && postMetadata && (
+			{!(typeof postContent === "string" && postMetadata) && <LoadingIndicator />}
+			{typeof postContent === "string" && postMetadata && (
 				<MDXEditor
 					className="bg-white h-full"
 					plugins={[
@@ -65,6 +72,7 @@ export function Edit() {
 						markdownShortcutPlugin()
 					]}
 					markdown={postContent}
+					onChange={(newContent) => setPostContent(newContent)}
 				/>
 			)}
 		</SidebarLayout>

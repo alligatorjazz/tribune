@@ -41,19 +41,13 @@ export function changeFileExtension(
 ): string {
 	// Get the current extension using path.extname
 	const currentExtension = extname(filePath).toLowerCase();
-
-	// Ensure all allowedExtensions have a leading dot and are in lowercase
-	const normalizedAllowedExtensions = allowedExtensions.map((ext) =>
-		ext.startsWith(".") ? ext.toLowerCase() : `.${ext.toLowerCase()}`
-	);
-
 	// Check if current extension is allowed
-	if (!currentExtension || !normalizedAllowedExtensions.includes(currentExtension)) {
+	if (!currentExtension || !allowedExtensions.includes(currentExtension)) {
 		// Remove current extension if it exists
 		const filePathWithoutExtension = currentExtension
 			? filePath.slice(0, -currentExtension.length)
 			: filePath;
-		return `${filePathWithoutExtension}.${newExtension}`;
+		return `${filePathWithoutExtension}${newExtension}`;
 	}
 
 	return filePath;

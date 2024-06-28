@@ -50,12 +50,19 @@ export async function savePost(
 ): Promise<string> {
 	let output = "";
 	const { postsDir } = getSiteFolders(site);
-	const slug = slugify(
+	const title =
 		metadata.title ??
-			toTitleCase(generateUniqueFilename(await readdir(postsDir, { withFileTypes: false })))
-	);
+		toTitleCase(
+			generateUniqueFilename(
+				(await readdir(postsDir, { withFileTypes: false })).map((filename) =>
+					basename(basename(filename, ".md"), ".mdx")
+				)
+			)
+		);
+	const slug = slugify(title);
 	const postPath = changeFileExtension(join(postsDir, slug), ".md", [".md", ".mdx"]);
-	const rawFrontmatter = toFrontmatter(metadata);
+	console.log(slug, postPath);
+	const rawFrontmatter = toFrontmatter({ title, ...metadata });
 	output += `---\n${rawFrontmatter}\n---\n\n${content}`;
 	await writeFile(postPath, output, { encoding: "utf-8" });
 	return slug;
