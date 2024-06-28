@@ -5,13 +5,16 @@ import { useAppContext } from "../../App.lib";
 import LoadingIndicator from "../../components/LoadingIndicator";
 import { SidebarLayout } from "../../components/SidebarLayout";
 import {
+	BoldItalicUnderlineToggles,
 	MDXEditor,
 	MDXEditorMethods,
+	UndoRedo,
 	headingsPlugin,
 	listsPlugin,
 	markdownShortcutPlugin,
 	quotePlugin,
-	thematicBreakPlugin
+	thematicBreakPlugin,
+	toolbarPlugin
 } from "@mdxeditor/editor";
 import "@mdxeditor/editor/style.css";
 import "./Edit.scss";
@@ -75,7 +78,16 @@ export function Edit() {
 						listsPlugin(),
 						quotePlugin(),
 						thematicBreakPlugin(),
-						markdownShortcutPlugin()
+						markdownShortcutPlugin(),
+						toolbarPlugin({
+							toolbarContents: () => (
+								<>
+									{" "}
+									<UndoRedo />
+									<BoldItalicUnderlineToggles />
+								</>
+							)
+						})
 					]}
 					markdown={postContent}
 					onChange={(newContent) => setPostContent(newContent)}
