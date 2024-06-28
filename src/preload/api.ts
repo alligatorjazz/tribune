@@ -25,8 +25,9 @@ export const api = {
 	savePost: (
 		site: string,
 		metadata: PartialBy<PostMetadata, "title">,
-		content: string
-	): Promise<string> => ipcRenderer.invoke("save-post", site, metadata, content),
+		content: string,
+		slug?: string
+	): Promise<string> => ipcRenderer.invoke("save-post", site, metadata, content, slug),
 	onAutoReload: (callback: (event: IpcRendererEvent) => void) =>
 		ipcRenderer.on("auto-reload", callback),
 	onWidgetChange: (callback: (event: IpcRendererEvent) => void) =>

@@ -108,8 +108,14 @@ app.whenReady().then(() => {
 
 	ipcMain.handle(
 		"save-post",
-		(_event, site: string, metadata: PartialBy<PostMetadata, "title">, content: string) => {
-			return savePost(site, metadata, content);
+		(
+			_event,
+			site: string,
+			metadata: PartialBy<PostMetadata, "title">,
+			content: string,
+			slug?: string
+		) => {
+			return savePost(site, metadata, content, slug);
 		}
 	);
 

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { PostMetadata } from "../../../../shared/types";
 import { useAppContext } from "../../App.lib";
@@ -6,6 +6,7 @@ import LoadingIndicator from "../../components/LoadingIndicator";
 import { SidebarLayout } from "../../components/SidebarLayout";
 import {
 	MDXEditor,
+	MDXEditorMethods,
 	headingsPlugin,
 	listsPlugin,
 	markdownShortcutPlugin,
@@ -13,6 +14,7 @@ import {
 	thematicBreakPlugin
 } from "@mdxeditor/editor";
 import "@mdxeditor/editor/style.css";
+import "./Edit.scss";
 
 export function Edit() {
 	const [searchParams] = useSearchParams();
@@ -20,12 +22,15 @@ export function Edit() {
 	const { activeSite } = useAppContext();
 	const [postMetadata, setPostMetadata] = useState<PostMetadata | undefined>();
 	const [postContent, setPostContent] = useState<string | undefined>();
+	const editor = useRef<MDXEditorMethods>(null);
+
 	const navigate = useNavigate();
 	// load corresponding post for slug
 	const fetchPost = useCallback(async (slug: string, site: string) => {
-		console.log(`fetching ${slug} from site ${site}...`);
+		// console.log(`fetching ${slug} from site ${site}...`);
 		const { posts } = await window.api.getPosts(site);
 		if (slug in posts) {
+			// console.log("fetched post:", posts[slug]);
 			return posts[slug];
 		}
 
@@ -49,10 +54,11 @@ export function Edit() {
 
 	// autosave
 	useEffect(() => {
-		if (typeof postContent === "string" && activeSite && postMetadata) {
-			window.api.savePost(activeSite, postMetadata, postContent);
+		if (typeof postContent === "string" && activeSite && postMetadata && postSlug) {
+			window.api.savePost(activeSite, postMetadata, postContent, postSlug);
 		}
-	}, [activeSite, postContent, postMetadata]);
+	}, [activeSite, postContent, postMetadata, postSlug]);
+	console.log(postContent);
 	return (
 		<SidebarLayout
 			title={postMetadata?.title ?? ""}
@@ -62,7 +68,7 @@ export function Edit() {
 			{!(typeof postContent === "string" && postMetadata) && <LoadingIndicator />}
 			{typeof postContent === "string" && postMetadata && (
 				<MDXEditor
-					className="bg-white h-full"
+					className="mdx-editor"
 					plugins={[
 						// Example Plugin Usage
 						headingsPlugin(),
@@ -73,6 +79,8 @@ export function Edit() {
 					]}
 					markdown={postContent}
 					onChange={(newContent) => setPostContent(newContent)}
+					autoFocus={true}
+					ref={editor}
 				/>
 			)}
 		</SidebarLayout>

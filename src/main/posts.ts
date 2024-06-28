@@ -46,7 +46,8 @@ export async function getPosts(site: string) {
 export async function savePost(
 	site: string,
 	metadata: PartialBy<PostMetadata, "title">,
-	content: string
+	content: string,
+	slug?: string
 ): Promise<string> {
 	let output = "";
 	const { postsDir } = getSiteFolders(site);
@@ -59,11 +60,12 @@ export async function savePost(
 				)
 			)
 		);
-	const slug = slugify(title);
-	const postPath = changeFileExtension(join(postsDir, slug), ".md", [".md", ".mdx"]);
+
+	const postSlug = slug ?? slugify(title);
+	const postPath = changeFileExtension(join(postsDir, postSlug), ".md", [".md", ".mdx"]);
 	console.log(slug, postPath);
 	const rawFrontmatter = toFrontmatter({ title, ...metadata });
 	output += `---\n${rawFrontmatter}\n---\n\n${content}`;
 	await writeFile(postPath, output, { encoding: "utf-8" });
-	return slug;
+	return postSlug;
 }
