@@ -45,7 +45,6 @@ function buildWidget(tag, path, inheritFrom) {
 }
 
 
-
 function include(...elements) {
 	for (const { tag, path } of elements) {
 		if (tag === "blog-post") {

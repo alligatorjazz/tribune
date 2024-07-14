@@ -1,0 +1,82 @@
+<head>
+<title>review - her-review</title>
+<link href="/style.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+
+<nav-bar>
+	</nav-bar>
+<article>
+<p>Her was a movie. There were many goings on that happened over the course of the movie. Many things were said, events happened, and characters were there. Throughout the movie, one character would say something, and then another character would reply with something. There were also times where characters were NOT talking, and there was music or other things happening on screen. At the end, the credits rolled and we got to see who made the movie.</p>
+
+<ol type="1">
+<li>star bad movie</li>
+</ol>
+
+</article>
+
+
+<script>function isSameOrigin(urlString) {
+    const url = new URL(urlString);
+    const currentUrl = new URL(window.location.href);
+    return (url.origin === currentUrl.origin);
+}
+class BlogPost extends HTMLElement {
+	// TODO: implement widget
+	constructor() {
+		super();
+		this.container = document.createElement("article");
+	}	
+}
+
+function buildWidget(tag, path, inheritFrom) {
+	const AquilaWidget = class extends HTMLElement {
+		container;
+		constructor() {
+			super();
+			this.container = document.createElement(inheritFrom ?? "div");
+			this.container.style.visibility = "hidden"
+			if (!path.startsWith("/")) {
+				throw new Error("You can only load widgets from your own site for security reasons.");
+			}
+
+			if (!path.endsWith(".html")) {
+				throw new Error("Widgets have to be html files.");
+			}
+
+			// load content
+			fetch(path).then(res => {
+				res
+					.text()
+					.then(text => {
+						this.container.innerHTML = text
+					})
+					.catch(err => console.error(err))
+					.finally(() => this.container.style.visibility = "visible")
+			})
+		}
+		connectedCallback() {
+			this.appendChild(this.container);
+		}
+	}
+	customElements.define(tag, AquilaWidget)
+}
+
+
+
+function include(...elements) {
+	for (const { tag, path } of elements) {
+		if (tag === "blog-post") {
+			// TODO: docs link here
+			console.error("Sorry! You can't make a widget called blog-post - that's a reserved name. Check the docs for more details!")
+		} else {
+			buildWidget(tag, path)
+		}
+	}
+}
+
+
+
+include({tag: 'test-widget', path: '/widgets/test-widget.html'})
+include({tag: 'nav-bar', path: '/widgets/nav-bar.html'})</script>
+</body>

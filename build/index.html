@@ -1,0 +1,99 @@
+<head>
+	<meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+	<title>Playground</title>
+	<link href="/style.css" type="text/css" rel="stylesheet">
+</head>
+<body>
+
+	
+	<nav-bar>
+	</nav-bar>
+
+	<h1>normal about media</h1>
+	<p>when i say i'm going to be "so normal about this", it's not just a lie...it's a warning.</p>
+
+	<img src="/jimmyantbindle.png">
+	<h2>favorite shows</h2>
+	<p></p><div class="showposters">
+		<img src="/bcsposter.jpg">
+		<img src="/barryposter.jpg">
+		<img src="/successionposter.jpg">
+	</div><p></p>
+	<h2>favorite movies</h2>
+		<div class="movieposters">
+		<img src="/knivesoutposter.jpg">
+		<img src="/evildead2poster.jpg">
+		<img src="/franceshaposter.jpg">
+	</div>
+	<p>
+	<test-widget>
+	</test-widget>
+	</p>
+
+
+
+<script>function isSameOrigin(urlString) {
+    const url = new URL(urlString);
+    const currentUrl = new URL(window.location.href);
+    return (url.origin === currentUrl.origin);
+}
+class BlogPost extends HTMLElement {
+	// TODO: implement widget
+	constructor() {
+		super();
+		this.container = document.createElement("article");
+	}	
+}
+
+function buildWidget(tag, path, inheritFrom) {
+	const AquilaWidget = class extends HTMLElement {
+		container;
+		constructor() {
+			super();
+			this.container = document.createElement(inheritFrom ?? "div");
+			this.container.style.visibility = "hidden"
+			if (!path.startsWith("/")) {
+				throw new Error("You can only load widgets from your own site for security reasons.");
+			}
+
+			if (!path.endsWith(".html")) {
+				throw new Error("Widgets have to be html files.");
+			}
+
+			// load content
+			fetch(path).then(res => {
+				res
+					.text()
+					.then(text => {
+						this.container.innerHTML = text
+					})
+					.catch(err => console.error(err))
+					.finally(() => this.container.style.visibility = "visible")
+			})
+		}
+		connectedCallback() {
+			this.appendChild(this.container);
+		}
+	}
+	customElements.define(tag, AquilaWidget)
+}
+
+
+
+function include(...elements) {
+	for (const { tag, path } of elements) {
+		if (tag === "blog-post") {
+			// TODO: docs link here
+			console.error("Sorry! You can't make a widget called blog-post - that's a reserved name. Check the docs for more details!")
+		} else {
+			buildWidget(tag, path)
+		}
+	}
+}
+
+
+
+include({tag: 'test-widget', path: '/widgets/test-widget.html'})
+include({tag: 'nav-bar', path: '/widgets/nav-bar.html'})</script>
+</body>
