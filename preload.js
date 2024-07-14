@@ -1,17 +1,4 @@
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Served From Rust</title>
-</head>
-<body>
-
-	<p>Change me, and my little tab should reload. On second try? Third?</p>
-	<test-widget></test-widget>
-	<another-test></another-test>
-
-
-
-<script>function isSameOrigin(urlString) {
+function isSameOrigin(urlString) {
     const url = new URL(urlString);
     const currentUrl = new URL(window.location.href);
     return (url.origin === currentUrl.origin);
@@ -70,8 +57,3 @@ function include(...elements) {
 	}
 }
 
-
-
-include({tag: 'test-widget', path: '/widgets/test-widget.html'})
-include({tag: 'another-test', path: '/widgets/another-test.html'})</script>
-</body>
