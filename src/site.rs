@@ -5,19 +5,17 @@ use scraper::{ElementRef, Html, Selector};
 use std::{error::Error, fs, path::Path};
 
 use crate::{create_program_files, get_widgets_source, posts::build_posts, PRELOADER};
-const DEFAULT_IGNORE: [&str; 6] = [
+const DEFAULT_IGNORE: [&str; 7] = [
     "build",
     ".git",
     ".gitignore",
     "tribune",
     "tribune.exe",
     "tribune.lock",
+    ".vscode",
 ];
 
-const BUILD_IGNORE: [&str; 2] = [
-	"templates",
-	"posts"
-];
+const BUILD_IGNORE: [&str; 2] = ["templates", "posts"];
 
 const DEBUG_IGNGORE: [&str; 6] = [
     "src",
@@ -30,19 +28,19 @@ const DEBUG_IGNGORE: [&str; 6] = [
 
 #[derive(PartialEq, Eq)]
 pub enum IgnoreLevel {
-	WATCH,
-	BUILD
+    WATCH,
+    BUILD,
 }
 
 const IGNORE_FILE: &str = ".tribuneignore";
 
 pub fn get_ignored(level: IgnoreLevel) -> Vec<String> {
     let mut ignored: Vec<String> = DEFAULT_IGNORE.iter().copied().map(String::from).collect();
-	
-	// add extra ignores when checking ignore list on build
-	if level == IgnoreLevel::BUILD {
-		ignored.append(&mut BUILD_IGNORE.iter().copied().map(String::from).collect());
-	}
+
+    // add extra ignores when checking ignore list on build
+    if level == IgnoreLevel::BUILD {
+        ignored.append(&mut BUILD_IGNORE.iter().copied().map(String::from).collect());
+    }
 
     // add rust files to ignore when debugging
     #[cfg(debug_assertions)]
@@ -77,14 +75,14 @@ pub fn attach_scripts(vdom: Html) -> Result<String, Box<dyn std::error::Error>> 
         .expect("Could not read body from vdom.");
 
     let widgets = get_widgets_source()?;
-    println!("building body content...");
+    // println!("building body content...");
     let new_body_content = format!(
         "<body>\n{}\n\n<script>{}\n\n{}</script>\n</body>",
         body.inner_html(),
         PRELOADER,
         widgets
     );
-    println!("building root elements...");
+    // println!("building root elements...");
     let mut root_elements: Vec<ElementRef> = Vec::new();
     for child in vdom.root_element().child_elements() {
         let element = child.value();
@@ -148,22 +146,29 @@ pub fn build_site() -> Result<(), Box<dyn std::error::Error>> {
         }
 
         if copy_file && entry.path().is_file() {
-            println!("copying file: {}", entry.path().to_string_lossy());
+            println!("copying file: {:?}", entry.path().into_os_string());
+            let output_path = Path::new("build").join(entry.path());
             match entry.path().extension() {
                 Some(extension) => {
-                    if extension != "html" {
-                        copy_items(&[entry.path().into_os_string()], "build", &options)?;
-                        continue;
-                    }
-
                     // attaches widget scripts to html - loading dominator
-                    let html_buffer = fs::read(entry.path())?;
-                    let html_text = String::from_utf8(html_buffer)?;
-                    let new_file_content = attach_scripts(Html::parse_document(&html_text))?;
-                    fs::write(Path::new("build").join(entry.path()), new_file_content)?;
+                    match extension.to_str() {
+                        Some("html") => {
+                            let buffer = fs::read(entry.path())?;
+                            let string = String::from_utf8(buffer)?;
+                            let new_file_content = attach_scripts(Html::parse_document(&string))?;
+                            fs::write(output_path, new_file_content)?;
+                        }
+                        _ => {
+                            fs::copy(entry.path(), output_path).unwrap_or_else(|_| {
+                                panic!("Could not copy file {:?} to build.", entry.path())
+                            });
+                        }
+                    }
                 }
                 None => {
-                    copy_items(&[entry.path().into_os_string()], "build", &options)?;
+                    fs::copy(entry.path(), output_path).unwrap_or_else(|_| {
+                        panic!("Could not copy file {:?} to build.", entry.path())
+                    });
                 }
             }
         }
@@ -179,7 +184,7 @@ pub fn build_site_watcher() -> notify::Result<RecommendedWatcher> {
         match res {
             Ok(event) => {
                 for path in event.paths {
-                    let relative_path = diff_paths(path, Path::new(".")).unwrap();
+                    let relative_path = diff_paths(&path, Path::new(".")).unwrap();
                     // let path_name = relative_path.to_str().unwrap();
 
                     let mut trigger_reload = true;
@@ -198,6 +203,7 @@ pub fn build_site_watcher() -> notify::Result<RecommendedWatcher> {
                     }
 
                     if trigger_reload {
+                        println!("file {:?} passed reload checks, reloading", path);
                         match build_site() {
                             Ok(()) => {
                                 println!("Reloaded on change: {}", relative_path.to_string_lossy())

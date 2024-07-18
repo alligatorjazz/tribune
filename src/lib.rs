@@ -62,4 +62,4 @@ pub fn get_widgets_source() -> io::Result<String> {
     }
 }
 
-// TODO: fix autoreload and open server in default browser
+// TODO: open server in default browser
