@@ -1,10 +1,9 @@
-use fs_extra::{copy_items, dir::CopyOptions};
 use notify::{RecommendedWatcher, Watcher};
 use pathdiff::diff_paths;
 use scraper::{ElementRef, Html, Selector};
 use std::{error::Error, fs, path::Path};
 
-use crate::{create_program_files, get_widgets_source, posts::build_posts, PRELOADER};
+use crate::{copy_dir_all, create_program_files, get_widgets_source, posts::build_posts, PRELOADER};
 const DEFAULT_IGNORE: [&str; 7] = [
     "build",
     ".git",
@@ -134,14 +133,10 @@ pub fn build_site() -> Result<(), Box<dyn std::error::Error>> {
 
         // if the file is either not .html or a widget
         // if the file is a directory
-        let options = CopyOptions {
-            overwrite: true,
-            ..Default::default()
-        };
 
         if copy_file && entry.path().is_dir() && entry.path().to_string_lossy() != "./posts" {
             println!("copying directory: {}", entry.path().to_string_lossy());
-            copy_items(&[entry.path()], "build", &options)?;
+            copy_dir_all(&entry.path(), Path::join(Path::new("build"), &entry.path()))?;
             continue;
         }
 

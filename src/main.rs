@@ -1,5 +1,4 @@
 use std::{path::Path, thread, time::Duration};
-
 use notify::{RecursiveMode, Watcher};
 use tribune::{posts::{build_post_watcher, build_posts}, site::{build_site, build_site_watcher}};
 
