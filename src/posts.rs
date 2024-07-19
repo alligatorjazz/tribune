@@ -3,8 +3,43 @@ use std::{fs, path::Path};
 use gray_matter::{engine::YAML, Matter};
 use notify::RecommendedWatcher;
 use scraper::{ElementRef, Html};
+use serde::Deserialize;
 
-use crate::{site::attach_scripts, BlogPostData};
+use crate::site::attach_scripts;
+
+#[derive(Deserialize, Debug)]
+pub struct BlogPostMetadata {
+    title: Option<String>,
+    publish_date: Option<String>,
+    description: Option<String>,
+    template: Option<String>,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct BlogPost {
+    metadata: BlogPostMetadata,
+    content: String,
+}
+
+fn generate_list_widget() -> String {
+    // load built-in for post-list
+    todo!()
+}
+
+fn load_post(path: &Path, parser: Matter<YAML>) -> Result<BlogPost, Box<dyn std::error::Error>> {
+    let read = fs::read(path)?;
+    let file_content = String::from_utf8(read)?;
+    let raw_matter = parser.parse_with_struct::<BlogPostMetadata>(&file_content);
+    if raw_matter.is_some() {
+        let front_matter = raw_matter.unwrap();
+        Ok(BlogPost {
+            content: front_matter.content,
+            metadata: front_matter.data,
+        })
+    } else {
+        Err(format!("Could not load post from {path:?}").into())
+    }
+}
 
 pub fn build_posts() -> Result<(), Box<dyn std::error::Error>> {
     let posts_path = Path::new("posts");
@@ -21,29 +56,11 @@ pub fn build_posts() -> Result<(), Box<dyn std::error::Error>> {
             let markdown_files = files.filter(|file| {
                 file.path().extension().is_some() && file.path().extension().unwrap() == "md"
             });
-            let parser = Matter::<YAML>::new();
+            
             for file in markdown_files {
-                let file_name = file.file_name();
-                println!("compiling post: {file_name:?}");
-                let path = file.path();
-                let read = fs::read(&path);
-                if read.is_err() {
-                    println!("Could not read {file_name:?}.");
-                    continue;
-                }
-                let file_content = String::from_utf8(read.unwrap());
-                if file_content.is_err() {
-                    println!("Could not load {file_name:?} as string.");
-                    continue;
-                }
-                let raw_matter = parser.parse_with_struct::<BlogPostData>(&file_content.unwrap());
-                if raw_matter.is_none() {
-                    println!("Could not load frontmatter for {file_name:?}.");
-                    continue;
-                }
-                let front_matter = raw_matter.unwrap();
-                // selecting template
-                let vars = &front_matter.data;
+				let path = file.path();
+                let post = load_post(&path, Matter::<YAML>::new())?;
+                let vars = &post.metadata;
                 let template = match &vars.template {
                     Some(name) => name,
                     None => "default",
@@ -94,7 +111,7 @@ pub fn build_posts() -> Result<(), Box<dyn std::error::Error>> {
                             // println!("processing element {}", child.value().name());
                             if child.value().name() == "post-body" {
                                 strings.push("<article>".to_owned());
-                                strings.push(markdown::to_html(&front_matter.content));
+                                strings.push(markdown::to_html(&post.content));
                                 strings.push("</article>".to_owned());
                             } else {
                                 strings.push(child.html())
@@ -125,7 +142,6 @@ pub fn build_posts() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 }
-
 
 pub fn build_post_watcher() -> Result<RecommendedWatcher, notify::Error> {
     // Automatically select the best implementation for your platform.

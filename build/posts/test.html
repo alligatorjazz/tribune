@@ -1,6 +1,6 @@
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
 <title>Tribune - Test - test</title>
 <link rel="stylesheet" href="/style.css">
 </head>
@@ -13,10 +13,13 @@
 
 <h1 id="i_love_gay_people!!!!">i love gay people!!!!</h1>
 
+<h2 id="no.">no.</h2>
+
 </article>
 
 
-<script>function isSameOrigin(urlString) {
+<script>const tribune_data = {};
+function isSameOrigin(urlString) {
     const url = new URL(urlString);
     const currentUrl = new URL(window.location.href);
     return (url.origin === currentUrl.origin);

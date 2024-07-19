@@ -1,6 +1,6 @@
 <head>
 	<meta charset="UTF-8">
-	<meta content="width=device-width, initial-scale=1.0" name="viewport">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Tribune - Test</title>
 	<link href="/style.css" rel="stylesheet">
 </head>
@@ -14,7 +14,8 @@
 
 
 
-<script>function isSameOrigin(urlString) {
+<script>const tribune_data = {};
+function isSameOrigin(urlString) {
     const url = new URL(urlString);
     const currentUrl = new URL(window.location.href);
     return (url.origin === currentUrl.origin);

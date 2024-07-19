@@ -8,12 +8,6 @@ pub mod posts;
 pub mod site;
 const PRELOADER: &str = include_str!("../preload.js");
 
-#[derive(Deserialize, Debug)]
-struct BlogPostData {
-    title: Option<String>,
-    template: Option<String>,
-}
-
 fn copy_dir_all(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> io::Result<()> {
     fs::create_dir_all(&dst)?;
     for entry in fs::read_dir(src)? {
@@ -50,6 +44,8 @@ pub fn create_program_files() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(fs::create_dir_all("build")?)
 }
+
+
 
 pub fn get_widgets_source() -> io::Result<String> {
     let widget_files = fs::read_dir("widgets");

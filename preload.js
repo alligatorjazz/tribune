@@ -1,3 +1,4 @@
+const tribune_data = {};
 function isSameOrigin(urlString) {
     const url = new URL(urlString);
     const currentUrl = new URL(window.location.href);
