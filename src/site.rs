@@ -1,6 +1,5 @@
 use filetime::FileTime;
 use notify::{
-    event::ModifyKind,
     RecommendedWatcher, Watcher,
 };
 use pathdiff::diff_paths;
