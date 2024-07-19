@@ -7,7 +7,7 @@ use scraper::{ElementRef, Html, Selector};
 use std::{error::Error, fs, path::Path};
 
 use crate::{
-    copy_dir_all, create_program_files, get_widgets_source, posts::build_posts, PRELOADER,
+    copy_dir_all, create_program_files, get_widgets_source, posts::{build_posts, generate_post_loader}, LOADER, PRELOADER
 };
 const DEFAULT_IGNORE: [&str; 8] = [
     "build",
@@ -22,7 +22,7 @@ const DEFAULT_IGNORE: [&str; 8] = [
 
 const BUILD_IGNORE: [&str; 2] = ["templates", "posts"];
 
-const DEBUG_IGNGORE: [&str; 7] = [
+const DEBUG_IGNGORE: [&str; 8] = [
     "src",
     "target",
     "Cargo.toml",
@@ -30,6 +30,7 @@ const DEBUG_IGNGORE: [&str; 7] = [
     "Makefile",
     "preload.js",
     "README.md",
+	"load.js"
 ];
 
 #[derive(PartialEq, Eq)]
@@ -83,9 +84,11 @@ pub fn attach_scripts(vdom: Html) -> Result<String, Box<dyn std::error::Error>> 
     let widgets = get_widgets_source()?;
     // println!("building body content...");
     let new_body_content = format!(
-        "<body>\n{}\n\n<script>{}\n\n{}</script>\n</body>",
+        "<body>\n{}\n\n<script>{}\n\n{}\n\n{}\n\n{}</script>\n</body>",
         body.inner_html(),
         PRELOADER,
+		generate_post_loader(),
+		LOADER,
         widgets
     );
     // println!("building root elements...");
@@ -187,7 +190,7 @@ pub fn build_site_watcher() -> notify::Result<RecommendedWatcher> {
             Ok(event) => {
                 for path in event.paths {
                     let relative_path = diff_paths(&path, Path::new(".").canonicalize().unwrap()).unwrap();
-					println!("relative path of event: {:?}", relative_path);
+					// println!("relative path of event: {:?}", relative_path);
                     // let path_name = relative_path.to_str().unwrap();
                     let mut trigger_reload = true;
                     for ignored in &ignored_paths {

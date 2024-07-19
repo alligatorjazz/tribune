@@ -6,6 +6,7 @@ use std::{
 pub mod posts;
 pub mod site;
 const PRELOADER: &str = include_str!("../preload.js");
+const LOADER: &str = include_str!("../load.js");
 
 fn copy_dir_all(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> io::Result<()> {
     fs::create_dir_all(&dst)?;

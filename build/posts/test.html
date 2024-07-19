@@ -1,8 +1,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tribune - Test - test</title>
-<link href="/style.css" rel="stylesheet">
+<title>Tribune - Test - gay peo</title>
+<link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
@@ -18,19 +18,18 @@
 </article>
 
 
-<script>const tribune_data = {};
+<script>const tribune_data = {
+	posts: []
+};
+
 function isSameOrigin(urlString) {
     const url = new URL(urlString);
     const currentUrl = new URL(window.location.href);
     return (url.origin === currentUrl.origin);
 }
-class BlogPost extends HTMLElement {
-	// TODO: implement widget
-	constructor() {
-		super();
-		this.container = document.createElement("article");
-	}	
-}
+
+
+tribune_data.posts["test"] = {"title":"gay peo","publish_date":"04/25/2001","description":"weeee","template":"default"}
 
 function buildWidget(tag, path, inheritFrom) {
 	const AquilaWidget = class extends HTMLElement {
@@ -77,7 +76,45 @@ function include(...elements) {
 	}
 }
 
+class PostList extends HTMLElement {
+	container;
+	constructor() {
+		super();
+		this.container = document.createElement("ul");
+		Object.entries(tribune_data.posts).map(([slug, data]) => {
+			let content = document.createElement("a");
+			content.href = "/posts/" + slug;
 
+			if (data.title) {
+				let title = document.createElement("div");
+				title.className = "title";
+				title.innerHTML = data.title;
+				content.appendChild(title);
+			}
+
+			if (data.publish_date) {
+				let date = document.createElement("div");
+				date.className = "date";
+				date.innerHTML = new Date(data.publish_date).toDateString();
+				content.appendChild(date);
+			}
+
+			if (data.description) {
+				let description = document.createElement("div");
+				description.className = "description";
+				description.innerHTML = data.description;
+				content.appendChild(description);
+			}
+
+			this.container.appendChild(content);
+		})
+	}
+	connectedCallback() {
+		this.appendChild(this.container);
+	}
+}
+
+customElements.define("post-list", PostList)
 
 include({tag: 'test-widget', path: '/widgets/test-widget.html'})
 include({tag: 'nav-bar', path: '/widgets/nav-bar.html'})</script>

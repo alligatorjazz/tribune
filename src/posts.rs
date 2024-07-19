@@ -3,11 +3,11 @@ use std::{fs, io, path::Path};
 use gray_matter::{engine::YAML, Matter};
 use notify::RecommendedWatcher;
 use scraper::{ElementRef, Html};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::site::attach_scripts;
 
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct BlogPostMetadata {
     title: Option<String>,
     publish_date: Option<String>,
@@ -22,9 +22,31 @@ pub struct BlogPost {
     slug: String,
 }
 
-fn generate_list_widget() -> String {
+pub fn generate_post_loader() -> String {
     // load built-in for post-list
-    todo!()
+    let mut script: Vec<String> = Vec::new();
+    let posts = load_posts();
+    match posts {
+        Ok(list) => {
+            for entry in list {
+                match entry {
+                    Ok(post) => {
+                        script.push(format!(
+                            "tribune_data.posts[\"{}\"] = {}",
+							&post.slug,
+                            serde_json::to_string(&post.metadata).unwrap()
+                        ))
+                    },
+                    Err(_) => todo!(),
+                }
+            }
+            script.join("\n")
+        }
+        Err(_) => {
+            println!("Couldn't generate <post-list> widget because the posts couldn't be loaded.");
+            String::new()
+        }
+    }
 }
 
 fn load_post(path: &Path, parser: Matter<YAML>) -> Result<BlogPost, Box<dyn std::error::Error>> {
@@ -49,7 +71,7 @@ fn load_posts() -> io::Result<Vec<Result<BlogPost, Box<dyn std::error::Error>>>>
     let entries = fs::read_dir(posts_path)?;
     for entry in entries {
         let path = entry?.path();
-        if (path.is_file() && path.extension().is_some() && path.extension().unwrap() == "md") {
+        if path.is_file() && path.extension().is_some() && path.extension().unwrap() == "md" {
             println!("loading post: {:?}", path);
             posts.push(load_post(&path, Matter::<YAML>::new()))
         }

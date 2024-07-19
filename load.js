@@ -1,28 +1,3 @@
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>about test</title>
-</head>
-<body>
-
-	<h1>aboots!</h1>
-	<a href="/sub/index">no?</a>
-
-
-
-<script>const tribune_data = {
-	posts: []
-};
-
-function isSameOrigin(urlString) {
-    const url = new URL(urlString);
-    const currentUrl = new URL(window.location.href);
-    return (url.origin === currentUrl.origin);
-}
-
-
-tribune_data.posts["test"] = {"title":"gay peo","publish_date":"04/25/2001","description":"weeee","template":"default"}
-
 function buildWidget(tag, path, inheritFrom) {
 	const AquilaWidget = class extends HTMLElement {
 		container;
@@ -107,7 +82,3 @@ class PostList extends HTMLElement {
 }
 
 customElements.define("post-list", PostList)
-
-include({tag: 'test-widget', path: '/widgets/test-widget.html'})
-include({tag: 'nav-bar', path: '/widgets/nav-bar.html'})</script>
-</body>
