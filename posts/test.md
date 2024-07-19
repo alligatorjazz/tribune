@@ -2,5 +2,5 @@
 template: default
 ---
 i ~hate~ gay people
-# i love gay people!!!!
+# i love gay weee!!!!
 ## no.

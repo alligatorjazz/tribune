@@ -1,4 +1,4 @@
-use std::{fs, path::Path};
+use std::{fs, io, path::Path};
 
 use gray_matter::{engine::YAML, Matter};
 use notify::RecommendedWatcher;
@@ -19,6 +19,7 @@ pub struct BlogPostMetadata {
 pub struct BlogPost {
     metadata: BlogPostMetadata,
     content: String,
+    slug: String,
 }
 
 fn generate_list_widget() -> String {
@@ -35,10 +36,26 @@ fn load_post(path: &Path, parser: Matter<YAML>) -> Result<BlogPost, Box<dyn std:
         Ok(BlogPost {
             content: front_matter.content,
             metadata: front_matter.data,
+            slug: path.file_stem().unwrap().to_string_lossy().to_string(),
         })
     } else {
         Err(format!("Could not load post from {path:?}").into())
     }
+}
+
+fn load_posts() -> io::Result<Vec<Result<BlogPost, Box<dyn std::error::Error>>>> {
+    let mut posts: Vec<Result<BlogPost, Box<dyn std::error::Error>>> = Vec::new();
+    let posts_path = Path::new("posts");
+    let entries = fs::read_dir(posts_path)?;
+    for entry in entries {
+        let path = entry?.path();
+        if (path.is_file() && path.extension().is_some() && path.extension().unwrap() == "md") {
+            println!("loading post: {:?}", path);
+            posts.push(load_post(&path, Matter::<YAML>::new()))
+        }
+    }
+
+    Ok(posts)
 }
 
 pub fn build_posts() -> Result<(), Box<dyn std::error::Error>> {
@@ -47,19 +64,12 @@ pub fn build_posts() -> Result<(), Box<dyn std::error::Error>> {
         return Ok(());
     }
 
-    let result = fs::read_dir(posts_path);
-    match result {
-        Ok(entries) => {
-            let files = entries
-                .filter_map(|entry| entry.ok())
-                .filter(|file| file.path().is_file());
-            let markdown_files = files.filter(|file| {
-                file.path().extension().is_some() && file.path().extension().unwrap() == "md"
-            });
-            
-            for file in markdown_files {
-				let path = file.path();
-                let post = load_post(&path, Matter::<YAML>::new())?;
+    let posts = load_posts()?;
+    // println!("{:?}", posts);
+
+    for entry in posts {
+        match entry {
+            Ok(post) => {
                 let vars = &post.metadata;
                 let template = match &vars.template {
                     Some(name) => name,
@@ -67,7 +77,7 @@ pub fn build_posts() -> Result<(), Box<dyn std::error::Error>> {
                 };
                 let title = match &vars.title {
                     Some(text) => text,
-                    None => path.file_stem().unwrap().to_str().unwrap(),
+                    None => &post.slug,
                 };
 
                 let template_path = format!("templates/{}.html", template);
@@ -127,20 +137,14 @@ pub fn build_posts() -> Result<(), Box<dyn std::error::Error>> {
                 let new_file_content = attach_scripts(Html::parse_document(&base_file_content))?;
                 let _ = fs::create_dir_all("build/posts");
                 let _ = fs::write(
-                    format!(
-                        "build/posts/{}.html",
-                        file.path().file_stem().unwrap().to_string_lossy()
-                    ),
+                    format!("build/posts/{}.html", &post.slug.to_string()),
                     new_file_content,
                 );
             }
-            Ok(())
-        }
-        Err(err) => {
-            println!("{err}");
-            Err(Box::new(err))
+            Err(_) => todo!(),
         }
     }
+    Ok(())
 }
 
 pub fn build_post_watcher() -> Result<RecommendedWatcher, notify::Error> {

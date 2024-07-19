@@ -1,4 +1,3 @@
-use serde::Deserialize;
 use std::{
     fs,
     io::{self, stdout, Write},
