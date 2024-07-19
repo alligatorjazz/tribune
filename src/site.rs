@@ -1,10 +1,16 @@
-use notify::{RecommendedWatcher, Watcher};
+use filetime::FileTime;
+use notify::{
+    event::{DataChange, MetadataKind, ModifyKind},
+    RecommendedWatcher, Watcher,
+};
 use pathdiff::diff_paths;
 use scraper::{ElementRef, Html, Selector};
 use std::{error::Error, fs, path::Path};
 
-use crate::{copy_dir_all, create_program_files, get_widgets_source, posts::build_posts, PRELOADER};
-const DEFAULT_IGNORE: [&str; 7] = [
+use crate::{
+    copy_dir_all, create_program_files, get_widgets_source, posts::build_posts, PRELOADER,
+};
+const DEFAULT_IGNORE: [&str; 8] = [
     "build",
     ".git",
     ".gitignore",
@@ -12,17 +18,19 @@ const DEFAULT_IGNORE: [&str; 7] = [
     "tribune.exe",
     "tribune.lock",
     ".vscode",
+	".DS_Store"
 ];
 
 const BUILD_IGNORE: [&str; 2] = ["templates", "posts"];
 
-const DEBUG_IGNGORE: [&str; 6] = [
+const DEBUG_IGNGORE: [&str; 7] = [
     "src",
     "target",
     "Cargo.toml",
     "Cargo.lock",
     "Makefile",
     "preload.js",
+    "README.md",
 ];
 
 #[derive(PartialEq, Eq)]
@@ -117,7 +125,7 @@ pub fn build_site() -> Result<(), Box<dyn std::error::Error>> {
         let mut copy_file = true;
         for ignored in get_ignored(IgnoreLevel::BUILD) {
             let ignore_path = fs::canonicalize(ignored);
-            if (ignore_path.is_ok())
+            if ignore_path.is_ok()
                 && fs::canonicalize(entry.path())
                     .unwrap()
                     .starts_with(ignore_path.unwrap())
@@ -136,7 +144,7 @@ pub fn build_site() -> Result<(), Box<dyn std::error::Error>> {
 
         if copy_file && entry.path().is_dir() && entry.path().to_string_lossy() != "./posts" {
             println!("copying directory: {}", entry.path().to_string_lossy());
-            copy_dir_all(&entry.path(), Path::join(Path::new("build"), &entry.path()))?;
+            copy_dir_all(&entry.path(), Path::new("build").join(&entry.path()))?;
             continue;
         }
 
@@ -179,29 +187,66 @@ pub fn build_site_watcher() -> notify::Result<RecommendedWatcher> {
         match res {
             Ok(event) => {
                 for path in event.paths {
-                    let relative_path = diff_paths(&path, Path::new(".")).unwrap();
-                    // let path_name = relative_path.to_str().unwrap();
-
+                    match event.kind {
+                        notify::EventKind::Modify(ModifyKind::Metadata(_)) => continue,
+                        notify::EventKind::Other => todo!(),
+                        notify::EventKind::Access(_) => todo!(),
+                        notify::EventKind::Any => todo!(),
+                        _ => (),
+                    }
+                    let relative_path = diff_paths(&path, Path::new(".").canonicalize().unwrap()).unwrap();
+					println!("relative path of event: {:?}", relative_path);
+                    let path_name = relative_path.to_str().unwrap();
                     let mut trigger_reload = true;
                     for ignored in &ignored_paths {
                         // println!("ignoring paths in watcher: {}", ignored);
                         if !Path::exists(Path::new(ignored)) {
                             continue;
                         }
-                        let ignore_path = fs::canonicalize(ignored).unwrap();
-                        // let ignore_path_name = ignore_path.to_str().unwrap();
-                        // println!("Checking {path_name} against {ignore_path_name}");
-                        if relative_path.starts_with(ignore_path) {
+    
+                        let ignore_path_name = ignored.to_string();
+                        println!("Checking {path_name} against {ignore_path_name}");
+                        if relative_path.starts_with(ignored) {
                             trigger_reload = false;
                             break;
                         }
                     }
 
+                    // checks that source is newer than target
+                    let target_path = Path::new("build").join(&relative_path);
+					// println!("generated target path: {:?}", &target_path);
+                    if let Ok(target_metadata) = fs::metadata(&target_path) {
+                        if trigger_reload {
+                            let source_metadata = fs::metadata(&relative_path).unwrap_or_else(|_| {
+                                panic!("Could not get source file metadata for {:?}", &relative_path)
+                            });
+                            let source_file_timestamp =
+                                FileTime::from_last_modification_time(&source_metadata).seconds();
+                            let target_file_timestamp =
+                                FileTime::from_last_modification_time(&target_metadata)
+                                    .seconds();
+
+                            // if source is older than target
+                            if source_file_timestamp <= target_file_timestamp {
+								println!(
+									"source {:?} is older than target {:?}, skipping ({}) ({})",
+									relative_path, &target_path, source_file_timestamp, target_file_timestamp
+								);
+								trigger_reload = false;
+                            } else {
+                                println!(
+								"source {:?} is newer than target {:?}, triggering reload ({}) ({})",
+								relative_path, &target_path, source_file_timestamp, target_file_timestamp
+							)
+                            }
+                        }
+                    }
+
                     if trigger_reload {
-                        println!("file {:?} passed reload checks, reloading", path);
+                        println!("reloading on event: {:?} | {:?}", event.kind, path);
                         match build_site() {
                             Ok(()) => {
-                                println!("Reloaded on change: {}", relative_path.to_string_lossy())
+                                println!("Reloaded on change: {}", &relative_path.to_string_lossy())
                             }
                             Err(err) => println!("There was an error reloading the site: \n{err}"),
                         }

@@ -1272,6 +1272,7 @@ name = "tribune"
 version = "0.1.0"
 dependencies = [
  "devserver_lib",
+ "filetime",
  "gray_matter",
  "markdown",
  "notify 6.1.1",
