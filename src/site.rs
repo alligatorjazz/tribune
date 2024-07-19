@@ -1,6 +1,6 @@
 use filetime::FileTime;
 use notify::{
-    event::{DataChange, MetadataKind, ModifyKind},
+    event::ModifyKind,
     RecommendedWatcher, Watcher,
 };
 use pathdiff::diff_paths;
@@ -187,16 +187,9 @@ pub fn build_site_watcher() -> notify::Result<RecommendedWatcher> {
         match res {
             Ok(event) => {
                 for path in event.paths {
-                    match event.kind {
-                        notify::EventKind::Modify(ModifyKind::Metadata(_)) => continue,
-                        notify::EventKind::Other => todo!(),
-                        notify::EventKind::Access(_) => todo!(),
-                        notify::EventKind::Any => todo!(),
-                        _ => (),
-                    }
                     let relative_path = diff_paths(&path, Path::new(".").canonicalize().unwrap()).unwrap();
 					println!("relative path of event: {:?}", relative_path);
-                    let path_name = relative_path.to_str().unwrap();
+                    // let path_name = relative_path.to_str().unwrap();
                     let mut trigger_reload = true;
                     for ignored in &ignored_paths {
                         // println!("ignoring paths in watcher: {}", ignored);
@@ -204,8 +197,8 @@ pub fn build_site_watcher() -> notify::Result<RecommendedWatcher> {
                             continue;
                         }
     
-                        let ignore_path_name = ignored.to_string();
-                        println!("Checking {path_name} against {ignore_path_name}");
+                        // let ignore_path_name = ignored.to_string();
+                        // println!("Checking {path_name} against {ignore_path_name}");
                         if relative_path.starts_with(ignored) {
                             trigger_reload = false;
                             break;
@@ -228,17 +221,8 @@ pub fn build_site_watcher() -> notify::Result<RecommendedWatcher> {
 
                             // if source is older than target
                             if source_file_timestamp <= target_file_timestamp {
-								println!(
-									"source {:?} is older than target {:?}, skipping ({}) ({})",
-									relative_path, &target_path, source_file_timestamp, target_file_timestamp
-								);
 								trigger_reload = false;
-                            } else {
-                                println!(
-								"source {:?} is newer than target {:?}, triggering reload ({}) ({})",
-								relative_path, &target_path, source_file_timestamp, target_file_timestamp
-							)
-                            }
+                            } 
                         }
                     }
 
