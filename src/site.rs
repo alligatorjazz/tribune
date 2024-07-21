@@ -1,13 +1,13 @@
 use filetime::FileTime;
-use notify::{
-    RecommendedWatcher, Watcher,
-};
+use notify::{RecommendedWatcher, Watcher};
 use pathdiff::diff_paths;
 use scraper::{ElementRef, Html, Selector};
 use std::{error::Error, fs, path::Path};
 
 use crate::{
-    copy_dir_all, create_program_files, get_widgets_source, posts::{build_posts, generate_post_loader}, LOADER, PRELOADER
+    copy_dir_all, create_program_files, get_widgets_source,
+    posts::{build_posts, generate_post_loader},
+    LOADER, PRELOADER,
 };
 const DEFAULT_IGNORE: [&str; 8] = [
     "build",
@@ -15,14 +15,14 @@ const DEFAULT_IGNORE: [&str; 8] = [
     ".gitignore",
     "tribune",
     "tribune.exe",
-    "tribune.lock",
+    ".tribunelock",
     ".vscode",
-	".DS_Store"
+    ".DS_Store",
 ];
 
-const BUILD_IGNORE: [&str; 2] = ["templates", "posts"];
+const BUILD_IGNORE: [&str; 3] = ["templates", "posts", ".tribuneignore"];
 
-const DEBUG_IGNGORE: [&str; 8] = [
+const DEBUG_IGNGORE: [&str; 10] = [
     "src",
     "target",
     "Cargo.toml",
@@ -30,7 +30,9 @@ const DEBUG_IGNGORE: [&str; 8] = [
     "Makefile",
     "preload.js",
     "README.md",
-	"load.js"
+    "load.js",
+    "tribune-macos.zip",
+    "tribune-x86_64.zip",
 ];
 
 #[derive(PartialEq, Eq)]
@@ -87,8 +89,8 @@ pub fn attach_scripts(vdom: Html) -> Result<String, Box<dyn std::error::Error>> 
         "<body>\n{}\n\n<script>{}\n\n{}\n\n{}\n\n{}</script>\n</body>",
         body.inner_html(),
         PRELOADER,
-		generate_post_loader(),
-		LOADER,
+        generate_post_loader(),
+        LOADER,
         widgets
     );
     // println!("building root elements...");
@@ -189,8 +191,9 @@ pub fn build_site_watcher() -> notify::Result<RecommendedWatcher> {
         match res {
             Ok(event) => {
                 for path in event.paths {
-                    let relative_path = diff_paths(&path, Path::new(".").canonicalize().unwrap()).unwrap();
-					// println!("relative path of event: {:?}", relative_path);
+                    let relative_path =
+                        diff_paths(&path, Path::new(".").canonicalize().unwrap()).unwrap();
+                    // println!("relative path of event: {:?}", relative_path);
                     // let path_name = relative_path.to_str().unwrap();
                     let mut trigger_reload = true;
                     for ignored in &ignored_paths {
@@ -198,7 +201,7 @@ pub fn build_site_watcher() -> notify::Result<RecommendedWatcher> {
                         if !Path::exists(Path::new(ignored)) {
                             continue;
                         }
-    
+
                         // let ignore_path_name = ignored.to_string();
                         // println!("Checking {path_name} against {ignore_path_name}");
                         if relative_path.starts_with(ignored) {
@@ -209,22 +212,23 @@ pub fn build_site_watcher() -> notify::Result<RecommendedWatcher> {
 
                     // checks that source is newer than target
                     let target_path = Path::new("build").join(&relative_path);
-					// println!("generated target path: {:?}", &target_path);
+                    // println!("generated target path: {:?}", &target_path);
                     if let Ok(target_metadata) = fs::metadata(&target_path) {
                         if trigger_reload {
-                            let source_metadata = fs::metadata(&relative_path).unwrap_or_else(|_| {
-                                panic!("Could not get source file metadata for {:?}", &relative_path)
-                            });
-                            let source_file_timestamp =
-                                FileTime::from_last_modification_time(&source_metadata).seconds();
-                            let target_file_timestamp =
-                                FileTime::from_last_modification_time(&target_metadata)
-                                    .seconds();
+                            let source_metadata = fs::metadata(&relative_path);
+                            if let Ok(source_metadata) = source_metadata {
+                                let source_file_timestamp =
+                                    FileTime::from_last_modification_time(&source_metadata)
+                                        .seconds();
+                                let target_file_timestamp =
+                                    FileTime::from_last_modification_time(&target_metadata)
+                                        .seconds();
 
-                            // if source is older than target
-                            if source_file_timestamp <= target_file_timestamp {
-								trigger_reload = false;
-                            } 
+                                // if source is older than target
+                                if source_file_timestamp <= target_file_timestamp {
+                                    trigger_reload = false;
+                                }
+                            }
                         }
                     }
 

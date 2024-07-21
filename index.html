@@ -1,17 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Tribune</title>
-	<link rel="stylesheet" href="/style.css">
+	<title>Tribune - Home</title>
+	<link rel="stylesheet" href="/styles/core.css">
+	<link rel="stylesheet" href="/styles/index.css">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link
+		href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
+		rel="stylesheet">
 </head>
+
 <body>
-	<h1>Tribune</h1>
-	<a href="/posts/test">the one post ..</a>
 	<nav-bar></nav-bar>
-	<test-widget></test-widget>
-	<post-list></post-list>
-	<a href="/about">linque ee  ee e e ee eeee</a>
+	<main>
+		<div id="major-story">
+			<h1><span>TRIBUNE</span> <span>GOES LIVE!</span></h1>
+			<h2>A Web Development Tool Intended For Amateur Designers</h2>
+			<p>Tribune seeks to provide a few quality-of-life features to speed up the process of designing and blogging
+				on Neocities - or any static site hosting provider of your choice.
+			</p>
+			<button>Get Started</button>
+		</div>
+		<div id="features-header">
+			<h1>Key Features!</h1>
+		</div>
+		<div class="feature">
+			<h2>No Installation!</h2>
+			<p>Just drop the (mercifully tiny) Tribune executable in your site folder and run - it'll build your site
+				for
+				you with (almost) no fuss! Tribune is and will always remain totally portable.</p>
+		</div>
+		<div class="feature">
+			<h2>Markdown Support!</h2>
+			<p>Write your blog posts in markdown and have them auto-compile into HTML files! You can apply custom
+				stylesheets to your articles as you please.</p>
+		</div>
+		<div class="feature">
+			<h2>Reusable Widgets!</h2>
+			<p>Using native web components, build reusable building blocks for your entire site just by writing normal,
+				god-fearing HTML - no Javascript required (on your end, at least).</p>
+		</div>
+		<div class="feature">
+			<h2>RSS Feed Generation!</h2>
+			<p>Using just a folder of some markdown files, some frontmatter, and a dream, Tribune can create an RSS feed
+				for
+				your blog so everyone can keep up with your legendary posts.</p>
+		</div>
+	</main>
 </body>
+
 </html>

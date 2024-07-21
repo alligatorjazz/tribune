@@ -23,17 +23,18 @@ fn copy_dir_all(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> io::Result<()> 
 }
 
 pub fn create_program_files() -> Result<(), Box<dyn std::error::Error>> {
-    // check if tribune has been run / tribune.lock exists
-    if !Path::exists(Path::new("tribune.lock")) {
+    // check if tribune has been run / .tribunelock exists
+    if !Path::exists(Path::new(".tribunelock")) {
         println!("Hey! I see it's your first time running Tribune.");
         println!("Tribune needs access to a folder in your site called \"build\" to do its thing.");
-        println!("Every time you run Tribune, it's going to wipe the \"build\" folder and make it over again.");
-        println!("If you don't have a folder in your site called \"build\", you've got nothing to worry about! If you do, make sure you rename it to something else before you continue. Once you're ready, press enter.");
+        println!("Every time you run Tribune, it's going to wipe the \"build\" folder and recreate it  again.");
+        println!("If you don't have a folder in your site called \"build\", you've got nothing to worry about!");
+		println!("If you do, make sure you rename it to something else before you continue. Once you're ready, press enter.");
         print!("Continue? >");
         stdout().flush().unwrap();
         let mut input = String::new();
         io::stdin().read_line(&mut input).unwrap();
-        fs::write("tribune.lock", "todo").unwrap();
+        fs::write(".tribunelock", "todo").unwrap();
     }
 
     // wipe build folder if it exists

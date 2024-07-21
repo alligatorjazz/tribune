@@ -1,0 +1,106 @@
+html {
+  --text-color: #230903;
+  --bg-dark: #584f47;
+  --bg-light: #8c7455;
+  --accent-color: #54bcf1;
+
+  --header-font: "Playfair Display", serif;
+  --text-font: "Garamond", serif;
+}
+
+* {
+  box-sizing: border-box;
+  transition: all 0.3s;
+}
+
+body {
+  color: var(--text-color);
+  background-color: var(--bg-light);
+  font-family: var(--text-font);
+  padding: 0;
+  margin: 0;
+}
+
+/* links */
+a {
+  color: var(--accent-color);
+  text-decoration: none;
+}
+
+a:hover {
+  filter: brightness(125%);
+}
+
+a:active {
+  filter: brightness(150%);
+}
+
+/* nav-bar */
+nav-bar nav {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+nav-bar .title {
+  text-align: center;
+  font-size: 3rem;
+  text-transform: uppercase;
+}
+
+nav-bar .links {
+  padding: 0.25rem;
+  width: 100%;
+  justify-content: space-around;
+  display: flex;
+  border-top: 1px solid var(--text-color);
+  border-bottom: 1px solid var(--text-color);
+}
+
+nav-bar .links > * {
+  text-align: center;
+  flex: 1;
+  border-right: 1px solid var(--text-color);
+}
+
+nav-bar .links > *:last-child {
+  border-right: 0;
+}
+
+/* nav-bar #news-date {
+	user-select: none;
+	text-transform: uppercase;
+} */
+
+nav-bar * {
+  font-family: var(--header-font);
+  color: var(--text-color);
+}
+
+nav-bar a:hover {
+  color: var(--accent-color);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--header-font);
+}
+
+button {
+  background-color: var(--bg-light);
+  padding: 0.5rem 0.75rem;
+  border: 5px solid var(--text-color);
+  border-style: dashed double;
+
+  font-family: var(--header-font);
+  font-size: 1rem;
+  color: white;
+}
+
+button:hover {
+  background-color: var(--accent-color);
+  /* border-color: white; */
+  cursor: pointer;
+}
