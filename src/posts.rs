@@ -132,7 +132,7 @@ pub fn build_markdown(to: &Path, markdown: MarkdownPage) -> GenericResult<()> {
             }
             strings.push("</head>".to_string())
         } else if name == "body" {
-            println!("found body element - inserting article");
+            // println!("found body element - inserting article");
             strings.push("<body>".to_owned());
             for child in element.child_elements() {
                 // println!("processing element {}", child.value().name());
@@ -153,7 +153,6 @@ pub fn build_markdown(to: &Path, markdown: MarkdownPage) -> GenericResult<()> {
     let base_file_content = strings.join("\n");
     let new_file_content = attach_scripts(Html::parse_document(&base_file_content))?;
 
-	println!("about to write to {to:?}");
     // TODO: get relative path for build
 	
     let out_path = {

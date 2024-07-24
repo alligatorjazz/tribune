@@ -100,7 +100,7 @@ pub fn create_program_files() -> GenericResult<()> {
     if !Path::exists(Path::new(".tribunelock")) {
         println!("Hey! I see it's your first time running Tribune.");
         println!("Tribune needs access to a folder in your site called \"build\" to do its thing.");
-        println!("Every time you run Tribune, it's going to wipe the \"build\" folder and recreate it  again.");
+        println!("Every time you run Tribune, it's going to wipe the \"build\" folder and recreate it again.");
         println!("If you don't have a folder in your site called \"build\", you've got nothing to worry about!");
         println!("If you do, make sure you rename it to something else before you continue. Once you're ready, press enter.");
         print!("Continue? >");
@@ -111,7 +111,7 @@ pub fn create_program_files() -> GenericResult<()> {
     }
 
     // wipe build folder if it exists
-    println!("Creating build folder...");
+    // println!("Creating build folder...");
     if Path::exists(Path::new("build")) {
         fs::remove_dir_all("build")?;
     }
@@ -139,7 +139,6 @@ pub fn get_build_path(path: &Path) -> Result<PathBuf, BuildError> {
 }
 pub fn build_file(path: &Path, build_type: BuildType) -> GenericResult<()> {
     let build_path = get_build_path(path)?;
-    // TODO: implement building
     match build_type {
         BuildType::HTML => {
             let buffer = fs::read(path)?;

@@ -1,14 +1,98 @@
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
 <title>Tribune - guide</title>
-<link href="/styles/core.css" rel="stylesheet">
+<link rel="stylesheet" href="/styles/core.css">
 </head>
 <body>
 
 <nav-bar></nav-bar>
 <h1>here is a blog post !!</h1>
-<post-body></post-body>
+<article>
+<h1 id="quick_start">Quick Start</h1>
+
+<blockquote>
+<p>❗️ <strong>Note:</strong> Tribune assumes the landing page of your site is titled <code>index.html</code>. If this isn’t the case, rename your landing page to this before continuing - otherwise Tribune won’t run.</p>
+
+<ol type="1">
+<li><a href="/download">Download</a> the latest version of Tribune for your operating system.</li>
+
+<li>Unzip the Tribune executable (<code>tribune</code> for MacOS and Linux, <code>tribune.exe</code> for Windows) and <strong>place it in the root folder of your site.</strong></li>
+
+<li>Double-click the Tribune executable and it should start running! <strong>Make sure to read the built-in instructions that follow carefully before pressing Enter to continue.</strong></li>
+
+<li>
+<p>After you press enter, it’ll open up a preview of your site in your default browser!</p>
+
+<h1 id="features">Features</h1>
+
+<h2 id="widgets">Widgets</h2>
+
+<p>Tribune allows you to build widgets - reusable pieces of html that you can place throughout your site like any other element.</p>
+</li>
+</ol>
+</blockquote>
+
+<ol type="1">
+<li>
+<p>To create a widget, make an new html file in your site’s "/widgets" folder. (Tribune should have created this for you if it didn’t exist yet.) Place some tags inside!</p>
+
+<pre><code class="language-html">&lt;!-- example: widget-name.html --&gt;
+&lt;p&gt;This text is being placed by a widget!&lt;/p&gt;</code></pre>
+</li>
+
+<li>Make sure the file is titled in the format <code>widget-name.html</code>. Every widget must be two lowercase words separated by a hyphen. (<a href="https://webcomponents.guide/learn/components/naming-your-components/">Why?</a>)</li>
+
+<li>
+<p>Place some html within the widget. Then, when you want to use it in your site, reference it like this:</p>
+
+<pre><code class="language-html">&lt;widget-name&gt;&lt;/widget-name&gt;</code></pre>
+</li>
+
+<li>
+<p>The content of the widget should appear wherever you placed it on the page!</p>
+
+<h2 id="blogging">Blogging</h2>
+</li>
+</ol>
+
+<p>&lt;!-- TODO: finish --&gt;</p>
+
+<h1 id="philosophy">Philosophy</h1>
+
+<h2 id="who_is_tribune_for?">Who is Tribune for?</h2>
+
+<p>Tribune is for amateur web designers who want to speed up the process of writing, managing, and publishing content on their personal sites <em>without</em> sacrificing the creative control over their site’s design, layout, and scripts.</p>
+
+<p>One thing that I’ve noticed browsing Neocities is that while people like having direct control over their site as a form of creative expression, most folks on Neocities are not professional-level programmers. This means that there’s a great deal of friction between "having a cool idea you want to share with folks" and "actually publishing that idea in a consistent and convenient way." It doesn’t take a while browsing Neocities before finding someone who has a status update along the lines of this:</p>
+
+<blockquote>
+<p>"Sorry I haven’t updated in so long! I haven’t had the motivation to post recently because editing this site is such a huge pain in the ass!</p>
+</blockquote>
+
+<p>By default, raw HTML / CSS / JS are pretty terrible at making layouts that are modular, composable, or reusable. Professional web developers have an extremely wide array of tools to solve those problems, but we often forget that setting up those toolchains can be extremely intimidating for those less experienced with programming. There are a ton of pitfalls for total amateurs that we often forget about:</p>
+
+<ol type="1">
+<li>Most modern computer users have <em>never</em> used the command line on their system even once. If they have ever seen it done, they regard it as a strange and alienating kind of techno-wizardry.</li>
+
+<li>Many web dev tools have a sort of implicit "Unix-chauvinism" (translation: they’re designed primarily MacOS and Linux users), and many casual computer users are on Windows. Again, it’s no problem for professional developers to configure things for Windows specifically, or even use tools like the <a href="https://learn.microsoft.com/en-us/windows/wsl/install">WSL</a>, but casual computer users are not going to have the confidence or knowledge to do this. Have you ever tried to teach a bunch of newbies how to get NPM installed on Windows? I have. It’s not easy.</li>
+
+<li>In the process of configuring your average web dev project with a modern framework, it’s very normal to be juggling up to six or seven different languages: Javascript, Typescript, Sass, TOML, YAML, JSON, Markdown, or some other ungodly combination of the bunch. There is a desperate need for zero-configuration amateur tools that work out of the box without needing to install a thousand different dependencies and CLIs.</li>
+</ol>
+
+<p>And, so, I present what is hopefully a solution for that niche of people who are experienced enough to write basic web markup but aren’t ready to tackle a proper professional-grade framework: Tribune.</p>
+
+<h2 id="who_is_tribune_not_for?">Who is Tribune <em>not</em> for?</h2>
+
+<ol type="1">
+<li><strong>Professional web developers.</strong> If you do this as a job, or even if you’re an advanced-level hobbyist, your normal tool chain is going to be far superior to any version of Tribune that will ever exist. If you’re looking for a new framework, I can heartily recommend <a href="https://astro.build/">Astro</a> - I use it for every project I can (except this site, which I obviously use Tribune for instead).</li>
+
+<li><strong>Complete HTML/CSS newbies.</strong> You’re at least going to want a decent understanding of the absolute basics of HTML/CSS. Luckily, Neocities has <a href="https://neocities.org/tutorial/html/1">a great tutorial</a> for this purpose exactly.</li>
+
+<li><strong>People already using workflows that have complex build steps.</strong> Tribune pretty much assumes it’s the only thing in your site folder building and transforming files. If you’re trying to compile Typescript, Sass, or some other intermediate language, you’re probably better off going with a proper web framework.</li>
+</ol>
+
+</article>
 
 
 <script>const tribune_data = {

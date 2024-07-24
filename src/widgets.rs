@@ -31,7 +31,7 @@ pub fn get_widgets_source() -> GenericResult<String> {
 
 
 pub fn build_widgets() -> GenericResult<()> {
-	println!("building widgets");	
+	println!("rebuilding widgets...");	
 	let widget_path = Path::new("widgets");
 	if !Path::exists(widget_path) {
 		println!("No widgets found.");

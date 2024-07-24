@@ -11,7 +11,6 @@ const DEV_URL: &str = "http://localhost:8080";
 
 fn main() -> GenericResult<()> {
     build_site()?;
-    build_posts()?;
     println!("Starting watcher...");
     let mut site_watcher = build_site_watcher()?;
     site_watcher.watch(Path::new("."), RecursiveMode::Recursive)?;

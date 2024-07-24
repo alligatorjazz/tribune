@@ -23,6 +23,7 @@ pub fn build_site() -> GenericResult<()> {
 }
 
 pub fn build_site_watcher() -> notify::Result<RecommendedWatcher> {
+	// TODO: rewrite - this method just can't handle hot reloading robustly at all
     // Automatically select the best implementation for your platform.
     fn on_change(res: notify::Result<notify::Event>) {
         let ignored_paths = get_ignored(IgnoreLevel::WATCH);
@@ -71,7 +72,7 @@ pub fn build_site_watcher() -> notify::Result<RecommendedWatcher> {
                     }
 
                     if trigger_reload {
-                        println!("reloading on event: {:?} | {:?}", event.kind, path);
+                        // println!("reloading on event: {:?} | {:?}", event.kind, path);
                         match build_site() {
                             Ok(()) => {
                                 println!("Reloaded on change: {}", &relative_path.to_string_lossy())
