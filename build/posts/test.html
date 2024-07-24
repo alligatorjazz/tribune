@@ -1,21 +1,14 @@
 <head>
 <meta charset="UTF-8">
-<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tribune - gay peo</title>
-<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/styles/core.css">
 </head>
 <body>
 
 <nav-bar></nav-bar>
 <h1>here is a blog post !!</h1>
-<article>
-<p>i ~hate~ gay people</p>
-
-<h1 id="i_love_gay_weee!!!!">i love gay weee!!!!</h1>
-
-<h2 id="no.">no.</h2>
-
-</article>
+<post-body></post-body>
 
 
 <script>const tribune_data = {
@@ -29,7 +22,7 @@ function isSameOrigin(urlString) {
 }
 
 
-tribune_data.posts["test"] = {"title":"gay peo","publish_date":"04/25/2001","description":"weeee","template":"default"}
+tribune_data.posts["test"] = {"title":"gay peo","publish_date":"04/25/2001","description":"weeee","template":"default","tags":null}
 
 function buildWidget(tag, path, inheritFrom) {
 	const AquilaWidget = class extends HTMLElement {
@@ -79,6 +72,7 @@ function include(...elements) {
 class PostList extends HTMLElement {
 	container;
 	constructor() {
+		// TODO: custom attribute for filtering by tag
 		super();
 		this.container = document.createElement("ul");
 		Object.entries(tribune_data.posts).map(([slug, data]) => {

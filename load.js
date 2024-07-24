@@ -46,6 +46,7 @@ function include(...elements) {
 class PostList extends HTMLElement {
 	container;
 	constructor() {
+		// TODO: custom attribute for filtering by tag
 		super();
 		this.container = document.createElement("ul");
 		Object.entries(tribune_data.posts).map(([slug, data]) => {

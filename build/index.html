@@ -2,10 +2,10 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Tribune - Home</title>
-	<link rel="stylesheet" href="/styles/core.css">
+	<link href="/styles/core.css" rel="stylesheet">
 	<link rel="stylesheet" href="/styles/index.css">
 	<link rel="preconnect" href="https://fonts.googleapis.com">
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+	<link href="https://fonts.gstatic.com" rel="preconnect" crossorigin="">
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;family=Playfair+Display:ital,wght@0,400..900;1,400..900&amp;display=swap" rel="stylesheet">
 </head>
 <body>
@@ -61,7 +61,7 @@ function isSameOrigin(urlString) {
 }
 
 
-tribune_data.posts["test"] = {"title":"gay peo","publish_date":"04/25/2001","description":"weeee","template":"default"}
+tribune_data.posts["test"] = {"title":"gay peo","publish_date":"04/25/2001","description":"weeee","template":"default","tags":null}
 
 function buildWidget(tag, path, inheritFrom) {
 	const AquilaWidget = class extends HTMLElement {
@@ -111,6 +111,7 @@ function include(...elements) {
 class PostList extends HTMLElement {
 	container;
 	constructor() {
+		// TODO: custom attribute for filtering by tag
 		super();
 		this.container = document.createElement("ul");
 		Object.entries(tribune_data.posts).map(([slug, data]) => {
