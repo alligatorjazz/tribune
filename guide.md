@@ -4,29 +4,33 @@ template: docs
 
 # Quick Start
 > ❗️ **Note:** Tribune assumes the landing page of your site is titled `index.html`. If this isn't the case, rename your landing page to this before continuing - otherwise Tribune won't run.
+
 1. [Download](/download) the latest version of Tribune for your operating system.
 2. Unzip the Tribune executable (`tribune` for MacOS and Linux, `tribune.exe` for Windows) and **place it in the root folder of your site.**
 3. Double-click the Tribune executable and it should start running! **Make sure to read the built-in instructions that follow carefully before pressing Enter to continue.**
 4. After you press enter, it'll open up a preview of your site in your default browser!
+
 # Features
+
 ## Widgets
 Tribune allows you to build widgets - reusable pieces of html that you can place throughout your site like any other element.
 
 1. To create a widget, make an new html file in your site's "/widgets" folder. (Tribune should have created this for you if it didn't exist yet.) Place some tags inside!
 ```html
-<!-- example: widget-name.html -->
+<!-- example: widgets/widget-name.html -->
 <p>This text is being placed by a widget!</p>
 ```
-2. Make sure the file is titled in the format `widget-name.html`. Every widget must be two lowercase words separated by a hyphen. ([Why?](https://webcomponents.guide/learn/components/naming-your-components/))
-3. Place some html within the widget. Then, when you want to use it in your site, reference it like this:
+2. Place some html within the widget. Then, when you want to use it in your site, reference it like this:
 ```html
 <widget-name></widget-name>
 ```
-4. The content of the widget should appear wherever you placed it on the page!
+1. The content of the widget should appear wherever you placed it on the page!
+
 ## Blogging 
 
-<!-- TODO: finish -->
+
 # Philosophy
+
 ## Who is Tribune for?
 Tribune is for amateur web designers who want to speed up the process of writing, managing, and publishing content on their personal sites *without* sacrificing the creative control over their site's design, layout, and scripts.
 

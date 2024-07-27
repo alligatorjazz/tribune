@@ -1,5 +1,5 @@
 ---
-template: default
+template: docs
 title: gay peo
 publish_date: 04/25/2001
 description: weeee

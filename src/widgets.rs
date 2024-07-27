@@ -54,7 +54,7 @@ pub fn attach_widgets(mut vdom: Vec<Node>) -> GenericResult<String> {
                 vec![Node::Text(format!("\n{}\n", widget.content.clone()))],
             );
 
-            println!("widget html:\n{}", widget_element.html());
+            // println!("widget html:\n{}", widget_element.html());
 
             let name = &widget.name;
             let mut target_indexes: Vec<usize> = Vec::new();

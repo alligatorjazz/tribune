@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{widgets::attach_widgets, GenericResult};
 
+// TODO: implement publish dates
 #[derive(Serialize, Deserialize, Debug)]
 pub struct MarkdownPageMetadata {
     title: Option<String>,
@@ -104,67 +105,56 @@ pub fn build_markdown(to: &Path, markdown: MarkdownPage) -> GenericResult<()> {
     let template_content = fs::read(template_path)?;
     let tdom: Vec<Node> = parse(&String::from_utf8(template_content)?).unwrap();
     // load markdown into template
-    let mut root_nodes: Vec<Node> = Vec::new();
-    for child in tdom {
-        root_nodes.push(child);
-    }
 
     let mut strings: Vec<String> = Vec::new();
+    fn process_nodes(
+        nodes: Vec<Node>,
+        strings: &mut Vec<String>,
+        title: &String,
+        markdown: &MarkdownPage,
+    ) {
+        for node in nodes {
+            match node {
+                Node::Element(element) => {
+                    if !element.children.is_empty() {
+                        strings.push(format!("<{}>", element.name));
+                        process_nodes(element.children, strings, title, markdown);
+                        strings.push(format!("</{}>", element.name));
+                        continue;
+                    }
 
-    for node in root_nodes {
-        match node {
-            Node::Element(element) => {
-                if element.name == "head" && !element.children.is_empty() {
-                    strings.push("<head>".to_owned());
-                    for child in &element.children {
-                        let child_name = &child.as_element().unwrap().name;
-                        if child_name == "title" {
-                            let post_title_text = {
-                                let element = child.as_element();
-                                if element.is_some() {
-                                    if !element.unwrap().children.is_empty() {
-                                        format!("{} - ", element.unwrap().children[0].html())
-                                    } else {
-                                        "".to_owned()
-                                    }
-                                } else {
-                                    "".to_owned()
-                                }
-                            };
-                            strings.push(format!("<title>{}{}</title>", post_title_text, title));
-                        } else {
-                            strings.push(child.html())
-                        }
+                    if element.name == "title" {
+                        let post_title_text = {
+                            if !element.children.is_empty() {
+                                format!("{} - ", element.children[0].html())
+                            } else {
+                                "".to_owned()
+                            }
+                        };
+                        strings.push(format!("<title>{}{}</title>", post_title_text, title));
                     }
-                    strings.push("</head>".to_string())
-                } else if element.name == "body" {
-                    // println!("found body element - inserting article");
-                    strings.push("<body>".to_owned());
-                    for child in &element.children {
-                        // println!("processing element {}", child.value().name());
-                        if child.as_element().unwrap().name == "markdown-body" {
-                            strings.push("<article>".to_owned());
-                            strings.push(markdown::to_html(&markdown.content));
-                            strings.push("</article>".to_owned());
-                        } else {
-                            strings.push(child.html())
-                        }
+
+                    if element.name == "slot" {
+                        strings.push("<article>".to_owned());
+                        strings.push(markdown::to_html(&markdown.content));
+                        strings.push("</article>".to_owned());
+                    } else {
+                        strings.push(element.html())
                     }
-                    strings.push("</body>".to_owned())
-                } else {
-                    strings.push(element.html());
                 }
+                Node::Text(text) => strings.push(text),
+                Node::Comment(comment) => strings.push(comment),
+                Node::Doctype(doctype) => match doctype {
+                    Doctype::Html => strings.push("<!DOCTYPE html>".to_owned()),
+                    Doctype::Xml { version, encoding } => strings.push(
+                        format!(r#"<?xml version="{}" encoding="{}"?>"#, version, encoding)
+                            .to_owned(),
+                    ),
+                },
             }
-            Node::Text(text) => strings.push(text),
-            Node::Comment(comment) => strings.push(comment),
-            Node::Doctype(doctype) => match doctype {
-                Doctype::Html => strings.push("<!DOCTYPE html>".to_owned()),
-                Doctype::Xml { version, encoding } => strings.push(
-                    format!(r#"<?xml version="{}" encoding="{}"?>"#, version, encoding).to_owned(),
-                ),
-            },
         }
     }
+    process_nodes(tdom, &mut strings, title, &markdown);
 
     let base_file_content = strings.join("\n");
     let new_file_content = attach_widgets(parse(&base_file_content)?)?;
