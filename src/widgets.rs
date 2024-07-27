@@ -1,68 +1,87 @@
+use crate::GenericResult;
+use html_editor::{operation::Htmlifiable, Node};
 use std::{fs, path::Path};
-
 use walkdir::WalkDir;
 
-use crate::GenericResult;
-
-pub fn get_widgets_source() -> GenericResult<String> {
-    let widget_files = fs::read_dir("widgets");
-    match widget_files {
-        Ok(raw_files) => {
-            // generates include calls for each widget
-            let mut inclusions: Vec<String> = [].to_vec();
-            for f in raw_files {
-                let file = f.unwrap();
-                let path = file.path();
-                let stem = &path.file_stem().unwrap().to_str().unwrap();
-                let name = &path.file_name().unwrap().to_str().unwrap();
-                inclusions.push(format!(
-                    "include({{tag: '{}', path: '/widgets/{}'}})",
-                    stem, name
-                ))
-            }
-            Ok(inclusions.join("\n"))
-        }
-        Err(_) => {
-            println!("No widgets found.");
-            Ok(String::from(""))
-        }
-    }
+#[derive(Debug, PartialEq, Eq)]
+pub struct Widget {
+    name: String,
+    content: String,
 }
 
+pub fn load_widget(widget_path: &Path) -> GenericResult<Widget> {
+    let buffer = fs::read(widget_path)?;
+    let name = String::from_utf8(widget_path.file_stem().unwrap().as_encoded_bytes().to_vec())?;
+    let content = String::from_utf8(buffer)?;
+    Ok(Widget { name, content })
+}
 
-pub fn build_widgets() -> GenericResult<()> {
-	println!("rebuilding widgets...");	
-	let widget_path = Path::new("widgets");
-	if !Path::exists(widget_path) {
-		println!("No widgets found.");
-		return Ok(());
-	}
+pub fn attach_widgets(mut vdom: Vec<Node>) -> GenericResult<String> {
+    let mut widgets: Vec<Widget> = Vec::new();
+    for dir_entry in WalkDir::new("widgets") {
+        match dir_entry {
+            Ok(entry) => {
+                let path = entry.path();
+                if path.is_dir() {
+                    continue;
+                }
 
-	for dir_entry in WalkDir::new("widgets") {
-		match dir_entry {
-			Ok(entry) => {
-				let path = entry.path();
-				if path == Path::new("widgets") {
-					continue;
-				}
-				let extension_is_valid: bool = match path.extension() {
-					Some(extension) => extension == "html",
-					_ => false
-				};
-				
-				if !extension_is_valid {
-					println!("Couldn't load widget at path {:?} - widgets need to be html files.", path);
-					continue;
-				}
+                let extension_is_valid = {
+                    let extension = path.extension();
+                    if let Some(extension) = extension {
+                        extension == "html"
+                    } else {
+                        false
+                    }
+                };
+                if !extension_is_valid {
+                    continue;
+                }
 
-				let build_widget_path = Path::new("build/widgets");
-				fs::create_dir_all(build_widget_path)?;
-				fs::copy(path, build_widget_path.join(path.file_name().unwrap()))?;
+                widgets.push(load_widget(path)?);
+            }
+            Err(err) => {
+                println!("Tribune couldn't read all the widgets in your `./widgets` folder - make sure it has the permissions to view it and that there's no funky (i.e. non-HTML) file types in there.\n{}", err);
+            }
+        }
+    }
 
-			},
-			Err(err) => println!("An unknown widget failed to load - make sure Tribune has permission to read files in this folder.\n{:?}", err)
-		}
-	}
+    for widget in widgets {
+        fn place_widgets(widget: &Widget, nodes: &mut [Node]) {
+            let widget_element = Node::new_element(
+                "div",
+                vec![("data-widget", &widget.name)],
+                vec![Node::Text(format!("\n{}\n", widget.content.clone()))],
+            );
 
-	Ok(())
+            println!("widget html:\n{}", widget_element.html());
+
+            let name = &widget.name;
+            let mut target_indexes: Vec<usize> = Vec::new();
+
+            for (i, node) in nodes.iter_mut().enumerate() {
+                let result = node.as_element_mut();
+                if result.is_some() {
+                    let target = result.unwrap();
+                    // TODO: check if this works? if not just set every attribute individually
+                    if &target.name == name {
+                        target_indexes.push(i);
+                        continue;
+                    }
+
+                    if !target.children.is_empty() {
+                        place_widgets(widget, &mut target.children)
+                    }
+                }
+            }
+
+            for index in target_indexes {
+                nodes[index] = widget_element.clone();
+            }
+        }
+
+        place_widgets(&widget, &mut vdom)
+    }
+
+    Ok(vdom.html())
 }

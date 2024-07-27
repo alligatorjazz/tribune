@@ -1,10 +1,10 @@
 use std::{fs, io, path::Path};
 
 use gray_matter::{engine::YAML, Matter};
-use scraper::{ElementRef, Html};
+use html_editor::{operation::Htmlifiable, parse, Doctype, Node};
 use serde::{Deserialize, Serialize};
 
-use crate::{attach_scripts, GenericResult};
+use crate::{widgets::attach_widgets, GenericResult};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct MarkdownPageMetadata {
@@ -82,7 +82,7 @@ fn load_posts() -> io::Result<Vec<Result<MarkdownPage, Box<dyn std::error::Error
 }
 
 pub fn build_markdown(to: &Path, markdown: MarkdownPage) -> GenericResult<()> {
-	// println!("building markdown...");
+    // println!("building markdown...");
     let vars = &markdown.metadata;
     let template = match &vars.template {
         Some(name) => name,
@@ -94,74 +94,90 @@ pub fn build_markdown(to: &Path, markdown: MarkdownPage) -> GenericResult<()> {
         None => &markdown.slug,
     };
 
-	
     let template_path = Path::new("templates").join(format!("{template}.html"));
-	// println!("loading template {} for {} at {:?}", template, title, template_path);
-	if !template_path.exists() {
-		println!("Template {} not found.", template);
-		return Ok(())
-	}
+    // println!("loading template {} for {} at {:?}", template, title, template_path);
+    if !template_path.exists() {
+        println!("Template {} not found.", template);
+        return Ok(());
+    }
 
     let template_content = fs::read(template_path)?;
-    let tdom = Html::parse_document(
-        &String::from_utf8(template_content)?,
-    );
-	// println!("template loaded");
-
+    let tdom: Vec<Node> = parse(&String::from_utf8(template_content)?).unwrap();
     // load markdown into template
-    let mut root_elements: Vec<ElementRef> = Vec::new();
-    for child in tdom.root_element().child_elements() {
-        // let element = child.value();
-        // let tag_name = &element.name.local.to_string();
-        // println!("Qualified element name: {tag_name:?}");
-        root_elements.push(child);
+    let mut root_nodes: Vec<Node> = Vec::new();
+    for child in tdom {
+        root_nodes.push(child);
     }
 
     let mut strings: Vec<String> = Vec::new();
-    for element in root_elements {
-        let name = element.value().name.local.to_string();
-        if name == "head" && element.has_children() {
-            strings.push("<head>".to_owned());
-            for child in element.child_elements() {
-                let child_name = child.value().name.local.to_string();
-                if child_name == "title" {
-                    strings.push(format!("<title>{} - {}</title>", child.inner_html(), title));
+
+    for node in root_nodes {
+        match node {
+            Node::Element(element) => {
+                if element.name == "head" && !element.children.is_empty() {
+                    strings.push("<head>".to_owned());
+                    for child in &element.children {
+                        let child_name = &child.as_element().unwrap().name;
+                        if child_name == "title" {
+                            let post_title_text = {
+                                let element = child.as_element();
+                                if element.is_some() {
+                                    if !element.unwrap().children.is_empty() {
+                                        format!("{} - ", element.unwrap().children[0].html())
+                                    } else {
+                                        "".to_owned()
+                                    }
+                                } else {
+                                    "".to_owned()
+                                }
+                            };
+                            strings.push(format!("<title>{}{}</title>", post_title_text, title));
+                        } else {
+                            strings.push(child.html())
+                        }
+                    }
+                    strings.push("</head>".to_string())
+                } else if element.name == "body" {
+                    // println!("found body element - inserting article");
+                    strings.push("<body>".to_owned());
+                    for child in &element.children {
+                        // println!("processing element {}", child.value().name());
+                        if child.as_element().unwrap().name == "markdown-body" {
+                            strings.push("<article>".to_owned());
+                            strings.push(markdown::to_html(&markdown.content));
+                            strings.push("</article>".to_owned());
+                        } else {
+                            strings.push(child.html())
+                        }
+                    }
+                    strings.push("</body>".to_owned())
                 } else {
-                    strings.push(child.html())
+                    strings.push(element.html());
                 }
             }
-            strings.push("</head>".to_string())
-        } else if name == "body" {
-            // println!("found body element - inserting article");
-            strings.push("<body>".to_owned());
-            for child in element.child_elements() {
-                // println!("processing element {}", child.value().name());
-                if child.value().name() == "markdown-body" {
-                    strings.push("<article>".to_owned());
-                    strings.push(markdown::to_html(&markdown.content));
-                    strings.push("</article>".to_owned());
-                } else {
-                    strings.push(child.html())
-                }
-            }
-            strings.push("</body>".to_owned())
-        } else {
-            strings.push(element.html());
+            Node::Text(text) => strings.push(text),
+            Node::Comment(comment) => strings.push(comment),
+            Node::Doctype(doctype) => match doctype {
+                Doctype::Html => strings.push("<!DOCTYPE html>".to_owned()),
+                Doctype::Xml { version, encoding } => strings.push(
+                    format!(r#"<?xml version="{}" encoding="{}"?>"#, version, encoding).to_owned(),
+                ),
+            },
         }
     }
 
     let base_file_content = strings.join("\n");
-    let new_file_content = attach_scripts(Html::parse_document(&base_file_content))?;
+    let new_file_content = attach_widgets(parse(&base_file_content)?)?;
 
     // TODO: get relative path for build
-	
+
     let out_path = {
-		let mut p = to.to_path_buf();
-		p.set_extension("html");
-		p
-	};
-	
-	fs::create_dir_all(out_path.parent().unwrap())?;
+        let mut p = to.to_path_buf();
+        p.set_extension("html");
+        p
+    };
+
+    fs::create_dir_all(out_path.parent().unwrap())?;
     match fs::write(&out_path, new_file_content) {
         Ok(_) => Ok(()),
         Err(err) => {
@@ -184,6 +200,6 @@ pub fn build_posts() -> GenericResult<()> {
         let filename = format!("{}.html", post.slug);
         build_markdown(&Path::new("build").join(posts_path).join(&filename), post)?
     }
-	
+
     Ok(())
 }

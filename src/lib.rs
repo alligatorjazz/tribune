@@ -6,11 +6,11 @@ use std::{
 
 use error::BuildError;
 use gray_matter::{engine::YAML, Matter};
+use html_editor::{parse, Node};
 use pathdiff::diff_paths;
-use posts::{build_markdown, generate_post_loader, load_markdown};
-use scraper::{ElementRef, Html, Selector};
+use posts::{build_markdown, load_markdown};
 use walkdir::WalkDir;
-use widgets::get_widgets_source;
+use widgets::attach_widgets;
 pub mod error;
 pub mod posts;
 pub mod site;
@@ -30,9 +30,6 @@ pub enum BuildType {
 }
 
 pub type GenericResult<T> = Result<T, Box<dyn std::error::Error>>;
-
-const PRELOADER: &str = include_str!("../preload.js");
-const LOADER: &str = include_str!("../load.js");
 
 const DEFAULT_IGNORE: [&str; 8] = [
     "build",
@@ -116,7 +113,7 @@ pub fn create_program_files() -> GenericResult<()> {
         fs::remove_dir_all("build")?;
     }
 
-	Ok(fs::create_dir_all("build/widgets")?)
+    Ok(fs::create_dir_all("build/widgets")?)
 }
 
 pub fn get_build_path(path: &Path) -> Result<PathBuf, BuildError> {
@@ -130,20 +127,23 @@ pub fn get_build_path(path: &Path) -> Result<PathBuf, BuildError> {
     }
     match diff_paths(path, root) {
         Some(diff_path) => Ok(Path::new("./build").join(diff_path)),
-        None => {
-            Err(BuildError::Unknown {
-                path: path.to_path_buf(),
-            })
-        }
+        None => Err(BuildError::Unknown {
+            path: path.to_path_buf(),
+        }),
     }
 }
+
+pub fn load_vdom(path: &Path) -> GenericResult<Vec<Node>> {
+    let buffer = fs::read(path)?;
+    let string = String::from_utf8(buffer)?;
+    Ok(parse(&string)?)
+}
+
 pub fn build_file(path: &Path, build_type: BuildType) -> GenericResult<()> {
     let build_path = get_build_path(path)?;
     match build_type {
         BuildType::HTML => {
-            let buffer = fs::read(path)?;
-            let string = String::from_utf8(buffer)?;
-            let page_with_scripts = attach_scripts(Html::parse_document(&string))?;
+            let page_with_scripts = attach_widgets(load_vdom(path)?)?;
             fs::write(build_path, page_with_scripts)?
         }
         BuildType::Markdown => {
@@ -203,43 +203,4 @@ pub fn build_dir(dir: &Path) -> GenericResult<()> {
         }
     }
     Ok(())
-}
-
-pub fn attach_scripts(vdom: Html) -> GenericResult<String> {
-    let body_selector = Selector::parse("body")?;
-    let body = vdom
-        .select(&body_selector)
-        .next()
-        .expect("Could not read body from vdom.");
-
-    let widgets = get_widgets_source()?;
-    // println!("building body content with scripts...");
-    let new_body_content = format!(
-        "<body>\n{}\n\n<script>{}\n\n{}\n\n{}\n\n{}</script>\n</body>",
-        body.inner_html(), 
-        PRELOADER,
-        generate_post_loader(),
-        LOADER,
-        widgets
-    );
-
-    // println!("{}", &new_body_content);
-    let mut root_elements: Vec<ElementRef> = Vec::new();
-    for child in vdom.root_element().child_elements() {
-        let element = child.value();
-        let tag_name = &element.name.local.to_string();
-        // println!("Qualified element name: {tag_name:?}");
-        if tag_name != "body" {
-            root_elements.push(child)
-        }
-    }
-
-    let mut strings: Vec<String> = Vec::new();
-    for element in root_elements {
-        strings.push(element.html());
-        if element.value().name.local.to_string() == "head" {
-            strings.push(new_body_content.to_string())
-        }
-    }
-    Ok(strings.join("\n"))
 }

@@ -1,19 +1,13 @@
-
-use notify::{RecursiveMode, Watcher};
-use std::{path::Path, thread, time::Duration};
-use tribune::{
-    posts::build_posts,
-    site::{build_site, build_site_watcher},
-	GenericResult
-};
+use std::{thread, time::Duration};
+use tribune::{site::build_site, GenericResult};
 
 const DEV_URL: &str = "http://localhost:8080";
 
 fn main() -> GenericResult<()> {
     build_site()?;
     println!("Starting watcher...");
-    let mut site_watcher = build_site_watcher()?;
-    site_watcher.watch(Path::new("."), RecursiveMode::Recursive)?;
+    // let mut site_watcher = build_site_watcher()?;
+    // site_watcher.watch(Path::new("."), RecursiveMode::Recursive)?;
 
     println!("Starting dev server at http://localhost:8080");
     println!("Opening now in your default browser!");
