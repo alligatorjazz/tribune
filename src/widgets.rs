@@ -1,4 +1,4 @@
-use crate::GenericResult;
+use crate::{posts::generate_post_widget, GenericResult};
 use html_editor::{operation::Htmlifiable, Node};
 use std::{fs, path::Path};
 use walkdir::WalkDir;
@@ -17,7 +17,11 @@ pub fn load_widget(widget_path: &Path) -> GenericResult<Widget> {
 }
 
 pub fn attach_widgets(mut vdom: Vec<Node>) -> GenericResult<String> {
-    let mut widgets: Vec<Widget> = Vec::new();
+    let mut widgets: Vec<Widget> = vec![Widget {
+        name: "post-list".to_string(),
+        content: generate_post_widget()?,
+    }];
+
     for dir_entry in WalkDir::new("widgets") {
         match dir_entry {
             Ok(entry) => {

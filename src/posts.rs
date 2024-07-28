@@ -10,10 +10,9 @@ use crate::{widgets::attach_widgets, GenericResult};
 #[derive(Serialize, Deserialize, Debug)]
 pub struct MarkdownPageMetadata {
     title: Option<String>,
-    publish_date: Option<String>,
+    date: Option<String>,
     description: Option<String>,
     template: Option<String>,
-    tags: Option<Vec<String>>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -23,29 +22,54 @@ pub struct MarkdownPage {
     pub slug: String,
 }
 
-pub fn generate_post_loader() -> String {
+pub fn generate_post_widget() -> GenericResult<String> {
     // load built-in for post-list
-    let mut script: Vec<String> = Vec::new();
-    let posts = load_posts();
-    match posts {
-        Ok(list) => {
-            for entry in list {
-                match entry {
-                    Ok(post) => script.push(format!(
-                        "tribune_data.posts[\"{}\"] = {}",
-                        &post.slug,
-                        serde_json::to_string(&post.metadata).unwrap()
-                    )),
-                    Err(_) => todo!(),
+    let mut post_elements: Vec<Node> = Vec::new();
+    let posts = load_posts()?;
+
+    for entry in posts {
+        match entry {
+            Ok(post) => {
+                // create post cards
+                let mut nodes: Vec<Node> = Vec::new();
+                let metadata = post.metadata;
+                let href = format!("/posts/{}", post.slug);
+                if let Some(title) = metadata.title {
+                    nodes.push(Node::new_element(
+                        "div",
+                        vec![("class", "post-title")],
+                        vec![Node::Text(title)],
+                    ))
+                };
+
+                if let Some(date) = metadata.date {
+                    nodes.push(Node::new_element(
+                        "div",
+                        vec![("class", "post-date")],
+                        vec![Node::Text(date)],
+                    ));
                 }
+                if let Some(description) = metadata.description {
+                    nodes.push(Node::new_element(
+                        "div",
+                        vec![("class", "post-description")],
+                        vec![Node::Text(description)],
+                    ));
+                }
+                post_elements.push(Node::new_element(
+                    "li",
+                    vec![],
+                    vec![Node::new_element("a", vec![("href", &href)], nodes)],
+                ));
             }
-            script.join("\n")
-        }
-        Err(_) => {
-            println!("Couldn't generate <post-list> widget because the posts couldn't be loaded.");
-            String::new()
+            Err(_) => println!(
+                "Error loading post cards - check that your frontmatter is formatted correctly!"
+            ),
         }
     }
+
+    let post_list = Node::new_element("ul", vec![], post_elements);
+    Ok(post_list.html())
 }
 
 pub fn load_markdown(
@@ -107,6 +131,7 @@ pub fn build_markdown(to: &Path, markdown: MarkdownPage) -> GenericResult<()> {
     // load markdown into template
 
     let mut strings: Vec<String> = Vec::new();
+
     fn process_nodes(
         nodes: Vec<Node>,
         strings: &mut Vec<String>,
@@ -132,15 +157,85 @@ pub fn build_markdown(to: &Path, markdown: MarkdownPage) -> GenericResult<()> {
                             }
                         };
                         strings.push(format!("<title>{}{}</title>", post_title_text, title));
+                        continue;
                     }
 
-                    if element.name == "slot" {
-                        strings.push("<article>".to_owned());
-                        strings.push(markdown::to_html(&markdown.content));
-                        strings.push("</article>".to_owned());
-                    } else {
-                        strings.push(element.html())
+                    if element.name.starts_with("markdown-") {
+                        let split: Vec<&str> = element.name.split('-').collect();
+                        // checks that there's actually an property listed after the hyphen
+                        if split.len() < 2 {
+                            strings.push(element.html());
+                            continue;
+                        }
+
+                        let property = split[1];
+                        match property {
+                            "body" => {
+                                strings.push(
+                                    Node::new_element(
+                                        "div",
+                                        vec![("class", "markdown-body")],
+                                        vec![Node::Text(markdown::to_html(&markdown.content))],
+                                    )
+                                    .html(),
+                                );
+                            }
+                            "title" => {
+                                let title = {
+                                    if markdown.metadata.title.is_some() {
+                                        markdown.metadata.title.clone().unwrap()
+                                    } else {
+                                        markdown.slug.clone()
+                                    }
+                                };
+                                strings.push(
+                                    Node::new_element(
+                                        "h1",
+                                        vec![("class", "markdown-title")],
+                                        vec![Node::Text(title)],
+                                    )
+                                    .html(),
+                                );
+                            }
+                            "date" => {
+                                let date = {
+                                    if markdown.metadata.date.is_some() {
+                                        markdown.metadata.date.clone().unwrap()
+                                    } else {
+                                        "No Date Found".to_string()
+                                    }
+                                };
+                                strings.push(
+                                    Node::new_element(
+                                        "div",
+                                        vec![("class", "markdown-date")],
+                                        vec![Node::Text(date)],
+                                    )
+                                    .html(),
+                                )
+                            }
+                            "description" => {
+                                let description = {
+                                    if markdown.metadata.description.is_some() {
+                                        markdown.metadata.description.clone().unwrap()
+                                    } else {
+                                        "No Date Found".to_string()
+                                    }
+                                };
+                                strings.push(
+                                    Node::new_element(
+                                        "div",
+                                        vec![("class", "markdown-description")],
+                                        vec![Node::Text(description)],
+                                    )
+                                    .html(),
+                                )
+                            }
+                            _ => strings.push(element.html()),
+                        }
+                        continue;
                     }
+                    strings.push(element.html())
                 }
                 Node::Text(text) => strings.push(text),
                 Node::Comment(comment) => strings.push(comment),

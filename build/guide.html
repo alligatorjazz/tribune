@@ -49,7 +49,9 @@ Tribune
 
 	
 <article>
-<h1 id="quick_start">Quick Start</h1>
+
+		
+<div class="markdown-body"><h1 id="quick_start">Quick Start</h1>
 
 <blockquote>
 <p>❗️ <strong>Note:</strong> Tribune assumes the landing page of your site is titled <code>index.html</code>. If this isn&#8217;t the case, rename your landing page to this before continuing - otherwise Tribune won&#8217;t run.</p>
@@ -71,6 +73,8 @@ Tribune
 
 <p>Tribune allows you to build widgets - reusable pieces of html that you can place throughout your site like any other element.</p>
 
+<h3 id="how_to_create_a_widget">How To Create a Widget</h3>
+
 <ol type="1">
 <li>
 <p>To create a widget, make an new html file in your site&#8217;s &quot;/widgets&quot; folder. (Tribune should have created this for you if it didn&#8217;t exist yet.) Place some tags inside!</p>
@@ -85,8 +89,22 @@ Tribune
 <pre><code class="language-html">&lt;widget-name&gt;&lt;/widget-name&gt;</code></pre>
 </li>
 
-<li>The content of the widget should appear wherever you placed it on the page!</li>
+<li>The content of the widget should appear wherever you placed it on the page! If you&#8217;re wondering what widgets look like in action, just look at this site&#8217;s navbar - it&#8217;s being placed on every page using a widget!</li>
 </ol>
+
+<h3 id="how_to_style_a_widget">How To Style A Widget</h3>
+
+<p>The widget will appear on your page as a <code>div</code> element with a data attribute denoting its name, like this:</p>
+
+<pre><code class="language-html">&lt;div data-widget=&quot;widget-name&quot;&gt;
+	[...whatever you put in the widget]
+&lt;/div&gt;</code></pre>
+
+<p>You can select a widget for styling using a <code>data-widget</code> selector, like so:</p>
+
+<pre><code class="language-css">[data-widget=&quot;widget-name&quot;] {
+	[...put your styles here!]
+}</code></pre>
 
 <h2 id="blogging">Blogging</h2>
 
@@ -123,7 +141,9 @@ Tribune
 
 <li><strong>People already using workflows that have complex build steps.</strong> Tribune pretty much assumes it&#8217;s the only thing in your site folder building and transforming files. If you&#8217;re trying to compile Typescript, Sass, or some other intermediate language, you&#8217;re probably better off going with a proper web framework.</li>
 </ol>
+</div>
 
+	
 </article>
 
 

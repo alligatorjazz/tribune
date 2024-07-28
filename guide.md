@@ -15,6 +15,7 @@ template: docs
 ## Widgets
 Tribune allows you to build widgets - reusable pieces of html that you can place throughout your site like any other element.
 
+### How To Create a Widget
 1. To create a widget, make an new html file in your site's "/widgets" folder. (Tribune should have created this for you if it didn't exist yet.) Place some tags inside!
 ```html
 <!-- example: widgets/widget-name.html -->
@@ -24,7 +25,23 @@ Tribune allows you to build widgets - reusable pieces of html that you can place
 ```html
 <widget-name></widget-name>
 ```
-1. The content of the widget should appear wherever you placed it on the page!
+3. The content of the widget should appear wherever you placed it on the page! If you're wondering what widgets look like in action, just look at this site's navbar - it's being placed on every page using a widget!
+
+### How To Style A Widget
+The widget will appear on your page as a `div` element with a data attribute denoting its name, like this:
+```html
+<div data-widget="widget-name">
+	[...whatever you put in the widget]
+</div>
+```
+
+You can select a widget for styling using a `data-widget` selector, like so:
+```css
+[data-widget="widget-name"] {
+	[...put your styles here!]
+}
+```
+
 
 ## Blogging 
 

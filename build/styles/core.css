@@ -1,12 +1,12 @@
 html {
   --text-color: #230903;
-  --bg-dark: #584f47;
+  --bg-dark: #716458;
   --bg-light: #8c7455;
-  --accent-color: #e7ea3d;
+  --accent-color: #c9cc31;
 
   --header-font: "Playfair Display", serif;
   --text-font: "Garamond", serif;
-  font-size: 18px;
+  font-size: 20px;
 }
 
 * {

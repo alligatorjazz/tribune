@@ -16,3 +16,20 @@ blockquote p {
 article h1 {
 	font-size: 2rem;
 }
+
+article .markdown-tags {
+	display: flex;
+	flex-direction: row;
+	gap: 0.25rem;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+article .markdown-tags li::after {
+	content: ",";
+}
+
+article .markdown-tags li:last-of-type::after {
+	content: "";
+}
