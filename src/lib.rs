@@ -31,7 +31,7 @@ pub enum BuildType {
 
 pub type GenericResult<T> = Result<T, Box<dyn std::error::Error>>;
 
-const DEFAULT_IGNORE: [&str; 8] = [
+const DEFAULT_IGNORE: [&str; 9] = [
     "build",
     ".git",
     ".gitignore",
@@ -40,6 +40,7 @@ const DEFAULT_IGNORE: [&str; 8] = [
     ".tribunelock",
     ".vscode",
     ".DS_Store",
+    "widgets",
 ];
 
 const BUILD_IGNORE: [&str; 4] = ["templates", "posts", ".tribuneignore", "widgets"];
@@ -92,7 +93,7 @@ pub fn get_ignored(level: IgnoreLevel) -> Vec<String> {
     ignored
 }
 
-pub fn create_program_files() -> GenericResult<()> {
+pub fn create_program_files(wipe: bool) -> GenericResult<()> {
     // check if tribune has been run / .tribunelock exists
     if !Path::exists(Path::new(".tribunelock")) {
         println!("Hey! I see it's your first time running Tribune.");
@@ -109,7 +110,7 @@ pub fn create_program_files() -> GenericResult<()> {
 
     // wipe build folder if it exists
     // println!("Creating build folder...");
-    if Path::exists(Path::new("build")) {
+    if Path::exists(Path::new("build")) && wipe {
         fs::remove_dir_all("build")?;
     }
 
@@ -126,7 +127,7 @@ pub fn get_build_path(path: &Path) -> Result<PathBuf, BuildError> {
         });
     }
     match diff_paths(path, root) {
-        Some(diff_path) => Ok(Path::new("./build").join(diff_path)),
+        Some(diff_path) => Ok(Path::new("build").join(diff_path)),
         None => Err(BuildError::Unknown {
             path: path.to_path_buf(),
         }),
@@ -141,6 +142,7 @@ pub fn load_vdom(path: &Path) -> GenericResult<Vec<Node>> {
 
 pub fn build_file(path: &Path, build_type: BuildType) -> GenericResult<()> {
     let build_path = get_build_path(path)?;
+
     match build_type {
         BuildType::HTML => {
             let page_with_scripts = attach_widgets(load_vdom(path)?)?;
