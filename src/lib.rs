@@ -7,11 +7,13 @@ use std::{
 use error::BuildError;
 use gray_matter::{engine::YAML, Matter};
 use html_editor::{parse, Node};
+use markdown::{build_markdown, load_markdown};
 use pathdiff::diff_paths;
-use posts::{build_markdown, load_markdown};
 use walkdir::WalkDir;
 use widgets::attach_widgets;
+
 pub mod error;
+pub mod markdown;
 pub mod posts;
 pub mod site;
 pub mod widgets;
