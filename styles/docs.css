@@ -33,3 +33,8 @@ article .markdown-tags li::after {
 article .markdown-tags li:last-of-type::after {
 	content: "";
 }
+
+pre {
+	padding: 1rem;
+	background-color: var(--bg-dark);
+}

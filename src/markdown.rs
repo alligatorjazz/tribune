@@ -125,7 +125,7 @@ pub fn build_markdown(to: &Path, markdown: MarkdownPage) -> GenericResult<()> {
                                 };
                                 strings.push(
                                     Node::new_element(
-                                        "h1",
+                                        "div",
                                         vec![("class", "markdown-title")],
                                         vec![Node::Text(title)],
                                     )

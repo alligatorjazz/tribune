@@ -3,8 +3,9 @@ use std::path::Path;
 use notify::RecommendedWatcher;
 
 use crate::{
-    build_dir, build_file, create_program_files, get_ignored, posts::build_posts, BuildType,
-    GenericResult, IgnoreLevel,
+    build_dir, build_file, create_program_files, get_ignored,
+    posts::{build_posts, get_posts, get_posts_with_template},
+    BuildType, GenericResult, IgnoreLevel,
 };
 
 pub fn build_site(wipe: bool) -> GenericResult<()> {
@@ -16,14 +17,14 @@ pub fn build_site(wipe: bool) -> GenericResult<()> {
 
     // copies all site files into tribune folder
     build_dir(&Path::new(".").canonicalize().unwrap())?;
-    build_posts()?;
+    build_posts(get_posts()?)?;
     Ok(())
 }
 
 pub fn build_watcher() -> GenericResult<RecommendedWatcher> {
     // Automatically select the best implementation for your platform.
-    let watcher =
-        notify::recommended_watcher(|res: Result<notify::Event, notify::Error>| match res {
+    let watcher = notify::recommended_watcher(
+        |res: Result<notify::Event, notify::Error>| match res {
             Ok(event) => {
                 for path in event.paths {
                     if path.is_dir() {
@@ -35,14 +36,30 @@ pub fn build_watcher() -> GenericResult<RecommendedWatcher> {
                     // that actually use the templates / widgets being changed and only rebuild them
                     if let Ok(template_path) = Path::new("templates").canonicalize() {
                         if path.starts_with(template_path) {
-                            let _ = build_site(false);
+                            println!("changed template at {path:?}");
+                            if let Some(changed_template) = path.file_stem().unwrap().to_str() {
+                                if let Ok(changed_posts) = get_posts_with_template(changed_template)
+                                {
+                                    let post_names: Vec<String> = changed_posts
+                                        .iter()
+                                        .map(|post| post.slug.clone())
+                                        .collect();
+                                    println!("rebuilding posts: {post_names:?}");
+                                    let _ = build_posts(changed_posts);
+                                } else {
+                                    println!("Somehow, the filename for one of your templates ({path:?}) isn't valid unicode. No clue how this would happen - send me a bug report if you can.")
+                                }
+                            } else {
+                                println!("Couldn't get template name from {path:?} - make sure the filename is valid")
+                            }
                             break;
                         }
                     }
 
                     if let Ok(widget_path) = Path::new("widgets").canonicalize() {
                         if path.starts_with(widget_path) {
-                            let _ = build_site(false);
+                            // let _ = build_site(false);
+                            println!("todo: rebuild pages with widget");
                             break;
                         }
                     }
@@ -78,6 +95,7 @@ pub fn build_watcher() -> GenericResult<RecommendedWatcher> {
                 }
             }
             Err(e) => println!("Watch Error: {:?}", e),
-        })?;
+        },
+    )?;
     Ok(watcher)
 }
