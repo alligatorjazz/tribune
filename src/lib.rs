@@ -9,6 +9,7 @@ use gray_matter::{engine::YAML, Matter};
 use html_editor::{parse, Node};
 use markdown::{build_markdown, load_markdown};
 use pathdiff::diff_paths;
+use serde::{Deserialize, Serialize};
 use walkdir::WalkDir;
 use widgets::attach_widgets;
 
@@ -33,13 +34,27 @@ pub enum BuildType {
 
 pub type GenericResult<T> = Result<T, Box<dyn std::error::Error>>;
 
+const CONFIG_FILE_PATH: &str = "tribuneconfig.json";
+
+#[derive(Serialize, Deserialize, Debug)]
+struct RSSConfig {
+    title: String,
+    link: String,
+    description: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Config {
+    rss: RSSConfig,
+}
+
 const DEFAULT_IGNORE: [&str; 9] = [
     "build",
     ".git",
     ".gitignore",
     "tribune",
     "tribune.exe",
-    ".tribunelock",
+    "tribuneconfig.json",
     ".vscode",
     ".DS_Store",
     "widgets",
@@ -95,9 +110,30 @@ pub fn get_ignored(level: IgnoreLevel) -> Vec<String> {
     ignored
 }
 
+fn create_config() -> GenericResult<()> {
+    Ok(fs::write(
+        CONFIG_FILE_PATH,
+        r#"
+		{
+			"rss": {
+				"title": "N/A",
+				"link": "N/A",
+				"description": "N/A"
+			}
+		}
+	"#,
+    )?)
+}
+
+pub fn read_config() -> GenericResult<Config> {
+    let buffer = fs::read(CONFIG_FILE_PATH)?;
+    let config: Config = serde_json::from_slice(&buffer)?;
+    Ok(config)
+}
+
 pub fn create_program_files(wipe: bool) -> GenericResult<()> {
-    // check if tribune has been run / .tribunelock exists
-    if !Path::exists(Path::new(".tribunelock")) {
+    // check if tribune has been run / tribuneconfig.json exists
+    if !Path::exists(Path::new("tribuneconfig.json")) {
         println!("Hey! I see it's your first time running Tribune.");
         println!("Tribune needs access to a folder in your site called \"build\" to do its thing.");
         println!("Every time you run Tribune, it's going to wipe the \"build\" folder and recreate it again.");
@@ -107,7 +143,7 @@ pub fn create_program_files(wipe: bool) -> GenericResult<()> {
         stdout().flush().unwrap();
         let mut input = String::new();
         io::stdin().read_line(&mut input).unwrap();
-        fs::write(".tribunelock", "todo").unwrap();
+        create_config().unwrap();
     }
 
     // wipe build folder if it exists

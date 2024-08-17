@@ -2,10 +2,11 @@ use std::{fs, path::Path};
 
 use gray_matter::{engine::YAML, Matter};
 use html_editor::{operation::Htmlifiable, Node};
+use rss::Channel;
 
 use crate::{
     markdown::{build_markdown, load_markdown, MarkdownPage},
-    GenericResult,
+    read_config, GenericResult,
 };
 
 pub fn generate_post_widget() -> GenericResult<String> {
@@ -81,6 +82,7 @@ pub fn get_posts_with_template(template: &str) -> GenericResult<Vec<MarkdownPage
 
     Ok(posts_with_template)
 }
+
 pub fn build_posts(posts: Vec<MarkdownPage>) -> GenericResult<()> {
     let posts_path = Path::new("posts");
 
@@ -91,4 +93,9 @@ pub fn build_posts(posts: Vec<MarkdownPage>) -> GenericResult<()> {
     }
 
     Ok(())
+}
+
+pub fn generate_rss_feed() {
+    println!("just printing the config file for now");
+    println!("{:?}", read_config());
 }
