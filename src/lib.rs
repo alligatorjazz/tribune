@@ -38,14 +38,14 @@ const CONFIG_FILE_PATH: &str = "tribuneconfig.json";
 
 #[derive(Serialize, Deserialize, Debug)]
 struct RSSConfig {
-    title: String,
-    link: String,
-    description: String,
+    title: Option<String>,
+    link: Option<String>,
+    description: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Config {
-    rss: RSSConfig,
+    rss: Option<RSSConfig>,
 }
 
 const DEFAULT_IGNORE: [&str; 9] = [
@@ -116,9 +116,9 @@ fn create_config() -> GenericResult<()> {
         r#"
 		{
 			"rss": {
-				"title": "N/A",
-				"link": "N/A",
-				"description": "N/A"
+				// "title": "your blog's title!",
+				// "link": "your blog's link!",
+				// "description": "your blog's description!"
 			}
 		}
 	"#,

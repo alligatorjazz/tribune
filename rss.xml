@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0">
+	<channel>
+		<title>Tribune</title>
+		<link>https://tribune.neocities.org/</link>
+		<description>Updates and patch notes for Tribune.</description>
+		<item>
+			<title>test post 2</title>
+			<link>https://tribune.neocities.org/posts/test2</link>
+			<description><![CDATA[i am a big guy]]></description>
+			<guid>https://tribune.neocities.org/posts/test2</guid>
+			<pubDate>04/26/2001</pubDate>
+		</item>
+		<item>
+			<title>test post 1</title>
+			<link>https://tribune.neocities.org/posts/test1</link>
+			<description><![CDATA[i am a little guy]]></description>
+			<guid>https://tribune.neocities.org/posts/test1</guid>
+			<pubDate>04/25/2001</pubDate>
+		</item>
+	</channel>
+</rss>

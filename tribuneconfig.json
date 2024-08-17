@@ -1,9 +1,7 @@
-
-		{
-			"rss": {
-				"title": "N/A",
-				"link": "N/A",
-				"description": "N/A"
-			}
-		}
-	
+{
+	"rss": {
+		"title": "Tribune",
+		"link": "https://tribune.neocities.org/",
+		"description": "Updates and patch notes for Tribune."
+	}
+}
