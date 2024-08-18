@@ -21,9 +21,9 @@ pub mod widgets;
 
 #[derive(PartialEq, Eq)]
 pub enum IgnoreLevel {
-    WATCH,
-    MARKDOWN,
-    BUILD,
+    Watch,
+    Markdown,
+    Build,
 }
 
 #[derive(PartialEq, Eq, Debug)]
@@ -82,11 +82,11 @@ const IGNORE_FILE: &str = ".tribuneignore";
 pub fn get_ignored(level: IgnoreLevel) -> Vec<String> {
     let mut ignored: Vec<String> = DEFAULT_IGNORE.iter().copied().map(String::from).collect();
 
-    if level == IgnoreLevel::MARKDOWN {
+    if level == IgnoreLevel::Markdown {
         ignored.append(&mut MARKDOWN_IGNORE.iter().copied().map(String::from).collect());
     }
 
-    if level == IgnoreLevel::BUILD {
+    if level == IgnoreLevel::Build {
         ignored.append(&mut MARKDOWN_IGNORE.iter().copied().map(String::from).collect());
         ignored.append(&mut BUILD_IGNORE.iter().copied().map(String::from).collect());
     }
@@ -219,7 +219,7 @@ pub fn build_dir(dir: &Path) -> GenericResult<()> {
             Ok(entry) => {
                 let path = entry.path();
                 let mut copy_path = true;
-                for ignored in get_ignored(IgnoreLevel::BUILD) {
+                for ignored in get_ignored(IgnoreLevel::Build) {
                     let ignore_path = fs::canonicalize(ignored);
                     if ignore_path.is_ok()
                         && fs::canonicalize(path)

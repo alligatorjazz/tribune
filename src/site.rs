@@ -61,7 +61,7 @@ pub fn build_watcher() -> GenericResult<RecommendedWatcher> {
                     }
 
                     let mut copy_file = true;
-                    let ignored_paths = get_ignored(IgnoreLevel::WATCH);
+                    let ignored_paths = get_ignored(IgnoreLevel::Watch);
                     for ignored_path in ignored_paths {
                         if let Ok(ignored) = Path::new(&ignored_path).canonicalize() {
                             if path.starts_with(ignored) {

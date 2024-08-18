@@ -32,6 +32,11 @@ impl fmt::Display for MarkdownPage {
     }
 }
 
+pub enum MarkdownSearch {
+    All,
+    PagesOnly,
+}
+
 pub fn load_markdown(
     path: &Path,
     parser: &Matter<YAML>,
@@ -225,7 +230,7 @@ pub fn build_markdown(to: &Path, markdown: MarkdownPage) -> GenericResult<()> {
 }
 
 // gets all the markdown pages from across the entire site, posts or otherwise
-pub fn get_markdown_pages(dir: &Path) -> Vec<MarkdownPage> {
+pub fn get_markdown_pages(dir: &Path, search: MarkdownSearch) -> Vec<MarkdownPage> {
     let mut result: Vec<MarkdownPage> = vec![];
     let parser = Matter::<YAML>::new();
     for dir_entry in WalkDir::new(dir) {
@@ -236,7 +241,12 @@ pub fn get_markdown_pages(dir: &Path) -> Vec<MarkdownPage> {
         let path = entry.path();
         let mut is_valid = true;
         // special ignore check that actuallly INCLUDES the post folder
-        for ignored in get_ignored(IgnoreLevel::MARKDOWN) {
+        let ignore_level = match search {
+            MarkdownSearch::All => IgnoreLevel::Markdown,
+            MarkdownSearch::PagesOnly => IgnoreLevel::Build,
+        };
+
+        for ignored in get_ignored(ignore_level) {
             let Ok(ignore_path) = fs::canonicalize(ignored) else {
                 continue;
             };
