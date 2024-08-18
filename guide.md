@@ -39,14 +39,16 @@ Tribune allows you to build widgets - reusable pieces of html that you can place
 The widget will appear on your page as a `div` element with a data attribute denoting its name, like this:
 
 ```html
-<div data-widget="widget-name">[...whatever you put in the widget]</div>
+<div data-widget="widget-name">
+	<!-- content goes here -->
+</div>
 ```
 
 You can select a widget for styling using a `data-widget` selector, like so:
 
 ```css
 [data-widget="widget-name"] {
-	[...put your styles here!]
+	/* styles go here */
 }
 ```
 
@@ -56,7 +58,7 @@ Tribune provides you the ability to write your site's pages in Markdown. For tho
 
 Writing text-heavy portions of your site in Markdown is several orders of magnitude faster and more convenient than trying to do so in HTML, and Tribune seeks to allow you to do so easily (case in point: this very page is written in Markdown!)
 
-> 💡 **Info:** For more information about Markdown specifically, see [Markdownguide.org](https://www.Markdownguide.org/getting-started/).
+> 💡 **Info:** For more information about Markdown specifically, see [markdownguide.org](https://www.markdownguide.org/getting-started/).
 
 To write pages in Markdown, first you must create a **template**. Templates are normal HTML pages in every way except for one: they have access to several built-in widgets that allow you to tell Tribune where to put Markdown content.
 
@@ -86,13 +88,14 @@ That's it. It's a normal HTML page in every way except that it's using two widge
 
 To tell Tribune what template to use, you use what's called **frontmatter** in your Markdown file. Here's an example from `guide.md`, the file this page was generated from:
 
-```Markdown
+```
+<!-- guide.md -->
 ---
 <!-- frontmatter goes between the dashes! -->
 template: docs
 ---
-
-# Quick Start <!-- content starts here -->
+<!-- content starts below -->
+# Quick Start 
 
 > ❗️ **Note:** Tribune assumes the landing page of your site is a file in your site's root titled `index.html`. If this isn't the case, rename your landing page to this before continuing - otherwise Tribune won't run.
 
@@ -100,52 +103,75 @@ template: docs
 
 ```
 
-First, you make the Markdown file (`guide.md` in this case), then, you simply write your frontmatter in the format `[property]: [value]` fenced in between three dashes (`---`) (`template: docs`, in this case). 
+First, you make the Markdown file (`guide.md` in this case), then, you simply write your frontmatter in the format `[property]: [value]` fenced in between three dashes (`template: docs`, in this case).
 
-That's it! Now, I can apply styles to my Markdown files like any other HTML file. If you want to know what Markdown features translate to which HTML elements in order to style them, you can see a list [here](https://www.Markdownguide.org/basic-syntax/). (You can also open the source code of this page in your browser's developer tools and just look with your eyeballs, if you prefer that.)
+That's it! Now, I can apply styles to my Markdown files like any other HTML file. If you want to know what Markdown features translate to which HTML elements in order to style them, you can see a list [here](https://www.markdownguide.org/basic-syntax/). (You can also open the source code of this page in your browser's developer tools and just look with your eyeballs, if you prefer that.)
 
 ## Blogging
+
 All of the features discussed in the [Markdown](#Markdown) section also help with blogging, but there are several additional features that Tribune provides that are specifically intended to ease the process of blogging on Neocities.
 
 ### Widgets for Blogging
+
 In addition to the built-in`<markdown-body>` widget, there's also `<markdown-title>`, `<markdown-date>`, and `<markdown-description>`. The job of these widgets is to take information from your Markdown frontmatter and place them on the page as style-able items. For example, here is the "post" template for this site:
- 
+
 ```html
 <!DOCTYPE html>
 <html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Tribune</title>
-	<link rel="stylesheet" href="/styles/core.css">
-	<link rel="stylesheet" href="/styles/docs.css">
-</head>
-<body>
-	<nav-bar></nav-bar>
-	<article>
-		<markdown-title></markdown-title>
-		<markdown-date></markdown-date>
-		<markdown-description></markdown-description>
-		<markdown-body></markdown-body>
-	</article>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tribune</title>
+    <link rel="stylesheet" href="/styles/core.css" />
+    <link rel="stylesheet" href="/styles/docs.css" />
+  </head>
+  <body>
+    <nav-bar></nav-bar>
+    <article>
+      <markdown-title></markdown-title>
+      <markdown-date></markdown-date>
+      <markdown-description></markdown-description>
+      <markdown-body></markdown-body>
+    </article>
+  </body>
 </html>
 ```
 
-As you can see, it's basically exactly the same as the "docs" template, only with the additional blogging widgets. The blogging widgets all appear on the finished side as `<div>` tags with the class `markdown-[property]` - so `<markdown-title>` can be styled by selecting `div.markdown-title`, `<markdown-date>` can be styled by selecting `div.markdown-date`, and so on. 
+As you can see, it's basically exactly the same as the "docs" template, only with the additional blogging widgets. The blogging widgets all appear on the finished side as `<div>` tags with the class `markdown-[property]` - so `<markdown-title>` can be styled by selecting `div.markdown-title`, `<markdown-date>` can be styled by selecting `div.markdown-date`, and so on.
 
 > 💡 **Info:** Templates don't care whether they're being used on a blog post or on some other type of Markdown page. They're always referenced the same way: `template: [template-name]` in your frontmatter.
 
 ### The <post-list> widget
-The built-in `<post-list>` widget has only one job: give you a list (in the form of a `<ul>` tag) with all your blog posts in it. How does Tribune know what Markdown files are supposed to be blog posts? Well, it looks for a "posts" folder in your site's root, and it assumes every Markdown file in there is a blog post. It's that simple.
+
+The built-in `<post-list>` widget has only one job: give you a list (in the form of a `<ul>` tag) with all your blog posts in it. To find out what Markdown files are supposed to be blog posts, Tribune looks for a "posts" folder in your site's root, and it assumes every Markdown file in there is a blog post. It's that simple.
 
 > ❗️ **Note:** Tribune doesn't assume you're a blogger, so it doesn't create this folder for you. You can create it at any time, though.
 
 The reason why the "posts" folder is important is because the `<post-list>` folder will use it to create its list of posts. The widget will try its best to sort the posts in reverse-chronological order based on the "date" field in their frontmatter and then places an `<li>` item for each one containing the post title, date, and description - with all three of them being wrapped in an `<a>` tag that links to your post.
 
 For the moment, the widget doesn't support more advanced organization like tags or pagination, but those many come in future releases (and some simple CSS and JS may solve your immediate problems in the meantime).
+
 ### RSS
-<!-- TODO: write rss section -->
+Tribune can automatically generate an RSS for your blog, but it requires just a tiny bit of configuration.
+
+When Tribune first launches, it will create a file in your root folder called `tribuneconfig.json`. This file lets you configure certain options for Tribune, including your RSS feed. By default, the file looks like this: 
+```jsonc
+{
+	"rss": {
+		// "title": "your blog's title!",
+		// "link": "your blog's link!",
+		// "description": "your blog's description!"
+	}
+}
+```
+
+In order to set up your feed, just uncomment (remove the double slashes at he beginning) the three lines within the `rss` object - then, fill them in as follows:
+- `title`: The title of your site or blog.
+- `link`: The base url for your site or blog. In most cases, this should be `https://[your-username].neocities.org`. For those with custom domains, it'll be `https://[your-custom-domain].[your-TLD]`.
+- `description` (optional): The description for your site or blog. This property is optional - if you don't pick one, Tribune will simply set it to `The RSS feed for [your-site-domain]`.
+
+Once you've set those properties, reset Tribune and it should spit out a working `rss.xml` for your blog that you can use as an RSS feed. The `rss.xml` will be automatically populated with any posts in your `posts` folder.
+
 # Philosophy
 
 ## Who is Tribune for?

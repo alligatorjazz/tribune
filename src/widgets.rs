@@ -45,7 +45,7 @@ pub fn attach_widgets(mut vdom: Vec<Node>) -> GenericResult<String> {
                 widgets.push(load_widget(path)?);
             }
             Err(err) => {
-                println!("Tribune couldn't read all the widgets in your `./widgets` folder - make sure it has the permissions to view it and that there's no funky (i.e. non-HTML) file types in there.\n{}", err);
+                println!("Tribune couldn't read all the widgets in your `./widgets` folder - make sure it has the permissions to view it and that there's no non-HTML file types in there.\n{}", err);
             }
         }
     }
@@ -58,8 +58,6 @@ pub fn attach_widgets(mut vdom: Vec<Node>) -> GenericResult<String> {
                 vec![Node::Text(format!("\n{}\n", widget.content.clone()))],
             );
 
-            // println!("widget html:\n{}", widget_element.html());
-
             let name = &widget.name;
             let mut target_indexes: Vec<usize> = Vec::new();
 
@@ -67,7 +65,6 @@ pub fn attach_widgets(mut vdom: Vec<Node>) -> GenericResult<String> {
                 let result = node.as_element_mut();
                 if result.is_some() {
                     let target = result.unwrap();
-                    // TODO: check if this works? if not just set every attribute individually
                     if &target.name == name {
                         target_indexes.push(i);
                         continue;

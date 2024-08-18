@@ -4,6 +4,7 @@
 <html>
 
 
+
 <head>
 
 	
@@ -25,6 +26,7 @@ Tribune
 
 
 </head>
+
 
 
 <body>
@@ -96,12 +98,14 @@ Tribune
 
 <p>The widget will appear on your page as a <code>div</code> element with a data attribute denoting its name, like this:</p>
 
-<pre><code class="language-html">&lt;div data-widget=&quot;widget-name&quot;&gt;[...whatever you put in the widget]&lt;/div&gt;</code></pre>
+<pre><code class="language-html">&lt;div data-widget=&quot;widget-name&quot;&gt;
+	&lt;!-- content goes here --&gt;
+&lt;/div&gt;</code></pre>
 
 <p>You can select a widget for styling using a <code>data-widget</code> selector, like so:</p>
 
 <pre><code class="language-css">[data-widget=&quot;widget-name&quot;] {
-	[...put your styles here!]
+	/* styles go here */
 }</code></pre>
 
 <h2 id="markdown">Markdown</h2>
@@ -111,7 +115,7 @@ Tribune
 <p>Writing text-heavy portions of your site in Markdown is several orders of magnitude faster and more convenient than trying to do so in HTML, and Tribune seeks to allow you to do so easily (case in point: this very page is written in Markdown!)</p>
 
 <blockquote>
-<p>💡 <strong>Info:</strong> For more information about Markdown specifically, see <a href="https://www.Markdownguide.org/getting-started/">Markdownguide.org</a>.</p>
+<p>💡 <strong>Info:</strong> For more information about Markdown specifically, see <a href="https://www.markdownguide.org/getting-started/">markdownguide.org</a>.</p>
 </blockquote>
 
 <p>To write pages in Markdown, first you must create a <strong>template</strong>. Templates are normal HTML pages in every way except for one: they have access to several built-in widgets that allow you to tell Tribune where to put Markdown content.</p>
@@ -140,49 +144,49 @@ Tribune
 
 <p>To tell Tribune what template to use, you use what&#8217;s called <strong>frontmatter</strong> in your Markdown file. Here&#8217;s an example from <code>guide.md</code>, the file this page was generated from:</p>
 
-<h2 id="`_markdown"><code>`</code>Markdown</h2>
+<pre><code>&lt;!-- guide.md --&gt;
+---
+&lt;!-- frontmatter goes between the dashes! --&gt;
+template: docs
+---
+&lt;!-- content starts below --&gt;
+# Quick Start
 
-<p>&lt;!-- frontmatter goes between the dashes! --&gt;</p>
+&gt; ❗️ **Note:** Tribune assumes the landing page of your site is a file in your site&#8217;s root titled `index.html`. If this isn&#8217;t the case, rename your landing page to this before continuing - otherwise Tribune won&#8217;t run.
 
-<h2 id="template:_docs">template: docs</h2>
+&lt;!-- ...the rest of the content --&gt;</code></pre>
 
-<h1 id="quick_start_<!--_content_starts_here_-->">Quick Start &lt;!-- content starts here --&gt;</h1>
+<p>First, you make the Markdown file (<code>guide.md</code> in this case), then, you simply write your frontmatter in the format <code>[property]: [value]</code> fenced in between three dashes (<code>template: docs</code>, in this case).</p>
 
-<blockquote>
-<p>❗️ <strong>Note:</strong> Tribune assumes the landing page of your site is a file in your site&#8217;s root titled <code>index.html</code>. If this isn&#8217;t the case, rename your landing page to this before continuing - otherwise Tribune won&#8217;t run.</p>
-</blockquote>
+<p>That&#8217;s it! Now, I can apply styles to my Markdown files like any other HTML file. If you want to know what Markdown features translate to which HTML elements in order to style them, you can see a list <a href="https://www.markdownguide.org/basic-syntax/">here</a>. (You can also open the source code of this page in your browser&#8217;s developer tools and just look with your eyeballs, if you prefer that.)</p>
 
-<p>&lt;!-- ...the rest of the content --&gt;</p>
+<h2 id="blogging">Blogging</h2>
 
-<pre><code>First, you make the Markdown file (`guide.md` in this case), then, you simply write your frontmatter in the format `[property]: [value]` fenced in between three dashes (`---`) (`template: docs`, in this case).
+<p>All of the features discussed in the <a href="#Markdown">Markdown</a> section also help with blogging, but there are several additional features that Tribune provides that are specifically intended to ease the process of blogging on Neocities.</p>
 
-That&#8217;s it! Now, I can apply styles to my Markdown files like any other HTML file. If you want to know what Markdown features translate to which HTML elements in order to style them, you can see a list [here](https://www.Markdownguide.org/basic-syntax/). (You can also open the source code of this page in your browser&#8217;s developer tools and just look with your eyeballs, if you prefer that.)
+<h3 id="widgets_for_blogging">Widgets for Blogging</h3>
 
-## Blogging
-All of the features discussed in the [Markdown](#Markdown) section also help with blogging, but there are several additional features that Tribune provides that are specifically intended to ease the process of blogging on Neocities.
+<p>In addition to the built-in<code>&lt;markdown-body&gt;</code> widget, there&#8217;s also <code>&lt;markdown-title&gt;</code>, <code>&lt;markdown-date&gt;</code>, and <code>&lt;markdown-description&gt;</code>. The job of these widgets is to take information from your Markdown frontmatter and place them on the page as style-able items. For example, here is the &quot;post&quot; template for this site:</p>
 
-### Widgets for Blogging
-In addition to the built-in`&lt;markdown-body&gt;` widget, there&#8217;s also `&lt;markdown-title&gt;`, `&lt;markdown-date&gt;`, and `&lt;markdown-description&gt;`. The job of these widgets is to take information from your Markdown frontmatter and place them on the page as style-able items. For example, here is the &quot;post&quot; template for this site:</code></pre>
-
-<p>&lt;!DOCTYPE html&gt; &lt;html lang=&quot;en&quot;&gt; &lt;head&gt;</p>
-
-<pre><code>&lt;meta charset=&quot;UTF-8&quot;&gt;
-&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
-&lt;title&gt;Tribune&lt;/title&gt;
-&lt;link rel=&quot;stylesheet&quot; href=&quot;/styles/core.css&quot;&gt;
-&lt;link rel=&quot;stylesheet&quot; href=&quot;/styles/docs.css&quot;&gt;</code></pre>
-
-<p>&lt;/head&gt; &lt;body&gt;</p>
-
-<pre><code>&lt;nav-bar&gt;&lt;/nav-bar&gt;
-&lt;article&gt;
-	&lt;markdown-title&gt;&lt;/markdown-title&gt;
-	&lt;markdown-date&gt;&lt;/markdown-date&gt;
-	&lt;markdown-description&gt;&lt;/markdown-description&gt;
-	&lt;markdown-body&gt;&lt;/markdown-body&gt;
-&lt;/article&gt;</code></pre>
-
-<p>&lt;/body&gt; &lt;/html&gt; <code>`</code></p>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+  &lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot; /&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+    &lt;title&gt;Tribune&lt;/title&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;/styles/core.css&quot; /&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;/styles/docs.css&quot; /&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;nav-bar&gt;&lt;/nav-bar&gt;
+    &lt;article&gt;
+      &lt;markdown-title&gt;&lt;/markdown-title&gt;
+      &lt;markdown-date&gt;&lt;/markdown-date&gt;
+      &lt;markdown-description&gt;&lt;/markdown-description&gt;
+      &lt;markdown-body&gt;&lt;/markdown-body&gt;
+    &lt;/article&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
 
 <p>As you can see, it&#8217;s basically exactly the same as the &quot;docs&quot; template, only with the additional blogging widgets. The blogging widgets all appear on the finished side as <code>&lt;div&gt;</code> tags with the class <code>markdown-[property]</code> - so <code>&lt;markdown-title&gt;</code> can be styled by selecting <code>div.markdown-title</code>, <code>&lt;markdown-date&gt;</code> can be styled by selecting <code>div.markdown-date</code>, and so on.</p>
 
@@ -192,7 +196,7 @@ In addition to the built-in`&lt;markdown-body&gt;` widget, there&#8217;s also `&
 
 <h3 id="the_<post-list>_widget">The &lt;post-list&gt; widget</h3>
 
-<p>The built-in <code>&lt;post-list&gt;</code> widget has only one job: give you a list (in the form of a <code>&lt;ul&gt;</code> tag) with all your blog posts in it. How does Tribune know what Markdown files are supposed to be blog posts? Well, it looks for a &quot;posts&quot; folder in your site&#8217;s root, and it assumes every Markdown file in there is a blog post. It&#8217;s that simple.</p>
+<p>The built-in <code>&lt;post-list&gt;</code> widget has only one job: give you a list (in the form of a <code>&lt;ul&gt;</code> tag) with all your blog posts in it. To find out what Markdown files are supposed to be blog posts, Tribune looks for a &quot;posts&quot; folder in your site&#8217;s root, and it assumes every Markdown file in there is a blog post. It&#8217;s that simple.</p>
 
 <blockquote>
 <p>❗️ <strong>Note:</strong> Tribune doesn&#8217;t assume you&#8217;re a blogger, so it doesn&#8217;t create this folder for you. You can create it at any time, though.</p>
@@ -204,7 +208,29 @@ In addition to the built-in`&lt;markdown-body&gt;` widget, there&#8217;s also `&
 
 <h3 id="rss">RSS</h3>
 
-<p>&lt;!-- TODO: write rss section --&gt;</p>
+<p>Tribune can automatically generate an RSS for your blog, but it requires just a tiny bit of configuration.</p>
+
+<p>When Tribune first launches, it will create a file in your root folder called <code>tribuneconfig.json</code>. This file lets you configure certain options for Tribune, including your RSS feed. By default, the file looks like this:</p>
+
+<pre><code class="language-jsonc">{
+	&quot;rss&quot;: {
+		// &quot;title&quot;: &quot;your blog&#8217;s title!&quot;,
+		// &quot;link&quot;: &quot;your blog&#8217;s link!&quot;,
+		// &quot;description&quot;: &quot;your blog&#8217;s description!&quot;
+	}
+}</code></pre>
+
+<p>In order to set up your feed, just uncomment (remove the double slashes at he beginning) the three lines within the <code>rss</code> object - then, fill them in as follows:</p>
+
+<ul>
+<li><code>title</code>: The title of your site or blog.</li>
+
+<li><code>link</code>: The base url for your site or blog. In most cases, this should be <code>https://[your-username].neocities.org</code>. For those with custom domains, it&#8217;ll be <code>https://[your-custom-domain].[your-TLD]</code>.</li>
+
+<li><code>description</code> (optional): The description for your site or blog. This property is optional - if you don&#8217;t pick one, Tribune will simply set it to <code>The RSS feed for [your-site-domain]</code>.</li>
+</ul>
+
+<p>Once you&#8217;ve set those properties, reset Tribune and it should spit out a working <code>rss.xml</code> for your blog that you can use as an RSS feed. The <code>rss.xml</code> will be automatically populated with any posts in your <code>posts</code> folder.</p>
 
 <h1 id="philosophy">Philosophy</h1>
 
@@ -244,8 +270,18 @@ In addition to the built-in`&lt;markdown-body&gt;` widget, there&#8217;s also `&
 	
 </article>
 
+	
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/highlight.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+	
+<link rel="stylesheet" href="/styles/lib/kimbie-dark.css">
+
+	
+<script>hljs.highlightAll();</script>
+
 
 </body>
+
 
 
 </html>

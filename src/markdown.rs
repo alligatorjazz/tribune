@@ -1,12 +1,12 @@
-use std::{fs, path::Path};
+use std::{fmt, fs, path::Path};
 
 use gray_matter::{engine::YAML, Matter};
 use html_editor::{operation::Htmlifiable, parse, Doctype, Node};
 use serde::{Deserialize, Serialize};
+use walkdir::WalkDir;
 
-use crate::{widgets::attach_widgets, GenericResult};
+use crate::{get_ignored, widgets::attach_widgets, GenericResult, IgnoreLevel};
 
-// TODO: implement publish dates
 #[derive(Serialize, Deserialize, Debug)]
 pub struct MarkdownPageMetadata {
     pub title: Option<String>,
@@ -15,16 +15,26 @@ pub struct MarkdownPageMetadata {
     pub template: Option<String>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct MarkdownPage {
     pub metadata: MarkdownPageMetadata,
     pub content: String,
     pub slug: String,
 }
+impl fmt::Display for MarkdownPage {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let template = match &self.metadata.template {
+            Some(name) => name,
+            None => "N/A",
+        };
+
+        write!(f, "MarkdownPage({}, template: {})", self.slug, template)
+    }
+}
 
 pub fn load_markdown(
     path: &Path,
-    parser: Matter<YAML>,
+    parser: &Matter<YAML>,
 ) -> Result<MarkdownPage, Box<dyn std::error::Error>> {
     let read = fs::read(path)?;
     let file_content = String::from_utf8(read)?;
@@ -42,7 +52,6 @@ pub fn load_markdown(
 }
 
 pub fn build_markdown(to: &Path, markdown: MarkdownPage) -> GenericResult<()> {
-    // println!("building markdown...");
     let vars = &markdown.metadata;
     let template = match &vars.template {
         Some(name) => name,
@@ -67,6 +76,11 @@ pub fn build_markdown(to: &Path, markdown: MarkdownPage) -> GenericResult<()> {
 
     let mut strings: Vec<String> = Vec::new();
 
+    println!(
+        "building markdown page {} with template {}",
+        markdown.slug, template
+    );
+
     fn process_nodes(
         nodes: Vec<Node>,
         strings: &mut Vec<String>,
@@ -76,6 +90,11 @@ pub fn build_markdown(to: &Path, markdown: MarkdownPage) -> GenericResult<()> {
         for node in nodes {
             match node {
                 Node::Element(element) => {
+                    if element.name == "script" {
+                        strings.push(element.html());
+                        continue;
+                    }
+
                     if !element.children.is_empty() {
                         strings.push(format!("<{}>", element.name));
                         process_nodes(element.children, strings, title, markdown);
@@ -189,8 +208,6 @@ pub fn build_markdown(to: &Path, markdown: MarkdownPage) -> GenericResult<()> {
     let base_file_content = strings.join("\n");
     let new_file_content = attach_widgets(parse(&base_file_content)?)?;
 
-    // TODO: get relative path for build
-
     let out_path = {
         let mut p = to.to_path_buf();
         p.set_extension("html");
@@ -205,4 +222,42 @@ pub fn build_markdown(to: &Path, markdown: MarkdownPage) -> GenericResult<()> {
             Err(Box::new(err))
         }
     }
+}
+
+// gets all the markdown pages from across the entire site, posts or otherwise
+pub fn get_markdown_pages(dir: &Path) -> Vec<MarkdownPage> {
+    let mut result: Vec<MarkdownPage> = vec![];
+    let parser = Matter::<YAML>::new();
+    for dir_entry in WalkDir::new(dir) {
+        let Ok(entry) = dir_entry else {
+            println!("There was an error accessing at least one directory in your site folder - ensure Tribune has the correct permissions.");
+            continue;
+        };
+        let path = entry.path();
+        let mut is_valid = true;
+        // special ignore check that actuallly INCLUDES the post folder
+        for ignored in get_ignored(IgnoreLevel::MARKDOWN) {
+            let Ok(ignore_path) = fs::canonicalize(ignored) else {
+                continue;
+            };
+            if fs::canonicalize(path).unwrap().starts_with(ignore_path) {
+                is_valid = false;
+                break;
+            }
+        }
+
+        let Some(extension) = path.extension() else {
+            continue;
+        };
+
+        if is_valid && path.is_file() && (extension == "md" || extension == "mdx") {
+            let Ok(page) = load_markdown(path, &parser) else {
+                println!("Could not load markdown page from {path:?}.");
+                continue;
+            };
+            result.push(page);
+        }
+    }
+
+    result
 }

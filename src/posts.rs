@@ -1,8 +1,8 @@
-use std::{fs, mem::transmute, path::Path};
+use std::{fs, path::Path};
 
 use gray_matter::{engine::YAML, Matter};
 use html_editor::{operation::Htmlifiable, Node};
-use rss::{ChannelBuilder, Guid, GuidBuilder, Item};
+use rss::{ChannelBuilder, GuidBuilder, Item};
 use url::Url;
 
 use crate::{
@@ -55,13 +55,14 @@ pub fn generate_post_widget() -> GenericResult<String> {
 
 pub fn get_posts() -> GenericResult<Vec<MarkdownPage>> {
     let mut posts: Vec<MarkdownPage> = Vec::new();
+    let parser = Matter::<YAML>::new();
     let posts_path = Path::new("posts");
     let entries = fs::read_dir(posts_path)?;
     for entry in entries {
         let path = entry?.path();
         if path.is_file() && path.extension().is_some() && path.extension().unwrap() == "md" {
             // println!("loading post: {:?}", path);
-            if let Ok(page) = load_markdown(&path, Matter::<YAML>::new()) {
+            if let Ok(page) = load_markdown(&path, &parser) {
                 posts.push(page)
             } else {
                 println!("Error loading file {path:?} as markdown, skipping")
@@ -72,23 +73,31 @@ pub fn get_posts() -> GenericResult<Vec<MarkdownPage>> {
     Ok(posts)
 }
 
+// TODO: find a way to get *all* markdown files with a given template, not just posts
 pub fn get_posts_with_template(template: &str) -> GenericResult<Vec<MarkdownPage>> {
     let all_posts = get_posts()?;
     let mut posts_with_template: Vec<MarkdownPage> = Vec::new();
     for post in all_posts {
-        if post.metadata.template == Some(template.to_string()) {
-            posts_with_template.push(post)
+        if let Some(post_template) = &post.metadata.template {
+            if post_template == &template.to_string() {
+                posts_with_template.push(post)
+            }
         }
     }
 
+    println!(
+        "changing users of template {}: {:?}",
+        template,
+        [&posts_with_template]
+    );
     Ok(posts_with_template)
 }
 
+// TODO: fix bug where posts are not being rebuilt on template change
 pub fn build_posts(posts: Vec<MarkdownPage>) -> GenericResult<()> {
     let posts_path = Path::new("posts");
 
     for post in posts {
-        println!("building post: {:?}", post.slug);
         let filename = format!("{}.html", post.slug);
         build_markdown(&Path::new("build").join(posts_path).join(&filename), post)?
     }
@@ -114,7 +123,7 @@ pub fn generate_rss_feed() -> GenericResult<()> {
     };
 
     let Some(link) = rss.link else {
-        println!("You need to specify your site's url (usually https://[your-username].neocities.org) in the \"link\" field of your RSS config for Tribune to build the feed properly. You can set this in tribuneconfig.json.");
+        println!("You need to specify your site's URL (usually https://[your-username].neocities.org) in the \"link\" field of your RSS config for Tribune to build the RSS feed properly. You can set this in tribuneconfig.json.");
         return Ok(());
     };
 
@@ -127,20 +136,20 @@ pub fn generate_rss_feed() -> GenericResult<()> {
             item.set_pub_date(post.metadata.date);
             item.set_description(post.metadata.description);
 
-            let post_link = Url::parse(&link)?
-                .join("posts/")?
-                .join(&post.slug)?
-                .to_string();
+            let Ok(raw_post_link) = Url::parse(&link) else {
+                println!("Your RSS \"link\" property is malformed. Make sure it's a valid URL - you can check this in tribuneconfig.json.");
+                return Ok(());
+            };
 
+            let post_link = raw_post_link.join("posts/")?.join(&post.slug)?.to_string();
             // TODO: find out why isPermalink refuses to be set
             item.set_link(post_link.clone());
             let guid = GuidBuilder::default()
                 .value(post_link)
                 .permalink(true)
                 .build();
-            println!("{:?}", guid);
-            item.set_guid(guid);
 
+            item.set_guid(guid);
             result.push(item);
         }
 
@@ -158,5 +167,5 @@ pub fn generate_rss_feed() -> GenericResult<()> {
         .items(items)
         .build();
 
-    Ok(fs::write("rss.xml", channel.to_string())?)
+    Ok(fs::write("build/rss.xml", channel.to_string())?)
 }

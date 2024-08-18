@@ -22,6 +22,7 @@ pub mod widgets;
 #[derive(PartialEq, Eq)]
 pub enum IgnoreLevel {
     WATCH,
+    MARKDOWN,
     BUILD,
 }
 
@@ -60,7 +61,8 @@ const DEFAULT_IGNORE: [&str; 9] = [
     "widgets",
 ];
 
-const BUILD_IGNORE: [&str; 4] = ["templates", "posts", ".tribuneignore", "widgets"];
+const MARKDOWN_IGNORE: [&str; 3] = ["templates", ".tribuneignore", "widgets"];
+const BUILD_IGNORE: [&str; 1] = ["posts"];
 
 const DEBUG_IGNGORE: [&str; 10] = [
     "src",
@@ -80,8 +82,12 @@ const IGNORE_FILE: &str = ".tribuneignore";
 pub fn get_ignored(level: IgnoreLevel) -> Vec<String> {
     let mut ignored: Vec<String> = DEFAULT_IGNORE.iter().copied().map(String::from).collect();
 
-    // add extra ignores when checking ignore list on build
+    if level == IgnoreLevel::MARKDOWN {
+        ignored.append(&mut MARKDOWN_IGNORE.iter().copied().map(String::from).collect());
+    }
+
     if level == IgnoreLevel::BUILD {
+        ignored.append(&mut MARKDOWN_IGNORE.iter().copied().map(String::from).collect());
         ignored.append(&mut BUILD_IGNORE.iter().copied().map(String::from).collect());
     }
 
@@ -180,15 +186,13 @@ pub fn load_vdom(path: &Path) -> GenericResult<Vec<Node>> {
 
 pub fn build_file(path: &Path, build_type: BuildType) -> GenericResult<()> {
     let build_path = get_build_path(path)?;
-
+    let parser = Matter::<YAML>::new();
     match build_type {
         BuildType::HTML => {
             let page_with_scripts = attach_widgets(load_vdom(path)?)?;
             fs::write(build_path, page_with_scripts)?
         }
-        BuildType::Markdown => {
-            build_markdown(&build_path, load_markdown(path, Matter::<YAML>::new())?)?
-        }
+        BuildType::Markdown => build_markdown(&build_path, load_markdown(path, &parser)?)?,
         BuildType::Other => {
             // make all intermediate folders before continuing
             match build_path.parent() {

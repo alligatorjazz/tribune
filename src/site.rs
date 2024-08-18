@@ -8,6 +8,7 @@ use crate::{
     BuildType, GenericResult, IgnoreLevel,
 };
 
+// TODO: rate-limit refreshing
 pub fn build_site(wipe: bool) -> GenericResult<()> {
     create_program_files(wipe)?;
     // check that index.html exists specifically
@@ -36,15 +37,10 @@ pub fn build_watcher() -> GenericResult<RecommendedWatcher> {
                     // that actually use the templates / widgets being changed and only rebuild them
                     if let Ok(template_path) = Path::new("templates").canonicalize() {
                         if path.starts_with(template_path) {
-                            println!("changed template at {path:?}");
                             if let Some(changed_template) = path.file_stem().unwrap().to_str() {
+                                println!("changed template {changed_template}");
                                 if let Ok(changed_posts) = get_posts_with_template(changed_template)
                                 {
-                                    let post_names: Vec<String> = changed_posts
-                                        .iter()
-                                        .map(|post| post.slug.clone())
-                                        .collect();
-                                    println!("rebuilding posts: {post_names:?}");
                                     let _ = build_posts(changed_posts);
                                 } else {
                                     println!("Somehow, the filename for one of your templates ({path:?}) isn't valid unicode. No clue how this would happen - send me a bug report if you can.")
