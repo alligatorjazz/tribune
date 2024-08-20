@@ -1,0 +1,29 @@
+main {
+  padding: 2rem;
+}
+#major-story {
+  margin: auto;
+  max-width: 900px;
+  text-align: center;
+  font-size: 1.2rem;
+  padding: 2rem;
+  border: 5px double var(--text-color);
+}
+
+#major-story h1 {
+  font-size: 3rem;
+  margin: 0;
+}
+
+#major-story h2 {
+  font-size: 1.75rem;
+  margin-bottom: 0;
+  padding: 1rem;
+  border: 1px solid var(--text-color);
+  text-align: center;
+}
+
+#major-story button {
+  padding: 1rem;
+  font-size: 1.2rem;
+}

@@ -1,4 +1,7 @@
-use std::{fmt, fs, path::Path};
+use std::{
+    fmt, fs,
+    path::{Path, PathBuf},
+};
 
 use gray_matter::{engine::YAML, Matter};
 use html_editor::{operation::Htmlifiable, parse, Doctype, Node};
@@ -21,6 +24,7 @@ pub struct MarkdownPage {
     pub content: String,
     pub slug: String,
 }
+
 impl fmt::Display for MarkdownPage {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let template = match &self.metadata.template {
@@ -30,6 +34,11 @@ impl fmt::Display for MarkdownPage {
 
         write!(f, "MarkdownPage({}, template: {})", self.slug, template)
     }
+}
+
+pub struct MarkdownSearchResult {
+    pub page: MarkdownPage,
+    pub path: PathBuf,
 }
 
 pub enum MarkdownSearch {
@@ -56,7 +65,7 @@ pub fn load_markdown(
     }
 }
 
-pub fn build_markdown(to: &Path, markdown: MarkdownPage) -> GenericResult<()> {
+pub fn build_markdown(to: &Path, markdown: &MarkdownPage) -> GenericResult<()> {
     let vars = &markdown.metadata;
     let template = match &vars.template {
         Some(name) => name,
@@ -208,7 +217,7 @@ pub fn build_markdown(to: &Path, markdown: MarkdownPage) -> GenericResult<()> {
             }
         }
     }
-    process_nodes(tdom, &mut strings, title, &markdown);
+    process_nodes(tdom, &mut strings, title, markdown);
 
     let base_file_content = strings.join("\n");
     let new_file_content = attach_widgets(parse(&base_file_content)?)?;
@@ -219,8 +228,8 @@ pub fn build_markdown(to: &Path, markdown: MarkdownPage) -> GenericResult<()> {
         p
     };
 
-    fs::create_dir_all(out_path.parent().unwrap())?;
-    match fs::write(&out_path, new_file_content) {
+    println!("nodes processed for {}", title);
+    match fs::write(out_path, new_file_content) {
         Ok(_) => Ok(()),
         Err(err) => {
             // println!("Could not write markdown file to {:?}.\n{}", out_path, err);
@@ -230,8 +239,8 @@ pub fn build_markdown(to: &Path, markdown: MarkdownPage) -> GenericResult<()> {
 }
 
 // gets all the markdown pages from across the entire site, posts or otherwise
-pub fn get_markdown_pages(dir: &Path, search: MarkdownSearch) -> Vec<MarkdownPage> {
-    let mut result: Vec<MarkdownPage> = vec![];
+pub fn get_markdown_pages(dir: &Path, search: MarkdownSearch) -> Vec<MarkdownSearchResult> {
+    let mut result: Vec<MarkdownSearchResult> = vec![];
     let parser = Matter::<YAML>::new();
     for dir_entry in WalkDir::new(dir) {
         let Ok(entry) = dir_entry else {
@@ -265,7 +274,10 @@ pub fn get_markdown_pages(dir: &Path, search: MarkdownSearch) -> Vec<MarkdownPag
                 println!("Could not load markdown page from {path:?}.");
                 continue;
             };
-            result.push(page);
+            result.push(MarkdownSearchResult {
+                page,
+                path: path.to_path_buf(),
+            });
         }
     }
 

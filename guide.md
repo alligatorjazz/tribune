@@ -152,7 +152,7 @@ The reason why the "posts" folder is important is because the `<post-list>` fold
 For the moment, the widget doesn't support more advanced organization like tags or pagination, but those many come in future releases (and some simple CSS and JS may solve your immediate problems in the meantime).
 
 ### RSS
-Tribune can automatically generate an RSS for your blog, but it requires just a tiny bit of configuration.
+Tribune can automatically generate an RSS feed for your blog, but it requires just a tiny bit of configuration.
 
 When Tribune first launches, it will create a file in your root folder called `tribuneconfig.json`. This file lets you configure certain options for Tribune, including your RSS feed. By default, the file looks like this: 
 ```jsonc

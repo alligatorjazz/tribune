@@ -95,11 +95,15 @@ pub fn get_posts_with_template(template: &str) -> GenericResult<Vec<MarkdownPage
 
 // TODO: fix bug where posts are not being rebuilt on template change
 pub fn build_posts(posts: Vec<MarkdownPage>) -> GenericResult<()> {
-    let posts_path = Path::new("posts");
+    let build_dir = {
+        let path = Path::new("build").join("posts");
+        fs::create_dir_all(&path)?;
+        path
+    };
 
     for post in posts {
         let filename = format!("{}.html", post.slug);
-        build_markdown(&Path::new("build").join(posts_path).join(&filename), post)?
+        build_markdown(&build_dir.join(&filename), &post)?
     }
 
     Ok(())

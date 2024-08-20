@@ -192,7 +192,7 @@ pub fn build_file(path: &Path, build_type: BuildType) -> GenericResult<()> {
             let page_with_scripts = attach_widgets(load_vdom(path)?)?;
             fs::write(build_path, page_with_scripts)?
         }
-        BuildType::Markdown => build_markdown(&build_path, load_markdown(path, &parser)?)?,
+        BuildType::Markdown => build_markdown(&build_path, &load_markdown(path, &parser)?)?,
         BuildType::Other => {
             // make all intermediate folders before continuing
             match build_path.parent() {
@@ -232,6 +232,7 @@ pub fn build_dir(dir: &Path) -> GenericResult<()> {
                 }
 
                 if copy_path && path.is_file() {
+                    println!("building file: {:?}", path);
                     let build_type = match path.extension() {
                         Some(extension) => match extension.to_str() {
                             Some("html") => BuildType::HTML,
@@ -246,5 +247,7 @@ pub fn build_dir(dir: &Path) -> GenericResult<()> {
             Err(err) => println!("Could not build file: {}", err),
         }
     }
+
+    println!("finished build for dir {:?}", dir);
     Ok(())
 }

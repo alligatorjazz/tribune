@@ -4,7 +4,8 @@ use notify::RecommendedWatcher;
 
 use crate::{
     build_dir, build_file, create_program_files, get_ignored,
-    posts::{build_posts, get_posts, get_posts_with_template},
+    markdown::{build_markdown, get_markdown_pages, MarkdownSearch},
+    posts::{build_posts, generate_rss_feed, get_posts},
     BuildType, GenericResult, IgnoreLevel,
 };
 
@@ -38,12 +39,24 @@ pub fn build_watcher() -> GenericResult<RecommendedWatcher> {
                     if let Ok(template_path) = Path::new("templates").canonicalize() {
                         if path.starts_with(template_path) {
                             if let Some(changed_template) = path.file_stem().unwrap().to_str() {
-                                println!("changed template {changed_template}");
-                                if let Ok(changed_posts) = get_posts_with_template(changed_template)
-                                {
-                                    let _ = build_posts(changed_posts);
-                                } else {
-                                    println!("Somehow, the filename for one of your templates ({path:?}) isn't valid unicode. No clue how this would happen - send me a bug report if you can.")
+                                let markdown_search =
+                                    get_markdown_pages(Path::new("."), MarkdownSearch::All);
+                                for result in markdown_search {
+                                    let Some(page_template) = &result.page.metadata.template else {
+                                        continue;
+                                    };
+                                    if page_template == changed_template {
+                                        match build_markdown(&result.path, &result.page) {
+                                            Ok(_) => println!(
+                                                "Rebuilt {} because its template {} changed",
+                                                result.page.slug, page_template
+                                            ),
+                                            Err(_) => println!(
+                                                "Failed to rebuild markdown page {} on template change ({}).",
+                                                result.page.slug, page_template
+                                            ),
+                                        }
+                                    }
                                 }
                             } else {
                                 println!("Couldn't get template name from {path:?} - make sure the filename is valid")
@@ -80,14 +93,20 @@ pub fn build_watcher() -> GenericResult<RecommendedWatcher> {
                     if let Some(extension) = path.extension() {
                         let _ = match extension.to_str().unwrap() {
                             "html" => build_file(&path, BuildType::HTML),
-                            "md" | "mdx" => build_file(&path, BuildType::Markdown),
+                            "md" | "mdx" => match build_file(&path, BuildType::Markdown) {
+                                Ok(_) => generate_rss_feed(),
+                                Err(_) => {
+                                    println!("Failed to build markdown file {:?}", &path);
+                                    Ok(())
+                                }
+                            },
                             _ => build_file(&path, BuildType::Other),
                         };
                     } else {
                         let _ = build_file(&path, BuildType::Other);
                     }
 
-                    println!("Changed {path:?}, refreshing")
+                    println!("Changed {path:?}, refreshing");
                 }
             }
             Err(e) => println!("Watch Error: {:?}", e),

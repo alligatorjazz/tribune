@@ -2,6 +2,7 @@ use notify::{RecursiveMode, Watcher};
 use std::path::Path;
 use tribune::{
     get_ignored,
+    posts::generate_rss_feed,
     site::{build_site, build_watcher},
     GenericResult,
 };
@@ -10,6 +11,7 @@ const DEV_URL: &str = "http://localhost:8080";
 
 fn main() -> GenericResult<()> {
     build_site(true)?;
+    generate_rss_feed()?;
     println!("Starting watcher...");
     println!(
         "Ignoring files: {:?}",
