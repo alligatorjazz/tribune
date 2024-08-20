@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::{env, path::Path};
 
 use notify::RecommendedWatcher;
 
@@ -6,6 +6,7 @@ use crate::{
     build_dir, build_file, create_program_files, get_ignored,
     markdown::{build_markdown, get_markdown_pages, MarkdownSearch},
     posts::{build_posts, generate_rss_feed, get_posts},
+    widgets::get_pages_with_element,
     BuildType, GenericResult, IgnoreLevel,
 };
 
@@ -93,13 +94,40 @@ pub fn build_watcher() -> GenericResult<RecommendedWatcher> {
                     if let Some(extension) = path.extension() {
                         let _ = match extension.to_str().unwrap() {
                             "html" => build_file(&path, BuildType::HTML),
-                            "md" | "mdx" => match build_file(&path, BuildType::Markdown) {
-                                Ok(_) => generate_rss_feed(),
-                                Err(_) => {
-                                    println!("Failed to build markdown file {:?}", &path);
-                                    Ok(())
+                            "md" | "mdx" => {
+                                match build_file(&path, BuildType::Markdown) {
+                                    Ok(_) => {
+                                        // TODO: only regenerate rss for paths in the post directory
+                                        match generate_rss_feed() {
+                                            Ok(_) => println!("Regenerated RSS feed."),
+                                            Err(e) => {
+                                                println!("Could not regenerate RSS feed. {}", e)
+                                            }
+                                        }
+                                        // regenerate pages with the post-list widget
+                                        let post_list_pages = get_pages_with_element(
+                                            &env::current_dir().unwrap(),
+                                            "post-list",
+                                        );
+                                        for page in post_list_pages {
+                                            match build_file(&page, BuildType::HTML) {
+                                                Ok(_) => println!(
+                                                    "Rebuilding {:?} because post-list has changed.",
+                                                    page
+                                                ),
+                                                Err(e) => {
+                                                    println!("Could not rebuild {:?} with new post-list changes. {e}", page)
+                                                }
+                                            }
+                                        }
+                                        Ok(())
+                                    }
+                                    Err(_) => {
+                                        println!("Failed to build markdown file {:?}", &path);
+                                        Ok(())
+                                    }
                                 }
-                            },
+                            }
                             _ => build_file(&path, BuildType::Other),
                         };
                     } else {

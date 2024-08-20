@@ -1,6 +1,9 @@
-use crate::{posts::generate_post_widget, GenericResult};
+use crate::{get_ignored, posts::generate_post_widget, GenericResult, IgnoreLevel};
 use html_editor::{operation::Htmlifiable, Node};
-use std::{fs, path::Path};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 use walkdir::WalkDir;
 
 #[derive(Debug, PartialEq, Eq)]
@@ -85,4 +88,51 @@ pub fn attach_widgets(mut vdom: Vec<Node>) -> GenericResult<String> {
     }
 
     Ok(vdom.html())
+}
+
+pub fn get_pages_with_element(dir: &Path, tag: &str) -> Vec<PathBuf> {
+    let mut paths: Vec<PathBuf> = vec![];
+    for dir_entry in WalkDir::new(dir) {
+        let Ok(entry) = dir_entry else {
+            println!("There was an error accessing at least one directory in your site folder - ensure Tribune has the correct permissions.");
+            continue;
+        };
+        let path = entry.path();
+        let mut is_valid = true;
+        // special ignore check that actuallly INCLUDES the post folder
+
+        for ignored in get_ignored(IgnoreLevel::Build) {
+            let Ok(ignore_path) = fs::canonicalize(ignored) else {
+                continue;
+            };
+            if fs::canonicalize(path).unwrap().starts_with(ignore_path) {
+                is_valid = false;
+                break;
+            }
+        }
+
+        let Some(extension) = path.extension() else {
+            continue;
+        };
+
+        if is_valid && path.is_file() && extension == "html" {
+            let Ok(bytes) = fs::read(path) else {
+                println!("Couldn't load bytes for {:?}", path);
+                continue;
+            };
+
+            let Ok(content) = String::from_utf8(bytes) else {
+                println!("Couldn't load content for {:?}", path);
+                continue;
+            };
+
+            // TODO: replace this crude pattern match with an actual html search
+            let pattern = format!("<{tag}>");
+            if content.contains(&pattern) {
+                paths.push(path.to_path_buf())
+            }
+        }
+    }
+
+    paths
 }

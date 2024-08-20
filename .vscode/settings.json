@@ -3,5 +3,9 @@
 		"markdownguide",
 		"Neocities",
 		"tribuneconfig"
-	]
+	],
+	"search.exclude": {
+		"**/build": true,
+		"**/dist": true
+	}
 }

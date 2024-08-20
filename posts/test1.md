@@ -1,6 +1,6 @@
 ---
 template: post
-title: test post 1
+title: Tribune Alpha Now
 date: 04/25/2001
 description: i am a little guy
 ---
