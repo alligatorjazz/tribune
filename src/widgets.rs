@@ -1,5 +1,8 @@
-use crate::{get_ignored, posts::generate_post_widget, GenericResult, IgnoreLevel};
-use html_editor::{operation::Htmlifiable, Node};
+use crate::{get_ignored, load_vdom, posts::generate_post_widget, GenericResult, IgnoreLevel};
+use html_editor::{
+    operation::{Htmlifiable, Queryable, Selector},
+    Node,
+};
 use std::{
     fs,
     path::{Path, PathBuf},
@@ -116,19 +119,14 @@ pub fn get_pages_with_element(dir: &Path, tag: &str) -> Vec<PathBuf> {
         };
 
         if is_valid && path.is_file() && extension == "html" {
-            let Ok(bytes) = fs::read(path) else {
-                println!("Couldn't load bytes for {:?}", path);
+            let Ok(vdom) = load_vdom(path) else {
+                println!("Could not analyze HTML for {path:?}. Check that everything is formatted correctly.");
                 continue;
             };
 
-            let Ok(content) = String::from_utf8(bytes) else {
-                println!("Couldn't load content for {:?}", path);
-                continue;
-            };
-
-            // TODO: replace this crude pattern match with an actual html search
-            let pattern = format!("<{tag}>");
-            if content.contains(&pattern) {
+            let selector = Selector::from(tag);
+            let widget_is_present = vdom.query(&selector).is_some();
+            if widget_is_present {
                 paths.push(path.to_path_buf())
             }
         }

@@ -19,7 +19,7 @@ pub fn build_site(wipe: bool) -> GenericResult<()> {
     }
 
     // copies all site files into tribune folder
-    build_dir(&Path::new(".").canonicalize().unwrap())?;
+    build_dir(&env::current_dir().unwrap())?;
     build_posts(get_posts()?)?;
     Ok(())
 }
@@ -66,10 +66,26 @@ pub fn build_watcher() -> GenericResult<RecommendedWatcher> {
                         }
                     }
 
+                    // if a widget was changed, rebuild all the files that use it.
+
                     if let Ok(widget_path) = Path::new("widgets").canonicalize() {
-                        if path.starts_with(widget_path) {
-                            // let _ = build_site(false);
-                            println!("todo: rebuild pages with widget");
+                        if path.starts_with(&widget_path) {
+                            let Some(widget_tag) = path.file_stem() else {
+                                println!("Could not get widget name from {widget_path:?}");
+                                break;
+                            };
+
+                            let changed_paths = get_pages_with_element(
+                                &env::current_dir().unwrap(),
+                                widget_tag.to_str().unwrap(),
+                            );
+                            println!("{:?}", changed_paths);
+                            for changed_path in changed_paths {
+                                match build_file(&changed_path, BuildType::HTML) {
+                                    Ok(_) => println!("Rebuilt {changed_path:?} due to widget change ({widget_tag:?}"),
+                                    Err(_) => println!("Could not rebuild {changed_path:?} on widget change ({widget_tag:?}"),
+                                }
+                            }
                             break;
                         }
                     }

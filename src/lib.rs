@@ -49,7 +49,7 @@ pub struct Config {
     rss: Option<RSSConfig>,
 }
 
-const DEFAULT_IGNORE: [&str; 9] = [
+const DEFAULT_IGNORE: [&str; 8] = [
     "build",
     ".git",
     ".gitignore",
@@ -58,11 +58,10 @@ const DEFAULT_IGNORE: [&str; 9] = [
     "tribuneconfig.json",
     ".vscode",
     ".DS_Store",
-    "widgets",
 ];
 
-const MARKDOWN_IGNORE: [&str; 3] = ["templates", ".tribuneignore", "widgets"];
-const BUILD_IGNORE: [&str; 1] = ["posts"];
+const MARKDOWN_IGNORE: [&str; 2] = ["templates", ".tribuneignore"];
+const BUILD_IGNORE: [&str; 2] = ["posts", "widgets"];
 
 const DEBUG_IGNGORE: [&str; 10] = [
     "src",
