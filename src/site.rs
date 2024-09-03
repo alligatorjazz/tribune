@@ -35,8 +35,6 @@ pub fn build_watcher() -> GenericResult<RecommendedWatcher> {
                     }
 
                     // rebuild entire site on template change
-                    // TODO: make it so this isn't neccesary lmao - just get the list of files
-                    // that actually use the templates / widgets being changed and only rebuild them
                     if let Ok(template_path) = Path::new("templates").canonicalize() {
                         if path.starts_with(template_path) {
                             if let Some(changed_template) = path.file_stem().unwrap().to_str() {
@@ -81,11 +79,21 @@ pub fn build_watcher() -> GenericResult<RecommendedWatcher> {
                             );
                             println!("{:?}", changed_paths);
                             for changed_path in changed_paths {
-                                match build_file(&changed_path, BuildType::HTML) {
-                                    Ok(_) => println!("Rebuilt {changed_path:?} due to widget change ({widget_tag:?}"),
-                                    Err(_) => println!("Could not rebuild {changed_path:?} on widget change ({widget_tag:?}"),
+                                let res = match changed_path.extension() {
+                                    Some(extension) => match extension.to_str().unwrap() {
+                                        "html" => build_file(&changed_path, BuildType::HTML),
+                                        "md" => build_file(&changed_path, BuildType::Markdown),
+                                        _ => build_file(&changed_path, BuildType::Other),
+                                    },
+                                    None => build_file(&changed_path, BuildType::Other),
+                                };
+
+                                match res {
+									Ok(_) =>println!("Rebuilt {changed_path:?} due to widget change ({widget_tag:?})"),
+									Err(_) => println!("Could not rebuild {changed_path:?} on widget change ({widget_tag:?})"),
                                 }
                             }
+
                             break;
                         }
                     }

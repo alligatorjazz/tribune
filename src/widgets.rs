@@ -1,4 +1,8 @@
-use crate::{get_ignored, load_vdom, posts::generate_post_widget, GenericResult, IgnoreLevel};
+use crate::{
+    get_ignored, load_vdom, markdown::load_markdown, posts::generate_post_widget, GenericResult,
+    IgnoreLevel,
+};
+use gray_matter::{engine::YAML, Matter};
 use html_editor::{
     operation::{Htmlifiable, Queryable, Selector},
     Node,
@@ -93,6 +97,7 @@ pub fn attach_widgets(mut vdom: Vec<Node>) -> GenericResult<String> {
     Ok(vdom.html())
 }
 
+// TODO: ensure markdown pages with elements are also searched
 pub fn get_pages_with_element(dir: &Path, tag: &str) -> Vec<PathBuf> {
     let mut paths: Vec<PathBuf> = vec![];
     for dir_entry in WalkDir::new(dir) {
@@ -118,9 +123,35 @@ pub fn get_pages_with_element(dir: &Path, tag: &str) -> Vec<PathBuf> {
             continue;
         };
 
-        if is_valid && path.is_file() && extension == "html" {
-            let Ok(vdom) = load_vdom(path) else {
-                println!("Could not analyze HTML for {path:?}. Check that everything is formatted correctly.");
+        let parser = Matter::<YAML>::new();
+
+        if is_valid && path.is_file() {
+            let target_path = match extension.to_str() {
+                Some("html") => path.to_path_buf(),
+                Some("md") => {
+                    let Ok(markdown) = load_markdown(path, &parser) else {
+                        println!("Could not analyze Markdown for {path:?}. Check that everything is formatted correctly.");
+                        continue;
+                    };
+
+                    let Some(template) = markdown.metadata.template else {
+                        println!("Could not get template for {path:?}. Check that everything is formatted correctly.");
+                        continue;
+                    };
+
+                    let template_file = {
+                        let mut clone = template.clone();
+                        clone.push_str(".html");
+                        clone
+                    };
+
+                    Path::new("./templates").join(&template_file).to_path_buf()
+                }
+                _ => continue,
+            };
+
+            let Ok(vdom) = load_vdom(&target_path) else {
+                println!("Could not analyze HTML for {target_path:?}. Check that everything is formatted correctly.");
                 continue;
             };
 
