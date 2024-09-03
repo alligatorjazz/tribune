@@ -110,7 +110,9 @@ template: docs
 <!-- content starts below -->
 # Quick Start
 
-> ❗️ **Note:** Tribune assumes the landing page of your site is a file in your site's root titled `index.html`. If this isn't the case, rename your landing page to this before continuing - otherwise Tribune won't run.
+> ❗️ **Note:** Tribune assumes the landing page of your site is a file in your site's root
+titled `index.html`. If this isn't the case, rename your landing page to this before continuing
+ - otherwise Tribune won't run.
 
 <!-- ...the rest of the content -->
 
@@ -133,7 +135,10 @@ In addition to the built-in`<markdown-body>` widget, there's also `<markdown-tit
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta 
+			name="viewport" 
+			content="width=device-width, initial-scale=1.0" 
+		/>
 		<title>Tribune</title>
 		<link rel="stylesheet" href="/styles/core.css" />
 		<link rel="stylesheet" href="/styles/docs.css" />
