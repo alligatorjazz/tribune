@@ -1,9 +1,19 @@
 # Tribune
+
 Tribune seeks to provide a few quality-of-life features to speed up the process of designing and blogging on Neocities - or any static site hosting provider of your choice.
 
+# Building From Source
+
+For the moment, the only way to use Tribune is to build it from source. Binaries for Linux, Mac, and Windows coming soon.
+
+Luckily, it's simple - just make sure you have [`cargo`](https://github.com/rust-lang/cargo) and [`zip`](https://www.tecmint.com/install-zip-and-unzip-in-linux/) installed and accessible from the command line.
+
+In the repo root folder, run:
+`make`
+...and you're done.
 
 > [!WARNING]
-> Tribune is still very much in beta (< 1.0.0) - there will be bugs! Before downloading, make sure you make a backup of your site first.
+> Tribune is still very much in alpha (< 1.0.0) - there will be bugs! Before downloading, make sure you make a backup of your site first.
 
 # Quick Start
 
@@ -71,19 +81,19 @@ For example, the "docs" template that is used for this guide pages is below:
 <!-- /templates/docs.html -->
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>Tribune</title>
-	<link rel="stylesheet" href="/styles/core.css" />
-	<link rel="stylesheet" href="/styles/docs.css" />
-  </head>
-  <body>
-	<nav-bar></nav-bar>
-	<article>
-	  <markdown-body></markdown-body>
-	</article>
-  </body>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Tribune</title>
+		<link rel="stylesheet" href="/styles/core.css" />
+		<link rel="stylesheet" href="/styles/docs.css" />
+	</head>
+	<body>
+		<nav-bar></nav-bar>
+		<article>
+			<markdown-body></markdown-body>
+		</article>
+	</body>
 </html>
 ```
 
@@ -98,7 +108,7 @@ To tell Tribune what template to use, you use what's called **frontmatter** in y
 template: docs
 ---
 <!-- content starts below -->
-# Quick Start 
+# Quick Start
 
 > ❗️ **Note:** Tribune assumes the landing page of your site is a file in your site's root titled `index.html`. If this isn't the case, rename your landing page to this before continuing - otherwise Tribune won't run.
 
@@ -121,22 +131,22 @@ In addition to the built-in`<markdown-body>` widget, there's also `<markdown-tit
 ```html
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>Tribune</title>
-	<link rel="stylesheet" href="/styles/core.css" />
-	<link rel="stylesheet" href="/styles/docs.css" />
-  </head>
-  <body>
-	<nav-bar></nav-bar>
-	<article>
-	  <markdown-title></markdown-title>
-	  <markdown-date></markdown-date>
-	  <markdown-description></markdown-description>
-	  <markdown-body></markdown-body>
-	</article>
-  </body>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Tribune</title>
+		<link rel="stylesheet" href="/styles/core.css" />
+		<link rel="stylesheet" href="/styles/docs.css" />
+	</head>
+	<body>
+		<nav-bar></nav-bar>
+		<article>
+			<markdown-title></markdown-title>
+			<markdown-date></markdown-date>
+			<markdown-description></markdown-description>
+			<markdown-body></markdown-body>
+		</article>
+	</body>
 </html>
 ```
 
@@ -155,9 +165,11 @@ The reason why the "posts" folder is important is because the `<post-list>` fold
 For the moment, the widget doesn't support more advanced organization like tags or pagination, but those many come in future releases (and some simple CSS and JS may solve your immediate problems in the meantime).
 
 ### RSS
+
 Tribune can automatically generate an RSS feed for your blog, but it requires just a tiny bit of configuration.
 
-When Tribune first launches, it will create a file in your root folder called `tribuneconfig.json`. This file lets you configure certain options for Tribune, including your RSS feed. By default, the file looks like this: 
+When Tribune first launches, it will create a file in your root folder called `tribuneconfig.json`. This file lets you configure certain options for Tribune, including your RSS feed. By default, the file looks like this:
+
 ```jsonc
 {
 	"rss": {
@@ -169,9 +181,10 @@ When Tribune first launches, it will create a file in your root folder called `t
 ```
 
 In order to set up your feed, just uncomment (remove the double slashes at he beginning) the three lines within the `rss` object - then, fill them in as follows:
-- `title`: The title of your site or blog.
-- `link`: The base url for your site or blog. In most cases, this should be `https://[your-username].neocities.org`. For those with custom domains, it'll be `https://[your-custom-domain].[your-TLD]`.
-- `description` (optional): The description for your site or blog. This property is optional - if you don't pick one, Tribune will simply set it to `The RSS feed for [your-site-domain]`.
+
+-   `title`: The title of your site or blog.
+-   `link`: The base url for your site or blog. In most cases, this should be `https://[your-username].neocities.org`. For those with custom domains, it'll be `https://[your-custom-domain].[your-TLD]`.
+-   `description` (optional): The description for your site or blog. This property is optional - if you don't pick one, Tribune will simply set it to `The RSS feed for [your-site-domain]`.
 
 Once you've set those properties, reset Tribune and it should spit out a working `rss.xml` for your blog that you can use as an RSS feed. The `rss.xml` will be automatically populated with any posts in your `posts` folder.
 
