@@ -1,6 +1,5 @@
 target
 tribune
-tribune-macos.zip
-tribune-x86_64.zip
+tribune-*.zip
 build
 .DS_Store
